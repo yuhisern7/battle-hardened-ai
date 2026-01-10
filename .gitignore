@@ -68,6 +68,13 @@ server/crypto_keys/private_key.pem
 server/crypto_keys/public_key.pem
 server/crypto_keys/shared_secret.key
 
+# SSL Certificates (auto-generated, never commit private keys!)
+*.pem
+*.key
+*.crt
+server/ssl_cert.pem
+server/ssl_key.pem
+
 # Relay folder (operator-only infrastructure, not for customers)
 relay/
 

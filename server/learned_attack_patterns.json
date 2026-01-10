@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "total_patterns": 2,
+    "total_patterns": 3,
     "total_encodings_detected": 0,
     "total_keywords": 0,
-    "last_updated": "2026-01-10T08:22:17.660475+00:00",
+    "last_updated": "2026-01-10T21:58:42.847633+00:00",
     "architecture": "DEFENSIVE - Patterns only, NO exploit code"
   },
   "encodings_used": {},
@@ -27,6 +27,15 @@
         "encodings": [],
         "regex_patterns": [],
         "first_seen": "2026-01-10T06:56:59.469531+00:00"
+      }
+    ],
+    "UDP Flood Attack": [
+      {
+        "hash": "4f53cda18c2baa0c",
+        "keywords": [],
+        "encodings": [],
+        "regex_patterns": [],
+        "first_seen": "2026-01-10T21:56:33.631022+00:00"
       }
     ]
   }
