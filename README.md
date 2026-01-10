@@ -21,10 +21,12 @@ Explicitly designed around defensive-only operation, privacy preservation, and f
 - ✅ **Native Python**: Required for full network protection
 - ✅ **Web GUI**: Accessible at `https://localhost:60000` when running natively
 - ⚠️ **Important**: Must run `python server.py` directly on host to protect entire network
+- ⚠️ **Enterprise Note**: Windows Public networks block inbound by default - requires IT approval or dedicated security VM
 
 **Summary:**
 - **Linux users**: Use Docker (recommended)
 - **Windows/Mac users**: Must run natively with `python server.py` for network-wide protection
+- **Organizations**: Deploy on Linux or dedicated Windows security appliance with proper network policies
 - **GUI Dashboard**: Available on both Docker (Linux) and native execution (all platforms)
 
 ---
