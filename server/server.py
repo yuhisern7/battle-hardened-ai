@@ -3591,5 +3591,4 @@ if __name__ == '__main__':
         print("[ERROR] SSL certificates required! HTTPS is mandatory.")
         print("[ERROR] Certificates should have been auto-generated. Check OpenSSL installation.")
         raise Exception("SSL certificates required for secure operation")
-            threaded=True
-        )
+
