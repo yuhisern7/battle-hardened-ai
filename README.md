@@ -108,9 +108,10 @@ Battle-Hardened AI is explicitly designed for deployment in high-security and cl
 
 **Zero Access to Customer Data:**
 
-- **No Payload Storage:** The system never retains raw network payloads, file contents, email bodies, database records, or application data
+- **No Customer Payload Storage:** The system never retains raw network payloads of legitimate traffic, file contents, email bodies, database records, or application data
+- **Attack Forensics Stored Locally:** Full attack details (malicious payloads, URLs, headers) are logged LOCALLY in `server/json/threat_log.json` for forensic analysis—YOU control this data, it never leaves your server
+- **Only Patterns Shared to VPS:** Attack signatures (keywords, encodings, pattern hashes) are extracted and sent to VPS for global ML training—NO full payloads, NO customer data
 - **Metadata Only:** Only statistical traffic features are analyzed (packet sizes, timing, connection patterns, protocol flags)
-- **Attack Patterns Only:** We capture threat signatures and behavioral anomalies—never your legitimate business communications or operational data
 - **Local Processing:** All detection and analysis occurs entirely on your server infrastructure—nothing is processed externally
 
 **What Gets Shared (Optional Relay Participation):**
