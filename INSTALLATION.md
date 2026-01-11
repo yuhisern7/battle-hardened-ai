@@ -384,16 +384,16 @@ Accept self-signed SSL certificate warning.
 ```bash
 # Get Windows IP address first
 # From Windows PowerShell: ipconfig | Select-String "IPv4"
-# Example: 192.168.68.111
+# Example: 192.168.1.100 (YOUR_WINDOWS_IP)
 
 # Test FTP honeypot (should show "220 FTP Server Ready" banner)
-telnet 192.168.68.111 2121
+telnet YOUR_WINDOWS_IP 2121
 
 # Test SSH honeypot (should show "SSH-2.0-OpenSSH" banner)
-telnet 192.168.68.111 2222
+telnet YOUR_WINDOWS_IP 2222
 
 # Full TCP connection scan (use -sT for full connect, not SYN scan)
-nmap -sT -p 2121,2222,2323 192.168.68.111
+nmap -sT -p 2121,2222,2323 YOUR_WINDOWS_IP
 ```
 
 **Check attack logs on Windows:**

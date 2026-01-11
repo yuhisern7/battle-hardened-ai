@@ -106,12 +106,12 @@ Both use unified format:
 {
   "blocked_ips": [
     {
-      "ip": "192.168.0.119",
+      "ip": "203.0.113.50",
       "timestamp": "2025-01-15T10:30:00Z",
       "reason": "Threat detection by AI engine"
     },
     {
-      "ip": "10.0.0.50",
+      "ip": "198.51.100.25",
       "timestamp": "2025-01-15T10:35:00Z",
       "reason": "Honeypot SSH brute force"
     }
@@ -157,16 +157,16 @@ cat server/json/blocked_ips.json
 
 # 2. Trigger different attacks from Kali
 # SQL injection
-curl "http://192.168.68.111:60000/api/threats?id=1' OR '1'='1"
+curl "http://TARGET_IP:60000/api/threats?id=1' OR '1'='1"
 
 # XSS
-curl "http://192.168.68.111:60000/api/alerts?q=<script>alert(1)</script>"
+curl "http://TARGET_IP:60000/api/alerts?q=<script>alert(1)</script>"
 
 # Path traversal  
-curl "http://192.168.68.111:60000/api/reports?file=../../../../etc/passwd"
+curl "http://TARGET_IP:60000/api/reports?file=../../../../etc/passwd"
 
 # 3. Verify IP added to blocked_ips.json
-cat server/json/blocked_ips.json | grep "192.168.0.119"
+cat server/json/blocked_ips.json | grep "ATTACKER_IP"
 
 # 4. Check honeypot attacks
 cat server/json/honeypot_attacks.json
