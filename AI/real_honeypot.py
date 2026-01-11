@@ -102,25 +102,28 @@ class HoneypotService:
             # Send banner
             client.send(self.banner)
             
-            # Receive attacker input
+            # Receive attacker input (optional - log connection even if no data sent)
             client.settimeout(5.0)
             data = client.recv(4096)
             
-            if data:
-                attack_data = {
-                    'timestamp': datetime.now(timezone.utc).isoformat(),
-                    'service': self.name,
-                    'port': self.port,
-                    'source_ip': ip,
-                    'input': data.decode('utf-8', errors='ignore'),
-                    'input_hex': data.hex(),
-                    'keywords_matched': [k for k in self.keywords if k.lower() in data.decode('utf-8', errors='ignore').lower()]
-                }
-                
-                # Log attack globally
-                RealHoneypot.log_attack(attack_data)
+            # Log attack - even if no data received (connection attempt itself is suspicious)
+            attack_data = {
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'service': self.name,
+                'port': self.port,
+                'source_ip': ip,
+                'input': data.decode('utf-8', errors='ignore') if data else '',
+                'input_hex': data.hex() if data else '',
+                'keywords_matched': [k for k in self.keywords if k.lower() in data.decode('utf-8', errors='ignore').lower()] if data else []
+            }
+            
+            # Log attack globally
+            RealHoneypot.log_attack(attack_data)
+            print(f"[HONEYPOT] 🎯 Attack logged: {self.name} from {ip} ({len(data) if data else 0} bytes)")
+            logger.info(f"[HONEYPOT] Attack logged: {self.name} from {ip} ({len(data) if data else 0} bytes)")
                 
         except Exception as e:
+            print(f"[HONEYPOT] ⚠️ Client error on {self.name} from {ip}: {e}")
             logger.debug(f"[HONEYPOT] Client error on {self.name} from {ip}: {e}")
         finally:
             try:
@@ -273,6 +276,54 @@ class RealHoneypot:
         
         # Extract attack pattern for relay distribution
         instance._extract_pattern(attack_data)
+        
+        # Block the attacker's IP
+        instance._block_attacker_ip(attack_data['source_ip'])
+    
+    def _block_attacker_ip(self, ip: str):
+        """Block attacker IP in blocked_ips.json"""
+        try:
+            # Don't block localhost/private IPs (for testing)
+            if ip.startswith('127.') or ip.startswith('192.168.') or ip.startswith('10.') or ip.startswith('172.'):
+                logger.debug(f"[HONEYPOT] Skipping block for private IP: {ip}")
+                return
+            
+            blocked_ips_file = os.path.join(os.path.dirname(__file__), '..', 'server', 'json', 'blocked_ips.json')
+            
+            # Load existing blocked IPs
+            blocked_data = {'blocked_ips': []}
+            if os.path.exists(blocked_ips_file):
+                try:
+                    with open(blocked_ips_file, 'r') as f:
+                        blocked_data = json.load(f)
+                except:
+                    pass
+            
+            # Check if already blocked
+            existing_ips = [entry.get('ip') for entry in blocked_data.get('blocked_ips', [])]
+            if ip in existing_ips:
+                return
+            
+            # Add new blocked IP
+            blocked_entry = {
+                'ip': ip,
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+                'reason': 'Honeypot attack attempt',
+                'source': 'honeypot',
+                'permanent': True
+            }
+            
+            blocked_data['blocked_ips'].append(blocked_entry)
+            
+            # Save back
+            with open(blocked_ips_file, 'w') as f:
+                json.dump(blocked_data, f, indent=2)
+            
+            print(f"[HONEYPOT] 🚫 Blocked attacker IP: {ip}")
+            logger.info(f"[HONEYPOT] Blocked attacker IP: {ip}")
+            
+        except Exception as e:
+            logger.error(f"[HONEYPOT] Failed to block IP {ip}: {e}")
     
     def _extract_pattern(self, attack_data: Dict):
         """Extract attack pattern and prepare for relay distribution"""

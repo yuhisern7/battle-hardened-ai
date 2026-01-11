@@ -443,11 +443,39 @@ def _save_threat_log() -> None:
 
 
 def _save_blocked_ips() -> None:
-    """Save blocked IPs to persistent storage."""
+    """Save blocked IPs to persistent storage - UNIFIED FORMAT with honeypot."""
     try:
         os.makedirs(os.path.dirname(_BLOCKED_IPS_FILE) or ".", exist_ok=True)
+        
+        # Load existing data to preserve metadata from honeypot
+        blocked_data = {'blocked_ips': []}
+        if os.path.exists(_BLOCKED_IPS_FILE):
+            try:
+                with open(_BLOCKED_IPS_FILE, 'r') as f:
+                    blocked_data = json.load(f)
+                    # Handle old format (simple list)
+                    if isinstance(blocked_data, list):
+                        blocked_data = {'blocked_ips': [{'ip': ip, 'timestamp': _get_current_time().isoformat(), 'reason': 'Legacy block'} for ip in blocked_data]}
+            except:
+                pass
+        
+        # Get existing IPs to avoid duplicates
+        existing_ips = set(entry.get('ip') for entry in blocked_data.get('blocked_ips', []))
+        
+        # Add new IPs from _blocked_ips set
+        for ip in _blocked_ips:
+            if ip not in existing_ips:
+                blocked_data['blocked_ips'].append({
+                    'ip': ip,
+                    'timestamp': _get_current_time().isoformat(),
+                    'reason': 'Threat detection by AI engine'
+                })
+                existing_ips.add(ip)
+        
+        # Save unified format
         with open(_BLOCKED_IPS_FILE, 'w') as f:
-            json.dump(list(_blocked_ips), f, indent=2)
+            json.dump(blocked_data, f, indent=2)
+            
     except Exception as e:
         print(f"[WARNING] Failed to save blocked IPs: {e}")
 
@@ -618,11 +646,17 @@ def _load_threat_data() -> None:
     except Exception as e:
         print(f"[WARNING] Failed to load threat log: {e}")
     
-    # Load blocked IPs
+    # Load blocked IPs - UNIFIED FORMAT with honeypot
     try:
         if os.path.exists(_BLOCKED_IPS_FILE):
             with open(_BLOCKED_IPS_FILE, 'r') as f:
-                _blocked_ips = set(json.load(f))
+                blocked_data = json.load(f)
+                # Handle new structured format
+                if isinstance(blocked_data, dict) and 'blocked_ips' in blocked_data:
+                    _blocked_ips = set(entry.get('ip') for entry in blocked_data['blocked_ips'] if entry.get('ip'))
+                else:
+                    # Legacy simple list format
+                    _blocked_ips = set(blocked_data if isinstance(blocked_data, list) else [])
             print(f"[SECURITY] Loaded {len(_blocked_ips)} blocked IPs from disk")
     except Exception as e:
         print(f"[WARNING] Failed to load blocked IPs: {e}")
@@ -2833,7 +2867,12 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
         # Save to disk for persistence
         _save_threat_log()
         
-        # 🔬 SIGNATURE EXTRACTION: Extract attack patterns (NOT exploit code)
+        # �️ IP BLOCKING: Block attacker IP immediately (critical security fix)
+        # All local threats trigger IP blocking - this is the TRUE ARCHITECTURE
+        _block_ip(ip_address)
+        print(f"[IP BLOCKING] 🚫 Blocked {ip_address} for {threat_type}")
+        
+        # �🔬 SIGNATURE EXTRACTION: Extract attack patterns (NOT exploit code)
         try:
             from signature_extractor import extract_from_threat
             signatures = extract_from_threat({
