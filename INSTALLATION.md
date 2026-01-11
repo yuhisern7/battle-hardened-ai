@@ -48,6 +48,7 @@ Complete installation instructions for Linux, Windows, and macOS.
 
 ### ✅ What You Get
 - **20/20 detection signals** at full capability
+- **7 honeypot services** (SSH, FTP, Telnet, MySQL, HTTP, SMTP, RDP) for network-wide attack detection
 - **Kernel-level eBPF** monitoring (Signal #1)
 - **Network-wide protection** via Docker host mode
 - **Auto-updating ML models** with synthetic training data
