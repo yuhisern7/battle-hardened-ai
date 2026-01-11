@@ -304,7 +304,8 @@ class RealHoneypot:
                 return  # Not enough time passed, allow more attacks
             
             # Time to block!
-            blocked_ips_file = os.path.join(os.path.dirname(__file__), '..', 'server', 'json', 'blocked_ips.json')
+            from path_helper import get_blocked_ips_file
+            blocked_ips_file = get_blocked_ips_file()
             
             # Load existing blocked IPs
             blocked_data = {'blocked_ips': []}
