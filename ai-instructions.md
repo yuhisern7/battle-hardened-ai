@@ -414,8 +414,8 @@ DetectionSignal(
 | **SOAR Integration** | `AI/soar_api.py` | REST API to external platforms |
 
 **Multi-Surface Logging:**
-- `threat_log.json` — Primary threat log *(auto-rotates at 1GB, see `AI/file_rotation.py`)*
-- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION/SYSTEM_ERROR events *(auto-rotates at 1GB)*
+- `threat_log.json` — Primary threat log *(auto-rotates at 100MB, see `AI/file_rotation.py`)*
+- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION/SYSTEM_ERROR events *(auto-rotates at 100MB)*
 - `attack_sequences.json` — LSTM kill-chain progressions
 - `lateral_movement_alerts.json` — Graph intelligence hop chains
 - `behavioral_metrics.json` — Per-IP heuristics
@@ -427,7 +427,7 @@ DetectionSignal(
 - `causal_analysis.json` — **Layer 19: Root cause analysis results**
 - `trust_graph.json` — **Layer 20: Entity trust state tracking (persistent across restarts)**
 
-**Note:** Files marked with *(auto-rotates at 1GB)* use `AI/file_rotation.py` to prevent unbounded growth. ML training reads all rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history. See `ML_LOG_ROTATION.md` for details.
+**Note:** Files marked with *(auto-rotates at 100MB)* use `AI/file_rotation.py` to prevent unbounded growth (optimized for 1GB VPS servers). ML training reads all rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history.
 
 **Policy Governance:**
 - `AI/policy_governance.py` — Approval workflows
@@ -519,7 +519,7 @@ DetectionSignal(
 1. Customer nodes push training materials to relay (every hour) → relay stores in `ai_training_materials/`
 2. Relay aggregates data from all customer nodes worldwide:
    - Signatures merged into `learned_signatures.json` (deduplicated)
-   - Attack records appended to `global_attacks.json` (grows continuously, rotates at 1GB)
+   - Attack records appended to `global_attacks.json` (grows continuously, rotates at 100MB)
    - Reputation data consolidated into `reputation_data/`
 3. Aggregated dataset triggers Stage 7 retraining (weekly) → new models trained → distributed back to customers
 4. **Critical:** `global_attacks.json` uses `AI/file_rotation.py` - ML training reads ALL rotation files (`global_attacks.json`, `global_attacks_1.json`, etc.) to preserve complete training history
@@ -1037,8 +1037,8 @@ def threats_summary():
 - **Stage 7:** `relay/ai_retraining.py`, `relay/gpu_trainer.py`, `AI/drift_detector.py`, `AI/signature_distribution.py` (pulls updates)
 
 ### Critical JSON Files
-- `threat_log.json` — Primary threat log (Stage 4 output) *(rotates at 1GB, ML reads all rotation files)*
-- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION events *(rotates at 1GB)*
+- `threat_log.json` — Primary threat log (Stage 4 output) *(rotates at 100MB, ML reads all rotation files)*
+- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION events *(rotates at 100MB)*
 - `decision_history.json` — Ensemble voting records (Stage 3)
 - `reputation.db` — SQLite cross-session reputation (Stage 2 signal #14)
 - `meta_engine_config.json` — Signal weights (Stage 3 configuration)

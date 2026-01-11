@@ -1128,8 +1128,8 @@ Based on ensemble decision, the system executes controlled responses:
    ```
 
 2. **JSON Audit Surfaces:** Update multiple files:
-   - `threat_log.json` (primary threat log, auto-rotates at 1GB)
-   - `comprehensive_audit.json` (all THREAT_DETECTED events, auto-rotates at 1GB)
+   - `threat_log.json` (primary threat log, auto-rotates at 100MB)
+   - `comprehensive_audit.json` (all THREAT_DETECTED events, auto-rotates at 100MB)
    - `dns_security.json` (DNS tunneling metrics)
    - `tls_fingerprints.json` (encrypted traffic patterns)
    - `network_graph.json` (topology updates)
@@ -1139,7 +1139,7 @@ Based on ensemble decision, the system executes controlled responses:
    - `causal_analysis.json` *(Layer 19: root cause analysis results)*
    - `trust_graph.json` *(Layer 20: entity trust state tracking)*
    
-   **Note:** Files marked "auto-rotates at 1GB" use file rotation (`AI/file_rotation.py`) to prevent unbounded growth. ML training reads ALL rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history. See `ML_LOG_ROTATION.md` for details.
+   **Note:** Files marked "auto-rotates at 100MB" use file rotation (`AI/file_rotation.py`) to prevent unbounded growth (optimized for 1GB VPS servers). ML training reads ALL rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history.
 
 3. **Dashboard Update:** Real-time WebSocket push to `inspector_ai_monitoring.html`
 
@@ -1266,7 +1266,7 @@ Client ← Relay Server
 
 Customer nodes push training materials to relay (every hour) → relay stores in `relay/ai_training_materials/` directory → relay aggregates data from all customer nodes worldwide:
 - Signatures merged into `learned_signatures.json` (deduplicated)
-- Attack records appended to `global_attacks.json` (grows continuously, rotates at 1GB using `AI/file_rotation.py`)
+- Attack records appended to `global_attacks.json` (grows continuously, rotates at 100MB using `AI/file_rotation.py`)
 - Reputation data consolidated into `reputation_data/`
 
 Aggregated dataset triggers Stage 7 retraining (weekly) → new models trained → distributed back to customers via Stage 6 pull.
@@ -1349,7 +1349,7 @@ The system continuously improves through feedback:
     ├─ Firewall block (iptables/nftables + TTL)
     ├─ Connection drop (active session termination)
     ├─ Rate limiting (if 50-74% confidence)
-    ├─ Local logging → threat_log.json (rotates at 1GB) + 10+ audit surfaces
+    ├─ Local logging → threat_log.json (rotates at 100MB) + 10+ audit surfaces
     ├─ Dashboard update (real-time WebSocket push)
     └─ Alerts (email/SMS/SOAR/SIEM integration)
     ↓

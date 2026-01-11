@@ -4,6 +4,22 @@
 
 ---
 
+## 🔐 HMAC Shared Secret Key Required
+
+**To enable encrypted relay communication, obtain the HMAC shared secret key from:**
+
+**Elite Cybersecurity Specialist – 202403184091 (MA0319303)**
+
+**Contact:** Yuhisern Navaratnam  
+**WhatsApp:** +60172791717  
+**Email:** yuhisern@protonmail.com
+
+Place the `shared_secret.key` file in:
+- **Client:** `server/crypto_keys/shared_secret.key`
+- **Relay VPS:** `relay/crypto_keys/shared_secret.key`
+
+---
+
 ## 🚀 Quick Start - Choose Your Deployment
 
 ### 🖥️ Client Installation (Choose One)

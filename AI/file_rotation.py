@@ -1,8 +1,8 @@
 """
 File Rotation Utility for ML Training Logs
 
-Implements automatic file rotation when files reach 500MB size limit.
-When a file reaches ~500MB, it's renamed with a numeric suffix (_1, _2, _3, etc.)
+Implements automatic file rotation when files reach 100MB size limit.
+When a file reaches ~100MB, it's renamed with a numeric suffix (_1, _2, _3, etc.)
 and a new file is created.
 
 This applies to ML training files that continuously log attacks:
@@ -24,9 +24,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-# 500MB in bytes (reduced from 1GB to prevent server crashes)
-MAX_FILE_SIZE = 500_000_000  # ~500MB
-SIZE_CHECK_THRESHOLD = 475_000_000  # Start checking at 475MB
+# 100MB in bytes (optimized for 1GB VPS servers - prevents memory issues)
+MAX_FILE_SIZE = 100_000_000  # ~100MB
+SIZE_CHECK_THRESHOLD = 95_000_000  # Start checking at 95MB
 
 def get_file_size(filepath: str) -> int:
     """Get file size in bytes."""
