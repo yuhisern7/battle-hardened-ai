@@ -335,8 +335,9 @@ class RealHoneypot:
             
             # Save back
             with open(blocked_ips_file, 'w') as f:
-                json.dump(blocked_dLOCKED {ip} after {int(time_elapsed)}s of attacks!")
-            logger.info(f"[HONEYPOT] Blocked attacker IP {ip} after {int(time_elapsed)}s of continuous attacks
+                json.dump(blocked_data, f, indent=2)
+            
+            logger.info(f"[HONEYPOT] Blocked attacker IP {ip} after {int(time_elapsed)}s of continuous attacks")
             print(f"[HONEYPOT] 🚫 Blocked attacker IP: {ip}")
             logger.info(f"[HONEYPOT] Blocked attacker IP: {ip}")
             

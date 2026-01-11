@@ -14,6 +14,14 @@ services:
     ports:
       - "60000:60000"  # Dashboard
       - "60001:60001"  # P2P/Relay
+      # Honeypot ports
+      - "2222:2222"    # SSH honeypot
+      - "2121:2121"    # FTP honeypot
+      - "2323:2323"    # Telnet honeypot
+      - "3306:3306"    # MySQL honeypot
+      - "8080:8080"    # HTTP honeypot
+      - "2525:2525"    # SMTP honeypot
+      - "3389:3389"    # RDP honeypot
     
     # Resource limits - prevent memory exhaustion attacks
     deploy:
