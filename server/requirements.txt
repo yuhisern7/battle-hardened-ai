@@ -10,9 +10,9 @@ numpy==1.26.2
 scipy==1.11.4
 joblib==1.3.2
 
-# Deep Learning (for sequence analysis)
-tensorflow==2.18.0
-keras==3.7.0
+# Deep Learning (for sequence analysis) - CPU-only version (3x smaller, faster install)
+# Sequence analyzer + autoencoder gracefully degrade if TensorFlow missing
+tensorflow-cpu==2.18.0
 
 # Network Monitoring (requires Administrator on Windows)
 scapy==2.5.0
