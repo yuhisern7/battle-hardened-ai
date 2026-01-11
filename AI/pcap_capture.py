@@ -21,8 +21,9 @@ class PCAPCapture:
     """Real PCAP capture using tcpdump"""
     
     def __init__(self):
-        # Use /app in Docker, ./server/pcap outside Docker
-        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+        # Universal path resolution
+        from path_helper import get_project_root
+        base_dir = '/app' if os.path.exists('/app') else os.path.join(get_project_root(), 'server')
         self.pcap_dir = os.path.join(base_dir, 'pcap')
         self.index_file = os.path.join(base_dir, 'json', 'pcap_index.json')
         os.makedirs(self.pcap_dir, exist_ok=True)

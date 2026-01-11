@@ -21,15 +21,10 @@ logger = logging.getLogger(__name__)
 _honeypot_attack_tracker = defaultdict(lambda: None)  # IP -> first_attack_timestamp
 _HONEYPOT_BLOCK_DELAY_SECONDS = 60  # Block after 60 seconds of continuous attacks
 
-# Local storage paths
-if os.path.exists('/app'):
-    HONEYPOT_ATTACKS_FILE = "/app/json/honeypot_attacks.json"
-    HONEYPOT_PATTERNS_FILE = "/app/json/honeypot_patterns.json"
-else:
-    # Use absolute path from AI/ directory to server/json/
-    _current_dir = os.path.dirname(os.path.abspath(__file__))
-    HONEYPOT_ATTACKS_FILE = os.path.join(_current_dir, '..', 'server', 'json', 'honeypot_attacks.json')
-    HONEYPOT_PATTERNS_FILE = os.path.join(_current_dir, '..', 'server', 'json', 'honeypot_patterns.json')
+# Local storage paths - Universal path resolution
+from path_helper import get_json_file
+HONEYPOT_ATTACKS_FILE = get_json_file('honeypot_attacks.json')
+HONEYPOT_PATTERNS_FILE = get_json_file('honeypot_patterns.json')
 
 
 class HoneypotService:

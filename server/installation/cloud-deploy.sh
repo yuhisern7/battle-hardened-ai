@@ -3,6 +3,7 @@
 # Enterprise Security - Universal Cloud Deployment Script
 # Works on: DigitalOcean, Linode, Vultr, Hetzner, AWS, GCP, Azure, etc.
 # Requirements: Ubuntu 20.04+, Debian 11+, RHEL 8+, or similar
+# MUST RUN AS ROOT: Network monitoring requires root privileges
 ###############################################################################
 
 set -e  # Exit on error
@@ -10,6 +11,13 @@ set -e  # Exit on error
 echo "🛡️  Enterprise Security - Cloud Deployment"
 echo "=========================================="
 echo ""
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    echo "❌ This script must be run as root"
+    echo "   Run with: sudo bash cloud-deploy.sh"
+    exit 1
+fi
 
 # Detect OS
 if [ -f /etc/os-release ]; then
@@ -112,14 +120,21 @@ echo ""
 echo "🚀 Setting up server..."
 cd server
 
-# Create necessary directories
-mkdir -p json json/compliance_reports json/performance_metrics
-mkdir -p crypto_keys
+# Initialize JSON files using init_json_files.py
+if command -v python3 &> /dev/null; then
+    python3 installation/init_json_files.py
+elif command -v python &> /dev/null; then
+    python installation/init_json_files.py
+else
+    echo "⚠️  Python not found - creating basic JSON structure..."
+    mkdir -p json json/compliance_reports json/performance_metrics
+    echo "[]" > json/threat_log.json
+    echo "[]" > json/blocked_ips.json
+    echo "{}" > json/visualization_data.json
+fi
 
-# Initialize JSON files
-echo "[]" > json/threat_log.json
-echo "[]" > json/blocked_ips.json
-echo "{}" > json/visualization_data.json
+# Create crypto_keys directory
+mkdir -p crypto_keys
 
 # Copy environment template
 if [ ! -f ".env" ]; then
@@ -138,6 +153,7 @@ echo "✅ DEPLOYMENT COMPLETE!"
 echo "=========================================="
 echo ""
 echo "📊 Dashboard URL: https://$PUBLIC_IP:60000 (HTTPS - Secure)"
+echo "   🔐 SSL certificates auto-generated in Docker container"
 echo "   ⚠️  Browser will show SSL warning (self-signed cert) - this is NORMAL"
 echo "🌐 P2P Sync URL: wss://$PUBLIC_IP:60001"
 echo ""

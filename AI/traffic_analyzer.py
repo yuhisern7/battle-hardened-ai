@@ -22,10 +22,10 @@ class TrafficAnalyzer:
     """Real-time traffic analysis using system network tools"""
     
     def __init__(self):
-        # Use /app in Docker, ./server/json outside Docker
-        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.stats_file = os.path.join(base_dir, 'json', 'traffic_stats.json')
-        self.crypto_detections_file = os.path.join(base_dir, 'json', 'crypto_mining.json')
+        # Universal path resolution
+        from path_helper import get_json_file
+        self.stats_file = get_json_file('traffic_stats.json')
+        self.crypto_detections_file = get_json_file('crypto_mining.json')
         self.blocked_apps = defaultdict(int)
         self.crypto_detections = []
         

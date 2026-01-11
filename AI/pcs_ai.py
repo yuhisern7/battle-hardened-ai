@@ -288,24 +288,25 @@ class SecurityAssessment:
     ip_address: str
 
 
-# Persistent storage paths
+# Persistent storage paths - Universal path resolution
 import os
-if os.path.exists('/app'):  # Running in Docker
-    _THREAT_LOG_FILE = "/app/json/threat_log.json"  # Absolute path in Docker
-    _BLOCKED_IPS_FILE = "/app/json/blocked_ips.json"
-    _WHITELIST_FILE = "/app/json/whitelist.json"
-    _TRACKING_DATA_FILE = "/app/json/tracking_data.json"  # Brute force, rate limits, etc.
-    _PEER_THREATS_FILE = "/app/json/peer_threats.json"  # P2P threat intel
-    _ML_TRAINING_FILE = "/app/json/ml_training_data.json"  # ML training buffer
-    _ML_METRICS_FILE = "/app/json/ml_performance_metrics.json"  # ML performance
-else:  # Running natively from server/ directory  
-    _THREAT_LOG_FILE = "../server/json/threat_log.json"  # AI/pcs_ai.py -> server/json/
-    _BLOCKED_IPS_FILE = "../server/json/blocked_ips.json"
-    _WHITELIST_FILE = "../server/json/whitelist.json"
-    _TRACKING_DATA_FILE = "../server/json/tracking_data.json"
-    _PEER_THREATS_FILE = "../server/json/peer_threats.json"
-    _ML_TRAINING_FILE = "../server/json/ml_training_data.json"
-    _ML_METRICS_FILE = "../server/json/ml_performance_metrics.json"
+from AI.path_helper import (
+    get_threat_log_file,
+    get_blocked_ips_file,
+    get_whitelist_file,
+    get_tracking_data_file,
+    get_peer_threats_file,
+    get_ml_training_file,
+    get_ml_metrics_file
+)
+
+_THREAT_LOG_FILE = get_threat_log_file()
+_BLOCKED_IPS_FILE = get_blocked_ips_file()
+_WHITELIST_FILE = get_whitelist_file()
+_TRACKING_DATA_FILE = get_tracking_data_file()
+_PEER_THREATS_FILE = get_peer_threats_file()
+_ML_TRAINING_FILE = get_ml_training_file()
+_ML_METRICS_FILE = get_ml_metrics_file()
 
 # Whitelist for localhost/development and Docker IPs (never block these IPs)
 # Supports both Docker networking modes:
@@ -358,12 +359,13 @@ def _get_current_time():
 # REAL AI/ML MODELS - Machine Learning Security Intelligence
 # ============================================================================
 
-# ML Model storage paths
-_ML_MODELS_DIR = "ml_models"
-_ANOMALY_MODEL_FILE = f"{_ML_MODELS_DIR}/anomaly_detector.pkl"
-_THREAT_CLASSIFIER_FILE = f"{_ML_MODELS_DIR}/threat_classifier.pkl"
-_IP_REPUTATION_FILE = f"{_ML_MODELS_DIR}/ip_reputation.pkl"
-_SCALER_FILE = f"{_ML_MODELS_DIR}/feature_scaler.pkl"
+# ML Model storage paths - Universal path resolution
+from AI.path_helper import get_ml_models_dir, get_ml_model_file
+_ML_MODELS_DIR = get_ml_models_dir()
+_ANOMALY_MODEL_FILE = get_ml_model_file("anomaly_detector.pkl")
+_THREAT_CLASSIFIER_FILE = get_ml_model_file("threat_classifier.pkl")
+_IP_REPUTATION_FILE = get_ml_model_file("ip_reputation.pkl")
+_SCALER_FILE = get_ml_model_file("feature_scaler.pkl")
 
 # ML Models (initialized lazily)
 _anomaly_detector = None  # IsolationForest for zero-day attack detection

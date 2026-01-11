@@ -2,8 +2,17 @@
 REM Quick start script for Windows (uses bridge networking with port mapping)
 
 echo Starting Enterprise Security on Windows...
-echo Using bridge networking mode (Windows compatible)
 echo.
+
+REM Check if running as Administrator (required for network monitoring)
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo WARNING: Not running as Administrator
+    echo Network packet capture requires Administrator privileges
+    echo Right-click this file and select "Run as Administrator"
+    echo.
+    pause
+)
 
 REM Change to server directory
 cd /d "%~dp0\.."
@@ -14,32 +23,40 @@ if not exist .env (
     copy /Y .env.windows .env
 )
 
-REM Create JSON directory structure for enterprise features
-if not exist json mkdir json
-if not exist json\compliance_reports mkdir json\compliance_reports
-if not exist json\performance_metrics mkdir json\performance_metrics
+REM Initialize JSON files using init_json_files.py
+if not exist json\threat_log.json (
+    echo Initializing JSON files...
+    where python >nul 2>&1 && (
+        python installation\init_json_files.py
+    ) || (
+        echo WARNING: Python not found - creating basic JSON structure...
+        if not exist json mkdir json
+        if not exist json\compliance_reports mkdir json\compliance_reports
+        if not exist json\performance_metrics mkdir json\performance_metrics
+        echo [] > json\threat_log.json
+        echo [] > json\blocked_ips.json
+        echo {} > json\visualization_data.json
+    )
+    echo JSON files initialized...
+)
 
-REM Initialize JSON files if they don't exist
-if not exist json\threat_log.json echo [] > json\threat_log.json
-if not exist json\blocked_ips.json echo [] > json\blocked_ips.json
-if not exist json\visualization_data.json echo {} > json\visualization_data.json
-
-echo Enterprise directories and files initialized...
-
-docker compose -f docker-compose.windows.yml down 2>nul
-docker compose -f docker-compose.windows.yml up -d --build
+REM Use standard docker-compose.yml (Windows bridge mode)
+docker compose down 2>nul
+docker compose up -d --build
 
 echo.
 echo Container starting...
-echo Dashboard: https://localhost:60000 (HTTPS - Accept SSL warning)
+echo Dashboard: https://localhost:60000 (HTTPS - Secure)
+echo SSL certificates auto-generated (self-signed)
+echo Browser will show SSL warning - this is NORMAL
 echo P2P Port: wss://localhost:60001
 echo.
 echo Waiting for container to be healthy...
 timeout /t 30 /nobreak >nul
 
-docker compose -f docker-compose.windows.yml ps
+docker compose ps
 
 echo.
-echo Note: Windows bridge mode has limited network scanning
-echo Will detect Docker network devices only
-echo For P2P mesh with Linux, ensure both containers are running
+echo Note: Windows Docker Desktop uses bridge networking
+echo Network scanning works within Docker network
+echo For full LAN scanning, use host network mode (Linux only)

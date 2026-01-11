@@ -838,9 +838,11 @@ def _check_encryption_status() -> bool:
     try:
         # Check if crypto_keys directory exists (indicates encryption features enabled)
         if os.path.exists('/app'):
-            crypto_dir = "/app/crypto_keys"
+            from path_helper import get_crypto_keys_dir
+            crypto_dir = get_crypto_keys_dir()
         else:
-            crypto_dir = "../server/crypto_keys"
+            from path_helper import get_crypto_keys_dir
+            crypto_dir = get_crypto_keys_dir()
         
         has_crypto_keys = os.path.exists(crypto_dir)
         

@@ -81,10 +81,8 @@ if ML_AVAILABLE:
     )
 
 # Persistent storage
-if os.path.exists('/app'):
-    _PERFORMANCE_METRICS_FILE = "/app/json/network_performance.json"
-else:
-    _PERFORMANCE_METRICS_FILE = "../server/json/network_performance.json"
+from path_helper import get_json_file
+_PERFORMANCE_METRICS_FILE = get_json_file('network_performance.json')
 
 # Configuration
 MAX_HISTORY_SAMPLES = 100  # Keep last 100 measurements per IP

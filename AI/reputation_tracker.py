@@ -81,13 +81,9 @@ class ReputationTracker:
             decay_days: Days until reputation starts decaying
             recidivist_threshold: Attacks needed to mark as recidivist
         """
+        from path_helper import get_json_file
         if db_path is None:
-            # Use /app in Docker, ./server/json outside Docker
-            if os.path.exists('/app'):
-                base_dir = '/app'
-            else:
-                base_dir = os.path.join(os.path.dirname(__file__), '..', 'server')
-            self.db_path = os.path.join(base_dir, 'json', 'reputation.db')
+            self.db_path = get_json_file('reputation.db')
         else:
             self.db_path = db_path
         self.decay_days = decay_days

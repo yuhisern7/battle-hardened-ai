@@ -15,13 +15,11 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple, Any
 from collections import defaultdict
+from path_helper import get_json_file
 
 
 # Persistent storage
-if os.path.exists('/app'):
-    _VISUALIZATION_DATA_FILE = "/app/json/visualization_data.json"
-else:
-    _VISUALIZATION_DATA_FILE = "../server/json/visualization_data.json"
+_VISUALIZATION_DATA_FILE = get_json_file('visualization_data.json')
 
 
 def _get_current_time():

@@ -5,6 +5,19 @@ echo "🛡️  HOME WIFI SECURITY SYSTEM - QUICK START"
 echo "==========================================="
 echo ""
 
+# Check if running as root (required for network monitoring)
+if [ "$EUID" -ne 0 ]; then
+    echo "⚠️  WARNING: Not running as root"
+    echo "   Network packet capture requires root privileges"
+    echo "   Run with: sudo bash installation/install.sh"
+    echo ""
+    read -p "Continue anyway? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
 # Check if we're in the right directory
 if [ ! -f "../docker-compose.yml" ]; then
     echo "❌ Error: docker-compose.yml not found"
@@ -47,16 +60,21 @@ fi
 echo "✅ Docker is installed"
 echo ""
 
-# Check if JSON files exist
+# Initialize JSON files using init_json_files.py
 if [ ! -f "json/threat_log.json" ]; then
-    echo "📁 Creating json directory and files..."
-    mkdir -p json
-    mkdir -p json/compliance_reports
-    mkdir -p json/performance_metrics
-    echo "[]" > json/threat_log.json
-    echo "[]" > json/blocked_ips.json
-    echo "{}" > json/visualization_data.json
-    echo "✅ Created json files and enterprise feature directories"
+    echo "📁 Initializing JSON files..."
+    if command -v python3 &> /dev/null; then
+        python3 installation/init_json_files.py
+    elif command -v python &> /dev/null; then
+        python installation/init_json_files.py
+    else
+        echo "⚠️  Python not found - creating basic JSON structure..."
+        mkdir -p json json/compliance_reports json/performance_metrics
+        echo "[]" > json/threat_log.json
+        echo "[]" > json/blocked_ips.json
+        echo "{}" > json/visualization_data.json
+    fi
+    echo "✅ JSON files initialized"
 fi
 
 # Check if crypto_keys exist

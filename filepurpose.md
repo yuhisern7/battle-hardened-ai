@@ -176,7 +176,6 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/json/dns_security.json` — DNS analyzer metrics
 - `AI/tls_fingerprint.py` — Encrypted C2 detection (feeds Signal #8)
 - `server/json/tls_fingerprints.json` — TLS fingerprinting data
-- `AI/adaptive_honeypot.py` — Multi-persona honeypot (training source for Signal #2)
 
 ---
 
@@ -350,7 +349,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `relay/ai_training_materials/global_attacks.json` — `attack_type="federated_update_rejected"`
 
 **Feedback Sources:**
-- `AI/adaptive_honeypot.py` — 100% confirmed attacks (highest quality)
+- `AI/real_honeypot.py` — 100% confirmed attacks (highest quality)
 - Human validation → ML improvement
 - False positive reports → FP filter tuning
 - SOAR playbook results → reinforcement learning
@@ -418,10 +417,8 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/.env`, `server/.env.linux`, `server/.env.windows` — Environment configs
 - `server/requirements.txt` — Python dependencies
 
-**Installation:**
-- `server/installation/install.sh` — Linux/Unix installer
-- `server/installation/QUICKSTART_WINDOWS.bat` — Windows quickstart
-- `server/installation/cloud-deploy.sh` — VPS cloud deployment
+**JSON Initialization:**
+- `server/installation/init_json_files.py` — Creates all 35+ required JSON files at startup
 
 **Reporting:**
 - `server/report_generator.py` — Enterprise security reports (HTML/JSON)
@@ -509,11 +506,17 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 ---
 
-**For testing procedures, see:** `ai-abilities.md` (10-stage validation mapped to pipeline)
-**For API reference, see:** `dashboard.md` (31 dashboard sections mapped to pipeline stages)
-**For implementation guide, see:** `ai-instructions.md` (developer guide with pipeline implementation details)
+**For testing procedures, see:** [ai-instructions.md Section 9](ai-instructions.md#9-testing--validation-guide-10-stage-progressive-validation) (10-stage validation mapped to pipeline)
+**For API reference, see:** [dashboard.md](dashboard.md) (31 dashboard sections mapped to pipeline stages)
+**For implementation guide, see:** [ai-instructions.md](ai-instructions.md) (developer guide with pipeline implementation details)
 
-- AI/adaptive_honeypot.py — Adaptive multi-persona honeypot that mimics various services (HTTP admin, FTP, SSH, DB, etc.) and feeds honeypot hits into the AI threat log.
+---
+
+## Detailed File Descriptions
+
+### AI Folder
+
+- AI/real_honeypot.py — Real multi-service honeypot with 7 services (SSH 2222, FTP 2121, Telnet 2323, MySQL 3306, HTTP 8080, SMTP 2525, RDP 3389), delayed IP blocking (60s), feeds honeypot hits into the AI threat log.
 - AI/advanced_orchestration.py — Advanced orchestration engine for predictive threat modeling, automated responses, custom alert rules, topology export, and training/orchestration data export.
 - AI/advanced_visualization.py — Generates network topology, attack flows, heatmaps, geo maps, and timelines from JSON logs for use in dashboards.
 - AI/alert_system.py — Configurable email/SMS alerting system with SMTP/Twilio-style integration and severity-based threat notifications.
@@ -582,9 +585,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - server/docker-compose.windows.yml — Docker Compose definition for Windows deployments using bridged networking and port mappings.
 - server/Dockerfile — Builds the server container image, installing dependencies, copying AI code, and wiring HTTPS/gunicorn.
 - server/entrypoint.sh — Container entrypoint that launches server.py and gunicorn with TLS certificates.
-- server/installation/cloud-deploy.sh — One-shot script to install Docker on a VPS, clone the repo, and deploy the server stack in the cloud.
-- server/installation/install.sh — Local/Unix installer that prepares JSON directories and launches the server container via docker compose.
-- server/installation/QUICKSTART_WINDOWS.bat — Windows quickstart to set up env/json directories and start the Windows Docker stack.
+- server/installation/init_json_files.py — Python script that creates all 35+ required JSON files at server startup with proper initialization.
 - server/json/.gitkeep — Placeholder file ensuring the json directory exists in version control.
 - server/json/approval_requests.json — Persists operator approval/exception requests for governance and change control.
 - server/json/audit_archive/ — Storage for archived audit reports and historical compliance outputs.

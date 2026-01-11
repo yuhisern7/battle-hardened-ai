@@ -13,14 +13,12 @@ import re
 import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
+from path_helper import get_json_file
 
 logger = logging.getLogger(__name__)
 
 
-if os.path.exists('/app'):
-    _HONEYPOT_LOG_FILE = "/app/json/honeypot_attacks.json"
-else:
-    _HONEYPOT_LOG_FILE = "../server/json/honeypot_attacks.json"
+_HONEYPOT_LOG_FILE = get_json_file('honeypot_attacks.json')
 
 
 def _get_local_time() -> datetime:

@@ -27,9 +27,9 @@ class UserTracker:
     """Track users on the network using real system data"""
     
     def __init__(self):
-        # Use /app in Docker, ./server/json outside Docker
-        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.users_file = os.path.join(base_dir, 'json', 'tracked_users.json')
+        # Universal path resolution
+        from path_helper import get_json_file
+        self.users_file = get_json_file('tracked_users.json')
         self.suspicious_activities = []
         self.enabled = USER_TRACKING_ENABLED
         
