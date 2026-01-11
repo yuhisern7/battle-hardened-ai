@@ -357,10 +357,10 @@ class NetworkMonitor:
                     threat_type="SYN Flood Attack (DDoS)",
                     details=f"SYN flood detected: {self.connection_tracker[src_ip]} SYN packets. DDoS tools: hping3, metasploit auxiliary/dos, LOIC, HOIC, slowloris",
                     level=pcs_ai.ThreatLevel.CRITICAL,
-                        action="detected",
-                        headers={}
-                    )
-                    pcs_ai._block_ip(src_ip)
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
                 self.connection_tracker[src_ip] = 0
         
         # Advanced flow analytics: behavioral heuristics, graph intelligence, TLS heuristics
