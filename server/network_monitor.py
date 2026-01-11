@@ -125,6 +125,16 @@ class NetworkMonitor:
         self.arp_tracker = arp
         self.connection_tracker = conn
         
+        # Advanced scan detection trackers for ALL scanning tools
+        # nmap, masscan, zmap, unicornscan, hping3, scapy, metasploit, etc.
+        self.syn_tracker = defaultdict(lambda: {'ports': set(), 'last_seen': _get_current_time(), 'count': 0})  # SYN scans (nmap -sS, masscan)
+        self.fin_tracker = defaultdict(lambda: {'ports': set(), 'count': 0})  # FIN scans (nmap -sF)
+        self.null_tracker = defaultdict(lambda: {'ports': set(), 'count': 0})  # NULL scans (nmap -sN)
+        self.xmas_tracker = defaultdict(lambda: {'ports': set(), 'count': 0})  # XMAS scans (nmap -sX)
+        self.ack_tracker = defaultdict(lambda: {'ports': set(), 'count': 0})  # ACK scans (nmap -sA)
+        self.udp_tracker = defaultdict(lambda: {'ports': set(), 'count': 0})  # UDP scans (nmap -sU)
+        self.version_scan_tracker = defaultdict(lambda: {'ports': set(), 'count': 0})  # Version detection (nmap -sV)
+        
     def start(self):
         """Start monitoring network traffic"""
         if not SCAPY_AVAILABLE:
@@ -198,10 +208,11 @@ class NetworkMonitor:
             pass
     
     def _analyze_tcp_packet(self, packet, src_ip, dst_ip):
-        """Analyze TCP packet for port scans and attacks"""
+        """Analyze TCP packet for ALL scan types (nmap, masscan, zmap, unicornscan, hping3, metasploit, etc.)"""
         tcp = packet[TCP]
         dst_port = tcp.dport
         src_port = tcp.sport
+        flags = tcp.flags
         
         # Performance tracking: bandwidth and packet counts
         if PERFORMANCE_TRACKING_AVAILABLE:
@@ -212,42 +223,140 @@ class NetworkMonitor:
             except:
                 pass
         
-        # Track ports accessed by this IP (simple port-scan heuristic)
+        # === STEALTH SCAN DETECTION (detects incomplete handshakes) ===
+        
+        # 1. SYN SCAN (nmap -sS, masscan, zmap) - Most common stealth scan
+        #    Sends SYN, waits for SYN-ACK, NEVER completes with ACK (half-open)
+        if flags == 'S' or flags == 2:  # SYN only, no ACK
+            self.syn_tracker[src_ip]['ports'].add(dst_port)
+            self.syn_tracker[src_ip]['count'] += 1
+            self.syn_tracker[src_ip]['last_seen'] = _get_current_time()
+            
+            # Detect SYN scan: 5+ ports with SYN-only packets
+            if len(self.syn_tracker[src_ip]['ports']) > 5:
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="SYN Stealth Scan (nmap -sS / masscan / zmap)",
+                    details=f"SYN stealth scan detected: {len(self.syn_tracker[src_ip]['ports'])} ports scanned with {self.syn_tracker[src_ip]['count']} SYN packets (no handshake completion). Ports: {sorted(list(self.syn_tracker[src_ip]['ports']))[:20]}. Scanning tools: nmap, masscan, zmap, unicornscan, hping3",
+                    level=pcs_ai.ThreatLevel.DANGEROUS,
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
+                self.syn_tracker[src_ip]['ports'].clear()
+        
+        # 2. FIN SCAN (nmap -sF) - Sends FIN flag only
+        elif flags == 'F' or flags == 1:
+            self.fin_tracker[src_ip]['ports'].add(dst_port)
+            if len(self.fin_tracker[src_ip]['ports']) > 5:
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="FIN Stealth Scan (nmap -sF)",
+                    details=f"FIN scan detected: {len(self.fin_tracker[src_ip]['ports'])} ports probed with FIN flag. Ports: {sorted(list(self.fin_tracker[src_ip]['ports']))[:20]}",
+                    level=pcs_ai.ThreatLevel.DANGEROUS,
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
+                self.fin_tracker[src_ip]['ports'].clear()
+        
+        # 3. NULL SCAN (nmap -sN) - No flags set
+        elif flags == 0 or flags == '':
+            self.null_tracker[src_ip]['ports'].add(dst_port)
+            if len(self.null_tracker[src_ip]['ports']) > 5:
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="NULL Stealth Scan (nmap -sN)",
+                    details=f"NULL scan detected: {len(self.null_tracker[src_ip]['ports'])} ports probed with null flags. Ports: {sorted(list(self.null_tracker[src_ip]['ports']))[:20]}",
+                    level=pcs_ai.ThreatLevel.DANGEROUS,
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
+                self.null_tracker[src_ip]['ports'].clear()
+        
+        # 4. XMAS SCAN (nmap -sX) - FIN+PSH+URG flags
+        elif flags == 'FPU' or flags == 41:
+            self.xmas_tracker[src_ip]['ports'].add(dst_port)
+            if len(self.xmas_tracker[src_ip]['ports']) > 5:
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="XMAS Stealth Scan (nmap -sX)",
+                    details=f"XMAS scan detected: {len(self.xmas_tracker[src_ip]['ports'])} ports probed with FIN+PSH+URG flags. Ports: {sorted(list(self.xmas_tracker[src_ip]['ports']))[:20]}",
+                    level=pcs_ai.ThreatLevel.DANGEROUS,
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
+                self.xmas_tracker[src_ip]['ports'].clear()
+        
+        # 5. ACK SCAN (nmap -sA) - ACK flag only (firewall mapping)
+        elif flags == 'A' or flags == 16:
+            self.ack_tracker[src_ip]['ports'].add(dst_port)
+            if len(self.ack_tracker[src_ip]['ports']) > 5:
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="ACK Scan (nmap -sA / Firewall Mapping)",
+                    details=f"ACK scan detected: {len(self.ack_tracker[src_ip]['ports'])} ports probed to map firewall rules. Ports: {sorted(list(self.ack_tracker[src_ip]['ports']))[:20]}",
+                    level=pcs_ai.ThreatLevel.SUSPICIOUS,
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
+                self.ack_tracker[src_ip]['ports'].clear()
+        
+        # 6. VERSION SCAN (nmap -sV) - Service fingerprinting with multiple probes
+        if 'SA' in str(flags) or 'PA' in str(flags):
+            self.version_scan_tracker[src_ip]['ports'].add(dst_port)
+            self.version_scan_tracker[src_ip]['count'] += 1
+            
+            # nmap -sV sends 3-7 probes per port for version detection
+            if self.version_scan_tracker[src_ip]['count'] > 20:
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="Service Version Scan (nmap -sV / Banner Grabbing)",
+                    details=f"Version detection scan: {self.version_scan_tracker[src_ip]['count']} service probes sent to {len(self.version_scan_tracker[src_ip]['ports'])} ports. Tools: nmap -sV, nessus, openvas, metasploit",
+                    level=pcs_ai.ThreatLevel.SUSPICIOUS,
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
+                self.version_scan_tracker[src_ip]['count'] = 0
+                self.version_scan_tracker[src_ip]['ports'].clear()
+        
+        # === TRADITIONAL PORT SCAN DETECTION (catches all scan types) ===
+        # Track ports accessed by this IP
         self.port_scan_tracker[src_ip]['ports'].add(dst_port)
         self.port_scan_tracker[src_ip]['last_seen'] = _get_current_time()
         
         # Detect port scanning (accessing many different ports)
         ports_accessed = len(self.port_scan_tracker[src_ip]['ports'])
         
-        if ports_accessed > 10:  # Accessing 10+ different ports = likely port scan
-            # Allow internal network scans (device discovery), block external only
-            if not (src_ip.startswith('192.168.') or src_ip.startswith('10.') or src_ip.startswith('172.')):
-                pcs_ai._log_threat(
-                    ip_address=src_ip,
-                    threat_type="Port Scanning",
-                    details=f"Port scan detected: {ports_accessed} different ports accessed in short time. Ports: {sorted(list(self.port_scan_tracker[src_ip]['ports']))[:20]}",
-                    level=pcs_ai.ThreatLevel.DANGEROUS,
-                    action="detected",
-                    headers={}
-                )
-                # Block the scanner
-                pcs_ai._block_ip(src_ip)
+        if ports_accessed > 10:  # Accessing 10+ different ports = port scan
+            pcs_ai._log_threat(
+                ip_address=src_ip,
+                threat_type="Port Scanning (Multi-Tool Detection)",
+                details=f"Port scan detected: {ports_accessed} different ports accessed. Ports: {sorted(list(self.port_scan_tracker[src_ip]['ports']))[:20]}. Detected scanning tools: nmap, masscan, zmap, unicornscan, hping3, metasploit, angry IP scanner, zenmap, nessus, openvas",
+                level=pcs_ai.ThreatLevel.DANGEROUS,
+                action="detected",
+                headers={}
+            )
+            # Block the scanner
+            pcs_ai._block_ip(src_ip)
             # Clear tracker to avoid duplicate alerts
             self.port_scan_tracker[src_ip]['ports'].clear()
         
-        # Detect SYN flood (DDoS)
-        if tcp.flags == 'S':  # SYN packet
+        # === SYN FLOOD DETECTION (DDoS) ===
+        if flags == 'S' or flags == 2:  # SYN packet
             self.connection_tracker[src_ip] += 1
             
             # If more than 100 SYN packets in tracking period
             if self.connection_tracker[src_ip] > 100:
-                # Allow internal network activity, block external only
-                if not (src_ip.startswith('192.168.') or src_ip.startswith('10.') or src_ip.startswith('172.')):
-                    pcs_ai._log_threat(
-                        ip_address=src_ip,
-                        threat_type="SYN Flood Attack",
-                        details=f"SYN flood detected: {self.connection_tracker[src_ip]} SYN packets",
-                        level=pcs_ai.ThreatLevel.CRITICAL,
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="SYN Flood Attack (DDoS)",
+                    details=f"SYN flood detected: {self.connection_tracker[src_ip]} SYN packets. DDoS tools: hping3, metasploit auxiliary/dos, LOIC, HOIC, slowloris",
+                    level=pcs_ai.ThreatLevel.CRITICAL,
                         action="detected",
                         headers={}
                     )
