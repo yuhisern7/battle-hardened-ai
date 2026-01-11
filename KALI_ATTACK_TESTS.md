@@ -359,3 +359,204 @@ echo "=== Testing Complete - Check Windows logs ==="
 ```
 
 Save as `test_attacks.sh` and run: `chmod +x test_attacks.sh && ./test_attacks.sh`
+
+---
+
+## VPS Relay Verification (Run on VPS Server)
+
+After attacks are sent to the relay, verify on the VPS:
+
+```bash
+# 1. View last 50 lines of global attacks (from all customers)
+tail -n 50 relay/ai_training_materials/global_attacks.json
+
+# 2. View attack signatures (patterns extracted)
+tail -n 100 relay/ai_training_materials/ai_signatures/learned_signatures.json
+
+# 3. Real-time monitoring (watch attacks live as they arrive)
+tail -f relay/ai_training_materials/global_attacks.json
+
+# 4. Count total attacks received
+jq '. | length' relay/ai_training_materials/global_attacks.json
+
+# 5. View last 5 attacks (formatted with jq)
+jq '.[-5:]' relay/ai_training_materials/global_attacks.json
+
+# 6. View last 10 signatures (formatted)
+jq '.signatures[-10:]' relay/ai_training_materials/ai_signatures/learned_signatures.json
+
+# 7. Check relay server logs
+docker compose logs relay --tail=50 | grep -i "attack\|signature\|threat"
+```
+
+---
+
+## ⚠️ TROUBLESHOOTING: Attacks Detected But IP Not Blocked
+
+**Symptoms:** 
+- Attacks logged in `threat_log.json` ✅
+- Kali IP **NOT** in `blocked_ips.json` ❌
+- No firewall block happening ❌
+
+**Common Causes & Fixes:**
+
+### 1. Check if `should_block` is True in threat_log.json
+
+```powershell
+# On Windows - check last threat entry
+cat server\json\threat_log.json | Select-Object -Last 1
+
+# Look for: "should_block": true
+# If it says false, the threat score is too low
+```
+
+**Fix:** Lower the blocking threshold in `AI/pcs_ai.py`:
+- Default threshold: `BLOCK_THRESHOLD = 0.7` (70%)
+- Try: `BLOCK_THRESHOLD = 0.5` (50%) for testing
+
+### 2. Check device_blocker.py is Running
+
+```powershell
+# On Windows - check if blocking module loaded
+# Look for this in server.py output:
+# [IP BLOCKING] IP 192.168.0.119 BLOCKED (SQL Injection detected)
+```
+
+**Fix:** Ensure `server.py` imports and calls blocking:
+```python
+from server.device_blocker import block_ip
+# Should call: block_ip(ip_address, reason)
+```
+
+### 3. Verify Windows Firewall Rules
+
+```powershell
+# Check if firewall rules are being created
+Get-NetFirewallRule | Where-Object {$_.DisplayName -like "*Battle-Hardened*"}
+
+# Check if Kali IP is blocked
+Get-NetFirewallRule | Where-Object {$_.DisplayName -like "*192.168.0.119*"}
+```
+
+**Fix if no rules found:**
+```powershell
+# Run PowerShell as Administrator
+# Ensure Windows Firewall service is running
+Get-Service -Name mpssvc
+
+# If stopped, start it:
+Start-Service -Name mpssvc
+```
+
+### 4. Check SAFE_MODE is Not Active
+
+```powershell
+# On Windows - check if emergency killswitch is active
+cat server\json\killswitch_status.json
+
+# Should show: "safe_mode": false
+```
+
+**Fix:** If safe_mode is true, disable it:
+```powershell
+# Edit server\json\killswitch_status.json
+# Change "safe_mode": true to "safe_mode": false
+```
+
+### 5. Verify Meta Decision Engine Score
+
+The IP might not be blocked if ensemble voting score is too low.
+
+**Check the threat_log.json entry:**
+```json
+{
+  "threat_score": 0.95,  // Should be > 0.7
+  "should_block": true,  // Must be true
+  "meta_decision": {
+    "final_score": 0.92,
+    "voting_result": "BLOCK"
+  }
+}
+```
+
+**Fix:** If threat_score is low (< 0.7), check which signals are firing:
+```powershell
+# Look at signals_triggered array in threat_log.json
+# Should include: ["signature_match", "behavioral_heuristics", etc.]
+```
+
+### 6. Native Mode vs Docker Mode
+
+**If running NATIVELY on Windows:**
+- Firewall blocking should work ✅
+- Check: `device_blocker.py` uses `netsh` commands
+
+**If running in DOCKER:**
+- Can only block Docker bridge network (172.x.x.x) ⚠️
+- Cannot block LAN IPs (192.168.x.x) ❌
+- **Solution:** Run natively for full LAN protection
+
+### 7. Manual Block Test
+
+Test if blocking works at all:
+
+```powershell
+# On Windows - manually block Kali IP
+python -c "from server.device_blocker import block_ip; block_ip('192.168.0.119', 'MANUAL_TEST')"
+
+# Then test if Kali can connect
+# From Kali: ping WINDOWS_IP
+# Should fail if blocking works
+```
+
+### 8. Check Python Permissions
+
+Windows firewall modifications require admin rights:
+
+```powershell
+# Run PowerShell as Administrator, then:
+cd C:\Users\kidds\workspace\battle-hardened-ai\server
+python server.py
+
+# Should see: [INFO] Running with administrator privileges
+```
+
+**Fix:** Always run `server.py` as Administrator on Windows
+
+### 9. Enable Debug Logging
+
+Add debug output to see what's happening:
+
+```python
+# In AI/pcs_ai.py, find the blocking logic
+# Add print statements:
+print(f"[DEBUG] Threat score: {threat_score}, Should block: {should_block}")
+print(f"[DEBUG] Calling block_ip({ip_address}, {threat_type})")
+```
+
+### Quick Diagnostic Script
+
+```powershell
+# Run on Windows after attack
+Write-Host "=== BLOCKING DIAGNOSTIC ==="
+
+Write-Host "`n1. Last threat logged:"
+cat server\json\threat_log.json | Select-Object -Last 1
+
+Write-Host "`n2. Blocked IPs list:"
+cat server\json\blocked_ips.json
+
+Write-Host "`n3. Windows Firewall rules:"
+Get-NetFirewallRule | Where-Object {$_.DisplayName -like "*192.168.0.119*"} | Select-Object DisplayName, Enabled, Action
+
+Write-Host "`n4. Safe mode status:"
+cat server\json\killswitch_status.json
+
+Write-Host "`n=== END DIAGNOSTIC ==="
+```
+
+**Expected Output if Working:**
+- Threat logged with `should_block: true`
+- Kali IP in blocked_ips.json
+- Firewall rule exists and is Enabled
+- Safe mode is false

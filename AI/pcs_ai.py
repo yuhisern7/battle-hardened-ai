@@ -3840,12 +3840,14 @@ def assess_request_pattern(
     if any(pattern in endpoint_lower for pattern in sql_patterns):
         # BLOCK IP for SQL injection attempts
         _block_ip(ip_address)
+        matched_patterns = [p for p in sql_patterns if p in endpoint_lower]
         _log_threat(
             ip_address=ip_address,
             threat_type="SQL Injection Attack",
-            details=f"SQL injection pattern detected in URL: {endpoint_decoded[:200]} | Matched pattern: {[p for p in sql_patterns if p in endpoint_lower][:3]}",
+            details=f"SQL injection pattern detected | URL: {endpoint_decoded} | Matched patterns: {matched_patterns} | Headers: {dict(headers)}",
             level=ThreatLevel.CRITICAL,
-            action="BLOCKED"
+            action="BLOCKED",
+            headers=headers
         )
         return SecurityAssessment(
             level=ThreatLevel.CRITICAL,
@@ -3861,9 +3863,10 @@ def assess_request_pattern(
         _log_threat(
             ip_address=ip_address,
             threat_type="Directory Traversal Attack",
-            details=f"Path traversal detected in URL: {endpoint_decoded[:200]}",
+            details=f"Path traversal detected | Full URL: {endpoint_decoded} | Headers: {dict(headers)}",
             level=ThreatLevel.CRITICAL,
-            action="BLOCKED"
+            action="BLOCKED",
+            headers=headers
         )
         return SecurityAssessment(
             level=ThreatLevel.CRITICAL,
@@ -3895,12 +3898,14 @@ def assess_request_pattern(
     if any(pattern in endpoint_lower for pattern in xss_patterns):
         # BLOCK IP for XSS attempts
         _block_ip(ip_address)
+        matched_xss = [p for p in xss_patterns if p in endpoint_lower]
         _log_threat(
             ip_address=ip_address,
             threat_type="XSS Attack",
-            details=f"XSS pattern detected in URL: {endpoint_decoded[:200]} | Matched pattern: {[p for p in xss_patterns if p in endpoint_lower][:3]}",
+            details=f"XSS pattern detected | Full URL: {endpoint_decoded} | Matched patterns: {matched_xss} | Headers: {dict(headers)}",
             level=ThreatLevel.CRITICAL,
-            action="BLOCKED"
+            action="BLOCKED",
+            headers=headers
         )
         return SecurityAssessment(
             level=ThreatLevel.CRITICAL,
@@ -3954,9 +3959,10 @@ def assess_request_pattern(
         _log_threat(
             ip_address=ip_address,
             threat_type="LDAP Injection Attack",
-            details=f"LDAP injection pattern detected: {endpoint_decoded[:200]}",
+            details=f"LDAP injection pattern detected | Full URL: {endpoint_decoded} | Headers: {dict(headers)}",
             level=ThreatLevel.CRITICAL,
-            action="BLOCKED"
+            action="BLOCKED",
+            headers=headers
         )
         return SecurityAssessment(
             level=ThreatLevel.CRITICAL,
@@ -3972,9 +3978,10 @@ def assess_request_pattern(
         _log_threat(
             ip_address=ip_address,
             threat_type="XML/XXE Injection Attack",
-            details=f"XML external entity attack detected: {endpoint_decoded[:200]}",
+            details=f"XML external entity attack detected | Full URL: {endpoint_decoded} | Headers: {dict(headers)}",
             level=ThreatLevel.CRITICAL,
-            action="BLOCKED"
+            action="BLOCKED",
+            headers=headers
         )
         return SecurityAssessment(
             level=ThreatLevel.CRITICAL,
@@ -3989,9 +3996,10 @@ def assess_request_pattern(
             _log_threat(
                 ip_address=ip_address,
                 threat_type="Template Injection (SSTI)",
-                details=f"Server-side template injection: {endpoint[:100]}",
+                details=f"Server-side template injection | Full URL: {endpoint_decoded} | Headers: {dict(headers)}",
                 level=ThreatLevel.CRITICAL,
-                action="blocked"
+                action="blocked",
+                headers=headers
             )
             return SecurityAssessment(
                 level=ThreatLevel.CRITICAL,

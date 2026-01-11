@@ -181,11 +181,6 @@ class NetworkMonitor:
                 src_ip = packet[IP].src
                 dst_ip = packet[IP].dst
                 
-                # Skip local traffic and private IPs from monitoring (too noisy)
-                if src_ip.startswith(('127.', '192.168.', '10.', '172.')):
-                    if not dst_ip.startswith(('8.8.', '1.1.', '208.67.')):  # Allow DNS
-                        return
-                
                 # TCP packet analysis
                 if TCP in packet:
                     self._analyze_tcp_packet(packet, src_ip, dst_ip)

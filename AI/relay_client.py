@@ -129,6 +129,7 @@ class RelayClient:
             'ml_confidence': threat.get('ml_confidence', 0.0),
             'exploit_match': threat.get('exploit_match', ''),
             'cve_match': threat.get('cve_match', []),
+            'extracted_signatures': threat.get('extracted_signatures', {}),  # PATTERNS ONLY - no payloads
         }
         
         # Add node fingerprint for peer compatibility filtering
