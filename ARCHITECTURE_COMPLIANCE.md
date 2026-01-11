@@ -1,27 +1,20 @@
 # Architecture Compliance Verification
 
-## ✅ TRUE ARCHITECTURE - ALL DETECTION SIGNALS VERIFIED
+## ✅ CURRENT THREAT DETECTION & BLOCKING ARCHITECTURE
 
-### Critical Bug Fixes Applied (Session Date: 2025)
+### Verified Detection & Blocking Flow
 
-**PROBLEM DISCOVERED:**
-- Main AI detection engine (`pcs_ai.py`) was logging threats and sending to relay
-- **BUT NOT BLOCKING ATTACKER IPS!**
-- Only honeypot was blocking IPs
-- This affected all 20 detection signals from the main AI engine
+**Core Architecture:**
+- Main AI detection engine (`pcs_ai.py`) detects threats AND blocks IPs
+- Honeypot (`real_honeypot.py`) detects honeypot interactions AND blocks IPs
+- Both use unified `blocked_ips.json` format with metadata
+- Both send patterns (not exploit code) to relay server
 
-**ROOT CAUSE:**
-- `log_threat()` function (line 2820-2920) only called `_block_ip()` if:
-  - Enterprise threat intelligence was enabled
-  - Threat score >= 90
-- Regular threat detection never blocked IPs
-
-**FIX APPLIED:**
-```python
-# Added after line 2837 in pcs_ai.py:
-_block_ip(ip_address)
-print(f"[IP BLOCKING] 🚫 Blocked {ip_address} for {threat_type}")
-```
+**IP Blocking Location:**
+- File: `AI/pcs_ai.py`
+- Function: `_log_threat()` (line 2732+)
+- Blocking: `_block_ip(ip_address)` at line 2874
+- All detected threats trigger immediate IP blocking
 
 ### Verified Attack Handling Flow
 
@@ -70,49 +63,48 @@ print(f"[IP BLOCKING] 🚫 Blocked {ip_address} for {threat_type}")
     └─────────────────────────────┘
 ```
 
-### 20 Detection Signals (All Now Block IPs)
+### Attack Detection Methods (All Block IPs Immediately)
 
-1. **SQL Injection** - Detects SQLi patterns, blocks IP, shares signatures
-2. **XSS (Cross-Site Scripting)** - Detects script injection, blocks IP, shares patterns
-3. **Path Traversal** - Detects directory traversal, blocks IP, shares signatures
-4. **Command Injection** - Detects OS command injection, blocks IP, shares patterns
-5. **LDAP Injection** - Detects LDAP attacks, blocks IP, shares signatures
-6. **XXE (XML External Entity)** - Detects XXE attempts, blocks IP, shares patterns
-7. **SSRF (Server-Side Request Forgery)** - Detects SSRF, blocks IP, shares signatures
-8. **File Upload Exploit** - Detects malicious uploads, blocks IP, shares patterns
-9. **Brute Force** - Detects credential stuffing, blocks IP, shares attack patterns
-10. **Rate Limit Abuse** - Detects scraping/DDoS, blocks IP, shares behavioral patterns
-11. **Port Scanning** - Detects nmap/masscan, blocks IP, shares scan signatures
-12. **HTTP Method Abuse** - Detects verb tampering, blocks IP, shares patterns
-13. **Malicious User-Agent** - Detects attack tools, blocks IP, shares UA patterns
-14. **Suspicious DNS Queries** - Detects DNS tunneling, blocks IP, shares patterns
-15. **TLS Fingerprint Anomaly** - Detects JA3 mismatches, blocks IP, shares fingerprints
-16. **Behavioral Anomaly** - ML detects zero-days, blocks IP, shares behavioral patterns
-17. **Geolocation Anomaly** - Detects impossible travel, blocks IP, shares patterns
-18. **VPN/Proxy/Tor Detection** - Reveals anonymization, blocks IP, shares detection methods
-19. **Attack Sequence State** - Detects multi-stage attacks, blocks IP, shares sequence patterns
-20. **Honeypot Interaction** - Detects honeypot probes, blocks IP, shares interaction patterns
+**Web Application Attacks:**
+- **SQL Injection** - Pattern matching + behavioral analysis
+- **XSS (Cross-Site Scripting)** - Script tag detection + DOM analysis
+- **Path Traversal** - Directory escape pattern detection
+- **Command Injection** - Shell metacharacter detection
+- **LDAP Injection** - LDAP filter special characters
+- **XXE (XML External Entity)** - XML entity declaration detection
+- **SSRF (Server-Side Request Forgery)** - Internal IP/metadata endpoint detection
+- **File Upload Exploit** - Malicious file extension/content detection
 
-### File Format Unification
+**Behavioral Detection:**
+- **Brute Force** - Failed login rate tracking
+- **Rate Limit Abuse** - Request frequency analysis
+- **Port Scanning** - Packet-level SYN/FIN/NULL/XMAS/ACK scan detection
+- **HTTP Method Abuse** - Dangerous HTTP verb detection (TRACE, PUT, DELETE)
+- **Malicious User-Agent** - Attack tool signature matching (sqlmap, nikto, nmap, metasploit)
+- **Suspicious DNS Queries** - DNS tunneling pattern detection
 
-**BEFORE (Bug):**
-- `pcs_ai.py`: Saved blocked IPs as simple list `["1.2.3.4", "5.6.7.8"]`
-- `real_honeypot.py`: Saved as structured dict with metadata
-- **CONFLICT!** Files would overwrite each other
+**Advanced Detection:**
+- **TLS Fingerprint Anomaly** - JA3 hash mismatch detection
+- **Behavioral Anomaly** - ML-based zero-day detection (IsolationForest)
+- **Geolocation Anomaly** - Impossible travel speed calculation
+- **VPN/Proxy/Tor Detection** - Anonymization network identification
+- **Attack Sequence State** - Multi-stage attack pattern correlation
+- **Honeypot Interaction** - Fake service connection attempts (SSH, FTP, Telnet, MySQL)
 
-**AFTER (Fixed):**
-Both use unified format:
+### Unified File Format
+
+**Current Format (Both AI Engine & Honeypot):**
 ```json
 {
   "blocked_ips": [
     {
       "ip": "203.0.113.50",
-      "timestamp": "2025-01-15T10:30:00Z",
+      "timestamp": "2026-01-11T10:30:00Z",
       "reason": "Threat detection by AI engine"
     },
     {
       "ip": "198.51.100.25",
-      "timestamp": "2025-01-15T10:35:00Z",
+      "timestamp": "2026-01-11T10:35:00Z",
       "reason": "Honeypot SSH brute force"
     }
   ]
@@ -145,13 +137,18 @@ Automatic exemptions (never blocked):
 - `192.168.0.0/16` - Private networks (configurable)
 - `10.0.0.0/8` - Private networks (configurable)
 - GitHub IP ranges - For automatic updates
-- Explicitly whitelisted IPs (whitelist.json)
+**Never Blocked (Hardcoded):**
+- `127.0.0.1`, `localhost`, `::1` - Localhost
+- `172.17.0.1` - Docker bridge (default)
+- `172.18.0.1` - Docker bridge (Windows)
+- `172.19.0.1`, `172.16.0.1` - Docker bridge variants
+- `10.0.0.1` - Common gateway
+- `192.168.0.1` - Common home router (ONLY .1, not entire /16 range)
+- GitHub IP ranges - For automatic updates
+- Explicitly whitelisted IPs in `whitelist.json`
 
-### Testing Verification
-
-To verify all detections block IPs:
-
-```bash
+**Note:** Only specific gateway IPs are whitelisted, not entire private ranges. 
+Example: `192.168.0.119` (Kali) WILL be blocked, only `192.168.0.1` (router) is exempt.
 # 1. Check blocked IPs file
 cat server/json/blocked_ips.json
 
@@ -190,30 +187,35 @@ cat server/json/honeypot_attacks.json
 **Blocking Function:**
 - File: `AI/pcs_ai.py`
 - Function: `_block_ip()` (line 3045-3065)
-- Whitelist checks: Docker, GitHub, localhost
-- Persistence: `_save_blocked_ips()` (line 445-477)
-
-### Summary
-
-✅ **ALL 20 DETECTION SIGNALS NOW:**
-1. Log threats locally (threat_log.json)
-2. Block attacker IPs (blocked_ips.json with metadata)
-3. Extract sanitized patterns (no exploit code)
-4. Send patterns to relay (NO IPs, NO raw data)
+- WhEVERY DETECTED THREAT:**
+1. Logs locally with full forensic data (`threat_log.json`)
+2. Blocks attacker IP immediately (`blocked_ips.json` with metadata)
+3. Extracts sanitized patterns (no exploit code)
+4. Sends patterns to relay (NO IPs, NO raw payloads)
 
 ✅ **UNIFIED DATA FORMAT:**
-- Honeypot and main AI use same blocked_ips.json format
-- Backwards compatible with old simple list format
-- Rich metadata (timestamp, reason) for forensics
+- AI engine and honeypot use same `blocked_ips.json` structure
+- Backwards compatible with legacy simple list format
+- Rich metadata (timestamp, reason, geolocation) for forensics
 
 ✅ **PRIVACY COMPLIANT:**
-- Relay receives patterns only
-- No attacker IPs shared
+- Relay receives attack patterns only (keywords, encodings, hashes)
+- No attacker IP addresses shared
 - No raw exploit code shared
 - Cryptographic signing for authenticity
 
+✅ **VERIFIED CODE LOCATIONS:**
+- IP blocking: `AI/pcs_ai.py` line 2874
+- Threat logging: `AI/pcs_ai.py` line 2732-2920
+- Blocked IP persistence: `AI/pcs_ai.py` line 445-477
+- Unified format: Both honeypot and main AI confirmed
+
 ---
 
-**Last Verified:** 2025-01-15  
+**Last Verified:** January 11, 2026  
+**Status:** ✅ ARCHITECTURE COMPLIANT
+---
+
+**Last Verified:** January 11, 2026  
 **Status:** ✅ ARCHITECTURE COMPLIANT  
 **Bugs Fixed:** 3 critical issues (honeypot logging, IP blocking, format conflicts)

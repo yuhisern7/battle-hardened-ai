@@ -4,6 +4,47 @@
 
 ---
 
+## ⚙️ Network Configuration - IP Whitelisting
+
+**If your network uses a different IP segment than the defaults**, you need to whitelist your gateway/router IP to prevent accidental blocking.
+
+### Default Whitelisted IPs (Never Blocked):
+- `127.0.0.1`, `localhost`, `::1` - Localhost
+- `172.17.0.1`, `172.18.0.1`, `172.19.0.1`, `172.16.0.1` - Docker bridges
+- `10.0.0.1` - Common gateway
+- `192.168.0.1` - Common home router
+
+### Add Custom IPs (For Different Network Segments):
+
+**Method 1: Edit JSON file directly**
+```bash
+# Create/edit server/json/whitelist.json
+nano server/json/whitelist.json
+```
+
+Add your IPs as a JSON array:
+```json
+[
+  "10.0.5.1",
+  "172.16.10.1",
+  "192.168.1.1",
+  "192.168.50.100"
+]
+```
+
+**Method 2: Use Python API (after installation)**
+```python
+from AI.pcs_ai import add_to_whitelist
+
+# Add your gateway/trusted IPs
+add_to_whitelist("10.0.5.1")
+add_to_whitelist("192.168.1.1")
+```
+
+**Important:** Only specific IPs are whitelisted, NOT entire ranges. Example: `192.168.0.119` (Kali attacker) WILL be blocked, only `192.168.0.1` (router) is exempt.
+
+---
+
 ## 🔐 HMAC Shared Secret Key Required
 
 **To enable encrypted relay communication, obtain the HMAC shared secret key from:**
