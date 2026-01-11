@@ -1,6 +1,11 @@
-# Dashboard Sections: API Reference by Pipeline Stage
+# Dashboard Sections: Complete API Reference
 
-This document maps the 31 dashboard sections to the **7-stage attack detection pipeline** (documented in README), showing which APIs and AI modules power each section.
+This document provides a comprehensive guide to all 31 dashboard sections, mapping them to the **7-stage attack detection pipeline** and their corresponding APIs and AI modules.
+
+**Installation & Setup:**
+- For installation instructions, see [INSTALLATION.md](INSTALLATION.md)
+- For relay server setup, see [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)
+- For attack testing, see [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)
 
 **Pipeline Stages:**
 1. **Data Ingestion** → Packet capture, metadata extraction
@@ -450,52 +455,108 @@ show_json("/api/explainability/decisions")
 
 ---
 
-## Section 15 – Adaptive Honeypot (Stage 5: Training Source)
+## Section 15 – Real Honeypot Services (Stage 5: Training Source)
 
 **Pipeline Stage:** Training Material Extraction (100% confirmed attacks)
 **Detection Signal:** Feeds Signal #2 (Signature Matching) with high-quality training data
-**Purpose:** Multi-persona deception, attacker profiling, signature extraction
+**Purpose:** Multi-service deception, attacker profiling, signature extraction
+
+**Real Honeypot Services:**
+- **SSH** (port 2222) - Fake SSH server with banners
+- **FTP** (port 2121) - FTP with directory listings
+- **Telnet** (port 2323) - Legacy telnet service
+- **MySQL** (port 3306) - Database honeypot
+- **HTTP Admin** (port 8080) - Web admin interface
+- **SMTP** (port 2525) - Mail server honeypot
+- **RDP** (port 3389) - Remote desktop honeypot
 
 **APIs:**
-- `/api/adaptive_honeypot/status` — Personas, ports, mode
-- `/api/adaptive_honeypot/configure` — Start honeypot (POST)
-- `/api/adaptive_honeypot/stop` — Stop honeypot (POST)
-- `/api/adaptive_honeypot/attacks` — Recent honeypot hits
-- `/api/adaptive_honeypot/attacks/history` — Full attack history
-- `/api/honeypot/status` — Legacy honeypot status
+- `/api/adaptive_honeypot/status` — Service status, attack counts
+- `/api/adaptive_honeypot/attacks` — Recent honeypot hits (last 100)
+- `/api/adaptive_honeypot/attacks/history` — Full attack history (max 1000)
+- `/api/honeypot/status` — Detailed service status
 
 **Backend Modules:**
-- `AI/adaptive_honeypot.py` — Multi-persona honeypot (16 personas)
+- `AI/real_honeypot.py` — Multi-service honeypot implementation
 - `AI/signature_extractor.py` — Extract patterns from honeypot attacks
 - `AI/false_positive_filter.py` — Honeypot hits bypass whitelists (Gate 1)
 - `AI/meta_decision_engine.py` — Honeypot signals weighted 0.98 (highest)
 
-**Personas:** SSH, FTP, HTTP, SMTP, MySQL, PostgreSQL, RDP, SMB, Telnet, VNC, Kubernetes, Docker, Elasticsearch, Redis, MongoDB, Custom
+**JSON Output:**
+- `server/json/honeypot_attacks.json` — All honeypot attack logs
+- `server/json/honeypot_patterns.json` — Extracted attack patterns
+
+**Delayed IP Blocking:**
+- First attack logged → 60-second delay before IP block
+- Allows multiple attack attempts for better pattern analysis
+- Countdown messages: "⏳ Attack from IP - 45s until block"
 
 **Test Script:**
 ```python
 from helper import show_json
 
-show_json("/api/adaptive_honeypot/status")       # Status & personas
+show_json("/api/adaptive_honeypot/status")       # Status & services
 show_json("/api/adaptive_honeypot/attacks")      # Recent hits
 show_json("/api/adaptive_honeypot/attacks/history")  # Full history
+show_json("/api/honeypot/status")                # Detailed status
+```
+
+**Testing from Kali Linux:**
+```bash
+# Test SSH honeypot
+telnet WINDOWS_IP 2222
+
+# Test FTP honeypot  
+telnet WINDOWS_IP 2121
+
+# Brute force attack (triggers delayed blocking)
+hydra -l admin -P rockyou.txt ftp://WINDOWS_IP:2121 -t 4
 ```
 
 ---
 
-## Section 16 – AI Security Crawlers & Threat Intelligence Sources
+## Section 16 – AI Security & Threat Intelligence Sources
 
-Backed by: `AI/threat_intelligence.py`, `relay/threat_crawler.py`, `relay/exploitdb_scraper.py` and the JSON threat‑intel caches they maintain.
+**Pipeline Stage:** Parallel Multi-Signal Detection
+**Detection Signal:** #12 Threat Intelligence Integration
+**Purpose:** External threat feeds, ExploitDB signatures, reputation databases
 
+**Threat Intelligence Sources:**
+- **ExploitDB** - 43,971+ exploit signatures (auto-downloaded on relay server)
+- **VirusTotal** - 70+ security vendor analysis (optional API key)
+- **AbuseIPDB** - Community IP blacklist (optional API key)
+- **Honeypot Intelligence** - Real-world attack data from honeypot services
+- **P2P Threat Sharing** - Global threat exchange via relay/P2P mesh
+
+**APIs:**
+- `/api/system-status` — Shows VirusTotal/AbuseIPDB status
+- `/api/update-api-key` — Configure VirusTotal/AbuseIPDB keys
+- `/api/signatures/extracted` — Extracted defensive signatures
+- `/api/signatures/types` — Attack types with signatures
+- `/api/signatures/stats` — Signature statistics
+
+**Backend Modules:**
+- `AI/threat_intelligence.py` — Core threat intel integration (Signal #12)
+- `relay/exploitdb_scraper.py` — ExploitDB download and parsing
+- `relay/threat_crawler.py` — Dark web monitoring
+- `AI/signature_extractor.py` — Pattern extraction from attacks
+- `AI/signature_distribution.py` — P2P signature sharing
+
+**Configuration:**
+Set API keys in `.env` file or via dashboard System Status section:
+```bash
+VIRUSTOTAL_API_KEY=your_64_char_key_here
+ABUSEIPDB_API_KEY=your_key_here
+```
+
+**Test Script:**
 ```python
-# Show current threat‑intel and crawler‑feed state from pcs_ai
-import os, sys
-sys.path.insert(0, os.path.dirname(__file__))
-import AI.pcs_ai as pcs_ai
-from pprint import pprint
+from helper import show_json
 
-intel = pcs_ai.get_threat_intel_summary()  # helper inside pcs_ai
-pprint(intel)
+show_json("/api/system-status")            # Shows threat intel status
+show_json("/api/signatures/extracted")     # Extracted patterns
+show_json("/api/signatures/types")         # Attack types
+show_json("/api/signatures/stats")         # Signature statistics
 ```
 
 ## Section 17 – Traffic Analysis & Inspection

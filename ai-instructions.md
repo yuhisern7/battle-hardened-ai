@@ -1,17 +1,161 @@
 # AI System Architecture & Implementation Guide
 
-> **Purpose:** Technical implementation guide for developers. Explains how the 7-stage attack detection pipeline (documented in README) is implemented across AI modules, server components, and relay infrastructure.
+> **Purpose:** Comprehensive technical guide for developers. Explains the 7-stage attack detection pipeline implementation, testing procedures, and compliance architecture across AI modules, server components, and relay infrastructure.
+
+**Related Documentation:**
+- **[README.md](README.md)** - Main documentation with architecture overview
+- **[INSTALLATION.md](INSTALLATION.md)** - Complete installation guide
+- **[relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)** - Relay server deployment
+- **[dashboard.md](dashboard.md)** - Dashboard API reference (31 sections)
+- **[filepurpose.md](filepurpose.md)** - File organization by pipeline stage
+- **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** - Attack testing commands
 
 ---
 
-## 0. Architecture Overview: 7-Stage Pipeline Implementation
+## Table of Contents
+
+**PART I: ARCHITECTURE & IMPLEMENTATION**
+- [0. Architecture Overview: 7-Stage Pipeline Visualization](#0-architecture-overview-7-stage-pipeline-visualization)
+- [1. Pipeline Implementation Map: README Flow → Code Modules](#1-pipeline-implementation-map-readme-flow--code-modules)
+  - [Stage 1: Data Ingestion & Normalization](#stage-1-data-ingestion--normalization)
+  - [Stage 2: Parallel Multi-Signal Detection (20 Signals)](#stage-2-parallel-multi-signal-detection-20-signals)
+  - [Stage 3: Ensemble Decision Engine (Weighted Voting)](#stage-3-ensemble-decision-engine-weighted-voting)
+  - [Stage 4: Response Execution (Policy-Governed)](#stage-4-response-execution-policy-governed)
+  - [Stage 5: Training Material Extraction (Privacy-Preserving)](#stage-5-training-material-extraction-privacy-preserving)
+  - [Stage 6: Global Intelligence Sharing (Optional Relay)](#stage-6-global-intelligence-sharing-optional-relay)
+  - [Stage 7: Continuous Learning Loop](#stage-7-continuous-learning-loop)
+- [2. Dashboard Architecture: UI → API → AI Modules](#2-dashboard-architecture-ui--api--ai-modules)
+- [3. File Structure & Path Conventions](#3-file-structure--path-conventions)
+- [4. Privacy & Security Guarantees](#4-privacy--security-guarantees)
+- [5. Developer Guidelines: Adding New Detections](#5-developer-guidelines-adding-new-detections)
+- [6. Performance Considerations](#6-performance-considerations)
+- [7. Common Pitfalls & Solutions](#7-common-pitfalls--solutions)
+- [8. Quick Reference](#8-quick-reference)
+
+**PART II: TESTING & VALIDATION**
+- [9. Testing & Validation Guide (10-Stage Progressive Validation)](#9-testing--validation-guide-10-stage-progressive-validation)
+  - [9.1 Testing Strategy Overview](#91-testing-strategy-overview)
+  - [9.2 Quick Reference: 20 Detection Signals → Implementation Files](#92-quick-reference-20-detection-signals--implementation-files)
+  - [9.3 Relay Output Files by Stage (Summary)](#93-relay-output-files-by-stage-summary)
+
+---
+
+## 0. Architecture Overview: 7-Stage Pipeline Visualization
 
 **This system implements the README's 7-stage attack detection flow:**
 
 ```
-Stage 1: Data Ingestion → Stage 2: 20 Parallel Detections → Stage 3: Ensemble Voting → 
-Stage 4: Response Execution → Stage 5: Training Extraction → Stage 6: Relay Sharing → 
-Stage 7: Continuous Learning
+┌───────────────────────────────────────────────────────────────────────────────┐
+│                        BATTLE-HARDENED AI ARCHITECTURE                        │
+│                        7-Stage Attack Detection Pipeline                      │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────┐
+│  STAGE 1: INGESTION │  Network packet arrives
+└──────────┬──────────┘
+           │
+           ▼
+    ┌──────────────┐
+    │ network_     │───→ Scapy/eBPF packet capture
+    │ monitor.py   │───→ Metadata extraction (IPs, ports, protocols)
+    └──────┬───────┘
+           │
+           ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 2: PARALLEL DETECTION (20 Signals = 18 Primary + 2 Strategic)         │
+├───────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
+│  PRIMARY SIGNALS (1-18): Direct threat detection                             │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐                 │
+│  │ #1 Kernel   │ #2 Signature│ #3 Random   │ #4 Isolation│                 │
+│  │ Telemetry   │ Matching    │ Forest      │ Forest      │                 │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘                 │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐                 │
+│  │ #5 Gradient │ #6 Behavior │ #7 LSTM     │ #8 Auto-    │                 │
+│  │ Boosting    │ Heuristics  │ Sequences   │ encoder     │                 │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘                 │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐                 │
+│  │ #9 Drift    │ #10 Graph   │ #11 VPN/Tor │ #12 Threat  │                 │
+│  │ Detection   │ Intel       │ Fingerprint │ Intel Feeds │                 │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘                 │
+│  ┌─────────────┬─────────────┬─────────────┬─────────────┐                 │
+│  │ #13 False   │ #14 Histor  │ #15 Explain │ #16 Predict │                 │
+│  │ Pos Filter  │ Reputation  │ Engine      │ Modeling    │                 │
+│  └─────────────┴─────────────┴─────────────┴─────────────┘                 │
+│  ┌─────────────┬─────────────┐                                              │
+│  │ #17 Byzant  │ #18 Integ   │                                              │
+│  │ Defense     │ Monitor     │                                              │
+│  └─────────────┴─────────────┘                                              │
+│                                                                               │
+│  STRATEGIC LAYERS (19-20): Context-aware analysis consuming 1-18             │
+│  ┌──────────────────────────────┬──────────────────────────────┐            │
+│  │ #19 Causal Inference Engine  │ #20 Trust Degradation Graph  │            │
+│  │ WHY attacks happen            │ Persistent entity tracking   │            │
+│  │ (legitimate vs malicious)     │ (permanent scarring)         │            │
+│  └──────────────────────────────┴──────────────────────────────┘            │
+│                                                                               │
+│  All signals produce: DetectionSignal(is_threat, confidence, details)        │
+└──────────────────────────────────┬────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 3: ENSEMBLE VOTING (meta_decision_engine.py)                          │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  Step 1: Weighted Voting → Base score = Σ(weight × confidence × is_threat)  │
+│  Step 2: Authoritative Boosting → Honeypot/ThreatIntel override             │
+│  Step 3: Causal Modulation → Layer 19 adjusts score (-20% to +15%)          │
+│  Step 4: Trust Modulation → Layer 20 adjusts threshold (60%-75%)            │
+│  Step 5: Threshold Decision → Block if score ≥ threshold (default 75%)      │
+└──────────────────────────────────┬────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 4: RESPONSE EXECUTION                                                  │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  • Firewall block (iptables/Windows Firewall)                                │
+│  • Log to threat_log.json + blocked_ips.json                                 │
+│  • Trust degradation (Layer 20 updates trust_graph.json)                     │
+│  • Alert delivery (email/SMS/SOAR)                                            │
+│  • Dashboard update                                                           │
+└──────────────────────────────────┬────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 5: TRAINING EXTRACTION (Privacy-Preserving)                           │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  • Signature extraction (signature_extractor.py)                              │
+│  • Behavioral statistics (behavioral_heuristics.py)                           │
+│  • Graph patterns (graph_intelligence.py → anonymized topology)              │
+│  • Reputation updates (reputation_tracker.py)                                 │
+│  • NO payloads, NO PII, NO credentials                                        │
+└──────────────────────────────────┬────────────────────────────────────────────┘
+                                   │
+                                   ▼ (Optional relay connection)
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 6: RELAY SHARING (Optional - VPS relay server)                        │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  Client Node                     Relay Server (VPS)                           │
+│  ┌─────────────┐                ┌─────────────────────┐                     │
+│  │ Local       │──Push threat──→│ global_attacks.json │                     │
+│  │ findings    │   signatures    │ +43,971 ExploitDB   │                     │
+│  │             │←──Pull models───│ trained_models/     │                     │
+│  └─────────────┘   updates       └─────────────────────┘                     │
+│                                                                               │
+│  • WebSocket: wss://relay:60001 (threat push)                                │
+│  • HTTPS API: https://relay:60002 (model pull)                               │
+│  • Byzantine validation (reject poisoned updates)                             │
+└──────────────────────────────────┬────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 7: CONTINUOUS LEARNING                                                 │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  • Weekly ML retraining (relay/ai_retraining.py)                              │
+│  • Signature distribution (relay/signature_sync.py)                           │
+│  • Drift baseline updates (AI/drift_detector.py)                              │
+│  • Reputation decay (AI/reputation_tracker.py)                                │
+│  • Model lineage tracking (AI/cryptographic_lineage.py)                       │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Three deployment tiers:**
@@ -916,5 +1060,208 @@ def threats_summary():
 
 ---
 
-**For detailed test procedures, see:** `ai-abilities.md` (10-stage validation checklist)
+## 9. Testing & Validation Guide (10-Stage Progressive Validation)
+
+This section provides a comprehensive testing guide for all **20 detection signals** in the Battle-Hardened AI system, organized by the 7-stage attack detection pipeline + 3 extended validation stages.
+
+**Testing validates end-to-end flow:**
+- Each signal fires → local JSON + dashboard updates
+- Relay server receives sanitized intelligence (when enabled)
+- Ensemble decision engine produces correct verdicts (block/log/allow)
+
+**Testing Status Legend:**
+- [ ] Not tested yet
+- [x] Tested and verified (local + relay logs confirmed)
+
+> **Testing Rule:** Mark as tested ONLY after verifying: local JSON files, dashboard UI display, and relay server logs (if applicable).
+
+### 9.1 Testing Strategy Overview
+
+Tests follow the same **7-stage pipeline** from the README, plus 3 additional validation stages. Each stage builds on previously verified infrastructure:
+
+**Stages 1-7 mirror the README's attack detection pipeline.** Each validates one major pipeline component:
+
+**Core Pipeline Stages (README Flow)**
+
+**Stage 1: Data Ingestion & Normalization**
+- **Test:** HMAC/key setup, relay connectivity, packet capture
+- **Goal:** Verify network_monitor captures traffic → normalizes metadata → feeds into detection signals
+- **Validates README:** "Stage 1: Data Ingestion & Normalization" (packet capture, metadata extraction)
+
+**Stage 2: Parallel Multi-Signal Detection (20 Signals)**
+- **Test:** Core detection pipeline (18 primary signals: signatures, ML models, behavioral, LSTM, autoencoder, drift, graph, VPN/Tor, threat intel, FP filter, reputation, explainability, predictive, Byzantine, integrity) + 2 strategic intelligence layers (causal inference, trust degradation)
+- **Goal:** All 20 signals fire independently → produce threat assessments → visible in local JSON
+- **Validates README:** "Stage 2: Parallel Multi-Signal Detection" (20 detection systems: 18 primary + 2 strategic)
+
+**Stage 3: Ensemble Decision Engine (Weighted Voting)**
+- **Test:** Meta-decision engine combines signals → weighted consensus → threshold decisions (block/log/allow)
+- **Goal:** Verify ensemble voting calculation → authoritative boosting → consensus checks → final verdict in threat_log.json
+- **Validates README:** "Stage 3: Ensemble Decision Engine" (weighted voting, 75% block threshold, APT mode 70%)
+
+**Stage 4: Response Execution (Policy-Governed)**
+- **Test:** Automated responses (firewall blocks, connection drops, rate limiting, logging, alerts, SOAR integration)
+- **Goal:** Verify policy-governed actions execute → local logging → dashboard updates → alert delivery
+- **Validates README:** "Stage 4: Response Execution" (immediate actions, logging, alerts)
+
+**Stage 5: Training Material Extraction (Privacy-Preserving)**
+- **Test:** Honeypot-to-signature pipeline, attack pattern extraction, behavioral statistics, reputation updates, graph topology anonymization
+- **Goal:** Verify high-confidence attacks → sanitized training materials (no payloads/PII) → stored locally
+- **Validates README:** "Stage 5: Training Material Extraction" (signatures, statistics, reputation, graph patterns, model weights)
+
+**Stage 6: Global Intelligence Sharing (Optional Relay)**
+- **Test:** Relay push/pull, signature distribution, model updates, Byzantine validation, global reputation feeds
+- **Goal:** Verify local findings → relay server → global_attacks.json + learned_signatures.json → other nodes pull updates
+- **Validates README:** "Stage 6: Relay Sharing" (push/pull protocol, global intelligence, privacy-preserving federation)
+
+**Stage 7: Continuous Learning Loop**
+- **Test:** Signature extraction, ML retraining, reputation decay, drift baseline updates, Byzantine validation, feedback integration
+- **Goal:** Verify system improves over time → models retrain weekly → baselines adapt → false positives decrease
+- **Validates README:** "Stage 7: Continuous Learning" (automated improvement, feedback mechanisms)
+
+**Validation Stages (Extended Testing)**
+
+**Stage 8: Enterprise Integration & Cloud Posture**
+- **Test:** SOAR workflows, enterprise integrations, cloud security posture (CSPM), IAM risk detection
+- **Goal:** Verify enterprise features integrate with core pipeline → incidents flow to relay as `soar_incident` / `cloud_misconfiguration`
+
+**Stage 9: Resilience, Backup & Compliance**
+- **Test:** Backup status monitoring, ransomware resilience, compliance reporting (PCI/HIPAA/GDPR), breach notifications
+- **Goal:** Verify backup/compliance issues → comprehensive_audit.json → relay as `backup_issue` / `compliance_issue`
+
+**Stage 10: Explainability, Visualization & Dashboard**
+- **Test:** Decision explanations, advanced visualizations (topology/heatmaps/geo), dashboard API endpoints, error handling
+- **Goal:** Verify UI correctly reflects all pipeline stages → API failures logged as `SYSTEM_ERROR` events
+
+**For every stage:** Validate complete flow → **trigger → local JSON → dashboard → relay JSON** (Logging & Central Capture Checklist).
+
+### 9.2 Quick Reference: 20 Detection Signals → Implementation Files
+
+This maps each of the **20 active detection signals** from the README to the concrete files/modules that implement or feed that signal.
+
+1. **eBPF Kernel Telemetry**  
+   Files: AI/kernel_telemetry.py; server/network_monitor.py; server/docker-compose.yml (Linux capabilities and host networking); AI/pcs_ai.py (orchestration and signal wiring).
+
+2. **Signature Matching**  
+   Files: AI/threat_intelligence.py; AI/signature_extractor.py; AI/signature_distribution.py; AI/signature_uploader.py; AI/pcs_ai.py; relay/signature_sync.py; relay/exploitdb_scraper.py; relay/threat_crawler.py; relay/ai_training_materials/ai_signatures/; relay/ai_training_materials/exploitdb/.
+
+3. **RandomForest (supervised classifier)**  
+   Files: AI/pcs_ai.py (loads and uses RF pickles); ml_models/ (RandomForest model pickles such as anomaly_detector/threat_classifier); relay/ai_retraining.py (trains and exports updated RF models to ai_training_materials/ml_models/); relay/gpu_trainer.py (optional GPU training backend).
+
+4. **IsolationForest (unsupervised anomaly)**  
+   Files: AI/pcs_ai.py; ml_models/ (IsolationForest pickle); relay/ai_retraining.py; relay/gpu_trainer.py.
+
+5. **Gradient Boosting (reputation modeling)**  
+   Files: AI/pcs_ai.py; ml_models/ (gradient boosting/reputation model); relay/ai_retraining.py; relay/gpu_trainer.py.
+
+6. **Behavioral Heuristics**  
+   Files: AI/behavioral_heuristics.py; AI/pcs_ai.py (uses heuristic scores as detection signals); server/network_monitor.py (feeds per-IP events into the heuristics engine); server/json/behavioral_metrics.json (persistence, when enabled).
+
+7. **LSTM (sequential kill-chain analysis)**  
+   Files: AI/sequence_analyzer.py; AI/ml_models/sequence_lstm.keras; AI/pcs_ai.py (calls sequence analysis); server/json/attack_sequences.json (sequence export, when enabled); relay/ai_retraining.py (may incorporate sequence history into retraining).
+
+8. **Autoencoder (zero-day anomaly detection)**  
+   Files: AI/traffic_analyzer.py; AI/ml_models/traffic_autoencoder.keras; AI/network_performance.py; AI/pcs_ai.py; server/json/network_performance.json; relay/ai_retraining.py; relay/gpu_trainer.py.
+
+9. **Drift Detection**  
+   Files: AI/drift_detector.py; AI/pcs_ai.py (invokes drift checks and flags); server/json/drift_baseline.json; server/json/drift_reports.json; relay/ai_retraining.py (uses history/drift context for when to retrain).
+
+10. **Graph Intelligence (lateral movement / C2)**  
+    Files: AI/graph_intelligence.py; AI/advanced_visualization.py (renders graph outputs); AI/advanced_orchestration.py (can export topology/training views); AI/pcs_ai.py; server/json/network_graph.json; server/json/lateral_movement_alerts.json; relay/ai_training_materials/training_datasets/graph_topology.json.
+
+11. **VPN/Tor Fingerprinting**  
+    Files: AI/pcs_ai.py (get_vpn_tor_statistics and related tracking); server/server.py (vpn_stats wiring into dashboard sections); server/json/threat_log.json (stores VPN/Tor-related attacker_intel entries).
+
+12. **Threat Intelligence Feeds (OSINT correlation)**  
+    Files: relay/threat_crawler.py; relay/exploitdb_scraper.py; relay/ai_training_materials/threat_intelligence/; relay/ai_training_materials/reputation_data/; AI/threat_intelligence.py; AI/reputation_tracker.py; AI/pcs_ai.py.
+
+13. **False Positive Filter (multi-gate)**  
+    Files: AI/false_positive_filter.py; AI/meta_decision_engine.py (consumes FP-filtered signals); AI/pcs_ai.py; server/json/decision_history.json (records final ensemble decisions and FP-filter outcomes).
+
+14. **Historical Reputation**  
+    Files: AI/reputation_tracker.py; AI/pcs_ai.py; server/json/reputation.db (SQLite DB backing for long-term reputation); relay/ai_training_materials/reputation_data/ (aggregated global reputation, when exported).
+
+15. **Explainability Engine (decision transparency)**  
+    Files: AI/explainability_engine.py; AI/pcs_ai.py; server/report_generator.py (uses explainability data for reports); server/json/forensic_reports/; relay/ai_training_materials/explainability_data/ (when full repo is present for training).
+
+16. **Predictive Modeling (short-term threat forecasting)**  
+    Files: AI/advanced_orchestration.py (ThreatPrediction logic and export to orchestration_data); AI/pcs_ai.py (can integrate forecast results into decisions); relay/ai_training_materials/orchestration_data/.
+
+17. **Byzantine Defense (poisoned update rejection)**  
+    Files: AI/byzantine_federated_learning.py; AI/training_sync_client.py; relay/ai_retraining.py; relay/gpu_trainer.py; relay/ai_training_materials/ml_models/ (aggregated models after Byzantine-safe updates); server/json/comprehensive_audit.json; relay/ai_training_materials/global_attacks.json (when relay is present).
+
+18. **Integrity Monitoring (model & telemetry tampering)**  
+    Files: AI/self_protection.py; AI/emergency_killswitch.py; AI/cryptographic_lineage.py; AI/crypto_security.py; AI/policy_governance.py; server/json/integrity_violations.json; server/json/comprehensive_audit.json and audit_archive/ (governance/integrity + cryptographic lineage audit trail); AI/pcs_ai.py (routes integrity/self-protection and lineage/drift signals into the ensemble).
+
+**STRATEGIC INTELLIGENCE LAYERS (19-20):** Context-aware analysis consuming primary signals 1-18
+
+19. **Causal Inference Engine (root cause analysis)**  
+    Files: AI/causal_inference.py (585 lines, production-ready); AI/meta_decision_engine.py (_apply_causal_modulation method); server/json/causal_analysis.json (auto-rotates at 10,000 entries); AI/pcs_ai.py (integration point).  
+    **Purpose:** Distinguishes legitimate operational changes from disguised attacks via causal graphs (not correlations) and counterfactual testing.  
+    **Inputs:** DetectionSignal objects (1-18), deployment logs, config change events, identity events (login/privilege change), time-series metadata.  
+    **Output:** CausalInferenceResult with causal_label (LEGITIMATE_CAUSE/MISCONFIGURATION/AUTOMATION_SIDE_EFFECT/EXTERNAL_ATTACK/INSIDER_MISUSE/UNKNOWN_CAUSE), confidence (0.0-1.0), primary_causes[], non_causes[], reasoning.  
+    **Score Modulation:** Downgrade by -20% (legitimate), boost by +15% (attack), route to governance (misconfiguration), require human review (unknown).  
+    **Position:** Runs AFTER signals 1-18, BEFORE final ensemble decision.  
+    **Weight:** 0.88 (high reliability, context provides strong signal).  
+    **Privacy:** Metadata-only analysis, no payloads/credentials/PII.
+
+20. **Trust Degradation Graph (zero-trust entity tracking)**  
+    Files: AI/trust_graph.py (422 lines, production-ready); AI/meta_decision_engine.py (_apply_trust_modulation method); server/json/trust_graph.json (persistent across restarts); AI/pcs_ai.py (integration point).  
+    **Purpose:** Persistent memory prevents "try again later" strategies via non-linear trust degradation with permanent scarring (recovery capped at 80% of baseline).  
+    **Tracked Entities:** IPs, devices, user accounts, services, APIs, cloud roles, containers (SHA-256 hashed).  
+    **Trust Score:** 0-100 per entity, event-weighted penalties (minor_anomaly=-5 to repeated_attack=-50), natural recovery (+1/day capped at 80% baseline).  
+    **Trust Thresholds & Actions:** ≥80 (ALLOW), 60-79 (MONITOR, +5% score boost), 40-59 (RATE_LIMIT, +10% boost, 65% block threshold), 20-39 (ISOLATE, +15% boost, 60% block threshold), <20 (QUARANTINE, force block regardless of ensemble score).  
+    **Recidivism:** 3+ attacks in 7 days = exponential penalty.  
+    **Position:** Influences Stage 4 response severity, tracked by explainability engine (Signal #15).  
+    **Weight:** 0.90 (very high reliability, persistent memory prevents evasion).  
+    **Privacy:** SHA-256 entity hashing, no PII, statistical scores only.
+
+### 9.3 Relay Output Files by Stage (Summary)
+
+This summarizes which **relay JSON files** are expected to receive events when each stage is exercised and relay is enabled:
+
+- **Stage 1 – Plumbing & Relay Channel**  
+  - `relay/ai_training_materials/global_attacks.json` — central attack/event log when a real signed attack message is sent through the HMAC channel.
+
+- **Stage 2 – Core Detection & Scoring**  
+  - `relay/ai_training_materials/global_attacks.json` — all elevated attacks from the core pipeline (including ML, VPN/Tor, DNS tunneling, TLS C2 once promoted by pcs_ai).
+  - `relay/ai_training_materials/attack_statistics.json` — aggregated counts and trends computed from global_attacks.json.
+
+- **Stage 3 – Deception & Honeypots**  
+  - `relay/ai_training_materials/global_attacks.json` — honeypot-sourced attacks promoted to the global view.  
+  - `relay/ai_training_materials/ai_signatures/learned_signatures.json` — privacy-preserving signatures and patterns derived from honeypot hits and ExploitDB (no raw exploits).
+
+- **Stage 4 – Network, Devices & Behavioral Analytics**  
+  - `relay/ai_training_materials/global_attacks.json` — network/behavioral/graph/DNS/TLS/zero‑trust violations once pcs_ai elevates them to attacks.  
+  - `relay/ai_training_materials/attack_statistics.json` — updated statistics including these NDR and UEBA events.
+
+- **Stage 5 – Threat Intelligence & Signatures**  
+  - `relay/ai_training_materials/ai_signatures/learned_signatures.json` — central store for all normalized signatures.  
+  - `relay/ai_training_materials/threat_intelligence/` — OSINT / feed JSONs maintained by crawlers.  
+  - `relay/ai_training_materials/reputation_data/` — aggregated global reputation exports.  
+  - `relay/ai_training_materials/global_attacks.json` — attacks enriched with intel/reputation context.
+
+- **Stage 6 – Policy, Governance & Self-Protection**  
+  - `relay/ai_training_materials/global_attacks.json` — policy violations and self‑protection events that the ensemble promotes as attacks.
+
+- **Stage 7 – Cryptography, Lineage & Federated / Relay**  
+  - `relay/ai_training_materials/global_attacks.json` — training/federation-related security incidents recorded as attacks.  
+  - `relay/ai_training_materials/ai_signatures/learned_signatures.json` + `relay/ai_training_materials/global_attacks.json` — input training materials for `relay/ai_retraining.py`.
+
+- **Stage 8 – Enterprise, Cloud & SOAR**  
+  - `relay/ai_training_materials/global_attacks.json` — incidents raised from SOAR or cloud posture checks that are shared globally.
+
+- **Stage 9 – Resilience, Backup & Compliance**  
+  - `relay/ai_training_materials/global_attacks.json` — any ransomware/backup/compliance‑related incidents escalated as attacks.
+
+- **Stage 10 – Explainability, Visualization & Dashboard**  
+  - No new relay files; reuses:  
+    - `relay/ai_training_materials/global_attacks.json` — attacks already logged in earlier stages.  
+    - `relay/ai_training_materials/ai_signatures/learned_signatures.json` — signatures already logged.  
+  - Additional logging surface for this stage:  
+    - `server/json/comprehensive_audit.json` — SYSTEM_ERROR events from dashboard/explainability/visualization APIs when those paths fail.
+
+Use this as a quick cross-check when validating that a given stage's detections are visible both **locally** (server/json) and at the **relay** (ai_training_materials).
+
+---
+
 **For architecture overview, see:** `README.md` (7-stage pipeline with diagrams)

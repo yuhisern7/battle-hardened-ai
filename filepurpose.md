@@ -2,6 +2,10 @@
 
 This document maps each file in `AI/`, `server/`, and `relay/` folders to the **7-stage attack detection pipeline** documented in the README.
 
+**For installation instructions, see [INSTALLATION.md](INSTALLATION.md)**  
+**For relay server setup, see [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)**  
+**For attack testing, see [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)**
+
 **Pipeline Stages:**
 1. **Data Ingestion & Normalization** → Packet capture, metadata extraction
 2. **20 Parallel Detections** → Independent threat assessments (18 primary + 2 strategic intelligence layers)
@@ -61,7 +65,10 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 **Signal #2: Signature Matching**
 - `AI/threat_intelligence.py` — Signature matching (3,066+ patterns)
 - `AI/signature_extractor.py` — Extract new signatures from attacks
-- `relay/exploitdb_scraper.py` — ExploitDB pattern generation
+- `AI/real_honeypot.py` — Real honeypot services (7 ports: SSH 2222, FTP 2121, Telnet 2323, MySQL 3306, HTTP 8080, SMTP 2525, RDP 3389)
+- `server/json/honeypot_attacks.json` — Honeypot attack logs
+- `server/json/honeypot_patterns.json` — Extracted honeypot patterns
+- `relay/exploitdb_scraper.py` — ExploitDB pattern generation (43,971+ exploits)
 - `relay/ai_training_materials/exploitdb/` — ExploitDB mirror
 - `relay/ai_training_materials/ai_signatures/learned_signatures.json` — Global signature database
 
