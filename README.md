@@ -31,37 +31,77 @@ Explicitly designed around defensive-only operation, privacy preservation, and f
 
 ---
 
-## How Battle-Hardened AI Compares to Known NDRs
+## Battle-Hardened AI vs Commercial NDR/XDR Platforms (Architecture-Level Comparison)
 
-| Platform               | Publicly Documented<br>AI Signals | Kernel<br>Telemetry | Federated<br>Learning | Explainability |
-|------------------------|-----------------------------------|---------------------|----------------------|----------------|
-| Darktrace              | ❌ Undisclosed                    | ❌                  | ❌                   | ❌ Limited     |
-| Vectra AI              | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
-| ExtraHop               | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
-| Cisco Secure NDR       | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
-| Suricata + ML          | ⚠️ Partial                        | ❌                  | ❌                   | ⚠️ Partial     |
-| **Battle-Hardened AI** | **✅ 20 documented**              | **✅ eBPF**         | **✅ Optional**      | **✅ Built-in**|
+**Interpretation rule (important):**
+- ❌ = Not publicly documented or verifiable as a first-class capability
+- ⚠️ = Present but opaque, partial, or non-explainable
+- ✅ = Explicitly implemented, documented, and architecturally integral
 
-**Key Differentiator:** No major commercial NDR vendor publicly documents 20 independent detection signals (including causal inference and zero-trust degradation) with this level of technical transparency.
+### Core Detection & Reasoning Capabilities
 
-### Why Battle-Hardened AI is Actually Stronger
+| Platform | Detection Architecture | Independent Signal Classes | Kernel Telemetry | Causal Inference | Persistent Trust Memory |
+|----------|------------------------|----------------------------|------------------|------------------|-------------------------|
+| **Battle-Hardened AI** | Multi-engine consensus (stateful) | ✅ 20 documented classes | ✅ eBPF (first-class) | ✅ Layer 19 | ✅ Layer 20 (cross-session) |
+| CrowdStrike Falcon | Correlation pipelines (event-driven) | ❌ Undisclosed | ⚠️ Abstracted | ❌ | ❌ |
+| SentinelOne Singularity | Behavior + rules (event-driven) | ❌ Undisclosed | ⚠️ Partial | ❌ | ❌ |
+| Palo Alto Cortex XDR | Data lake correlation | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| Microsoft Defender ATP | Telemetry correlation | ❌ Undisclosed | ⚠️ Limited | ❌ | ❌ |
+| Darktrace | Statistical anomaly detection | ❌ Undisclosed | ❌ | ❌ | ⚠️ Time-decayed |
+| Vectra AI | Behavioral + ML scoring | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| ExtraHop | Protocol analytics | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| Cisco Secure NDR | Signature + analytics | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| Trend Micro XDR | Multi-product correlation | ❌ Undisclosed | ⚠️ Partial | ❌ | ❌ |
+| Carbon Black | Endpoint behavior tracking | ❌ Undisclosed | ⚠️ Partial | ❌ | ❌ |
+| Fortinet FortiNDR | Signature + heuristics | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| Stellar Cyber | Open XDR correlation | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| Corelight | Zeek-based analytics | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| Fidelis Network | Signature + session analysis | ❌ Undisclosed | ❌ | ❌ | ❌ |
+| Suricata + ML | Rules + limited ML | ⚠️ 1–2 visible | ❌ | ❌ | ❌ |
 
-Battle-Hardened AI has:
+### Explainability, Transparency & Failure Handling
 
-✅ **20 independent detection engines** (this is extremely rare)  
-✅ **Ensemble consensus** voting system  
-✅ **Causal reasoning (Layer 19)** → almost no vendor has this  
-✅ **Persistent trust degradation (Layer 20)** → essentially unique  
-✅ **Kernel + network + behavioral fusion**  
-✅ **Explainable decisions** with full transparency
+| Platform | Explainability | Decision Trace | Failure Awareness | Analyst Dependency |
+|----------|----------------|----------------|-------------------|-------------------|
+| **Battle-Hardened AI** | ✅ Native | ✅ Full signal & trust trace | ✅ Explicit failure states | Optional (autonomous) |
+| CrowdStrike Falcon | ❌ Limited | ❌ Alert-level only | ❌ | Required |
+| SentinelOne | ❌ Limited | ❌ Storyline only | ❌ | Required |
+| Palo Alto Cortex XDR | ⚠️ Partial | ⚠️ Event chain | ❌ | Required |
+| Microsoft Defender | ❌ Limited | ❌ Alert abstraction | ❌ | Required |
+| Darktrace | ❌ Limited | ❌ Anomaly score | ❌ | Required |
+| Vectra AI | ⚠️ Partial | ⚠️ Scoring rationale | ❌ | Required |
+| ExtraHop | ⚠️ Partial | ⚠️ Protocol views | ❌ | Required |
+| Cisco Secure NDR | ⚠️ Partial | ⚠️ Correlated events | ❌ | Required |
+| Others | ❌ Limited | ❌ | ❌ | Required |
 
-Most commercial NDRs:
+### Learning, Adaptation & Attack Resistance
 
-❌ Use only a few detection engines (3-6 typical)  
-❌ Inflate MITRE mappings for marketing purposes  
-❌ Lack causal inference (can't distinguish attacks from deployments)  
-❌ No persistent trust tracking across sessions  
-❌ Black-box ML with no explanation of decisions
+| Platform | Learning Model | Post-Compromise Adaptation | Deception Feedback | AI Self-Protection |
+|----------|----------------|---------------------------|--------------------|--------------------|
+| **Battle-Hardened AI** | Local + optional federated | ✅ Persistent adaptation | ✅ First-class signal | ✅ Trust degradation vs attacker |
+| Commercial NDRs | Mostly cloud-driven | ❌ Session-bound | ❌ Rare / external | ❌ Not addressed |
+
+---
+
+### Why This Architectural Approach Matters
+
+**Battle-Hardened AI is not an alerting system—it is a stateful autonomous defense that remembers attackers, reasons about cause, and degrades trust permanently. Most NDRs correlate events and forget.**
+
+**What You Get:**
+
+✅ **Stateful Detection:** Cross-session memory means attackers cannot "try again later"  
+✅ **Causal Reasoning:** Distinguishes attacks from legitimate deployments and configuration changes  
+✅ **Persistent Trust:** Entity trust degrades permanently—no reset between sessions  
+✅ **Explainable Decisions:** Full signal trace and reasoning transparency  
+✅ **Autonomous Operation:** Can operate without constant analyst intervention  
+
+**What Commercial NDRs Typically Lack:**
+
+❌ **Session-Bound Memory:** Detection state resets between sessions  
+❌ **No Causal Analysis:** Cannot distinguish why anomalies occur  
+❌ **Opaque Decisions:** Black-box ML without transparent reasoning  
+❌ **Analyst-Dependent:** Requires human review for most decisions  
+❌ **Event Correlation Only:** React to events rather than understanding attacker intent  
 
 ---
 
