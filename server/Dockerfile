@@ -41,6 +41,9 @@ COPY server/device_scanner.py .
 COPY server/device_blocker.py .
 COPY server/report_generator.py .
 
+# Copy installation directory (contains init_json_files.py)
+COPY server/installation/ installation/
+
 # Create and copy JSON data directory
 RUN mkdir -p json
 COPY server/json/ json/

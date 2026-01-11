@@ -37,7 +37,12 @@ SIGNATURE_EXTRACTOR_FILE = os.getenv("SIGNATURE_EXTRACTOR_FILE")
 class SignatureExtractor:
     """Extract attack patterns WITHOUT storing exploit code"""
     
-    def __init__(self, signatures_file: str = "learned_attack_patterns.json"):
+    def __init__(self, signatures_file: str = None):
+        # Use absolute path to honeypot_patterns.json in server/json/
+        if signatures_file is None:
+            _current_dir = os.path.dirname(os.path.abspath(__file__))
+            signatures_file = os.path.join(_current_dir, '..', 'server', 'json', 'honeypot_patterns.json')
+        
         # Allow environment override of the signature file location
         self.signatures_file = SIGNATURE_EXTRACTOR_FILE or signatures_file
         

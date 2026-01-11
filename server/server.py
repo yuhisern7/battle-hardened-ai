@@ -3631,6 +3631,19 @@ if __name__ == '__main__':
             key_file = None
     
     print("📊 Starting server...")
+    
+    # Initialize JSON files before starting (critical for first run)
+    print("📁 Initializing JSON data files...")
+    try:
+        import subprocess
+        import sys
+        init_script = os.path.join(os.path.dirname(__file__), 'installation', 'init_json_files.py')
+        subprocess.run([sys.executable, init_script], check=True, capture_output=True)
+        print("✅ JSON initialization complete")
+    except Exception as e:
+        print(f"⚠️  JSON initialization warning: {e}")
+        print("Continuing server startup...")
+    
     print(f"📊 Dashboard: https://localhost:{dashboard_port} (HTTPS - Secure)")
     
     # Run Flask with HTTPS - REQUIRED

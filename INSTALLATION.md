@@ -1,43 +1,61 @@
-# Battle-Hardened AI - Installation Guide
+# Battle-Hardened AI - Complete Installation Guide
 
-Complete installation instructions for Linux, Windows, and macOS.
+**Complete installation instructions for Linux, Windows, macOS, and optional Relay Server setup.**
 
 ---
 
-## 🚀 Quick Start - Choose Your Platform
+## 🚀 Quick Start - Choose Your Deployment
 
-### Linux (Recommended - Full Features)
+### 🖥️ Client Installation (Choose One)
+
+#### Linux (Recommended - Full Features)
 - ✅ **Docker**: Network-wide monitoring + full eBPF support
 - ✅ **20/20 Detection Signals** at maximum capability (100%)
 - ✅ **Easiest Setup**: Single command `docker compose up -d`
 - ✅ **Production Ready**: Host mode networking for entire network protection
 
-### Windows (Native Python Required)
+#### Windows (Native Python Required)
 - ⚠️ **Docker Limitation**: Cannot monitor network-wide traffic
 - ✅ **Native Python**: Required for network-wide protection
 - ✅ **20/20 Detection Signals** (~99% capability - Signal #1 uses Scapy instead of eBPF)
 - ✅ **Requirements**: Python 3.10+, Npcap driver, Administrator privileges
 - ✅ **Real Honeypot**: 7 services (SSH, FTP, Telnet, MySQL, HTTP, SMTP, RDP)
 
-### macOS (Native Python Required)
+#### macOS (Native Python Required)
 - ⚠️ **Docker Limitation**: Same as Windows
 - ✅ **Native Python**: Required for network-wide protection
 - ⚠️ **Not Recommended**: Best for testing/development only
+
+### 🌐 Optional: Relay Server (VPS)
+- ✅ **Centralized AI Training** - All customers share same threat intelligence
+- ✅ **ExploitDB Integration** - 43,971 exploits automatically loaded
+- ✅ **Global Threat Sharing** - P2P encrypted threat distribution
+- ✅ **One-Time Setup** - Deploy once, all customers benefit
+- 📖 **Setup Guide:** See [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)
 
 **Platform Decision Guide:**
 - **Linux users** → Use Docker (easiest, full features)
 - **Windows/macOS users** → Use native Python for network-wide protection
 - **Testing only** → Docker works on any platform (limited to container traffic)
+- **Multiple customers** → Deploy relay server on VPS (optional)
 
 ---
 
 ## 📋 Table of Contents
 
+### Client Installation
 - [Linux Installation (Docker)](#linux-installation-docker)
 - [Windows Installation (Native Python)](#windows-installation-native-python)
 - [macOS Installation (Native Python)](#macos-installation-native-python)
 - [Detection Capability Comparison](#detection-capability-comparison)
-- [Post-Installation](#post-installation)
+
+### Relay Server (Optional)
+- [Relay Server Setup](#relay-server-setup-optional)
+- [Client-Relay Configuration](#client-relay-configuration)
+
+### Post-Installation
+- [Verification & Testing](#post-installation)
+- [Training & Synchronization](#training--synchronization)
 - [Troubleshooting](#troubleshooting)
 - [Updating](#updating)
 - [Uninstallation](#uninstallation)
@@ -230,9 +248,70 @@ python -m venv .venv
 cd server
 pip install -r requirements.txt
 
+# Initialize JSON data files (CRITICAL - creates all required files)
+python installation\init_json_files.py
+
 # Verify Scapy works with Npcap
 python -c "from scapy.all import sniff; print('✅ Scapy working')"
 ```
+
+#### Understanding JSON Initialization
+
+**What `init_json_files.py` does:**
+- Creates `server/json/` directory with **35+ required JSON files**
+- Initializes honeypot_attacks.json, threat_log.json, blocked_ips.json, and more
+- Works on any installation location (Windows/Linux/macOS) using absolute paths
+- Safe to run multiple times (won't overwrite existing files)
+- **Auto-runs on Docker startup** (via entrypoint.sh)
+- **Auto-runs on server startup** (via server.py)
+
+**Files Created (Organized by Pipeline Stage):**
+
+1. **Stage 1 - Network Discovery** (3 files)
+   - connected_devices.json, device_history.json, network_monitor_state.json
+
+2. **Stage 2 - Threat Detection** (15 files)
+   - threat_log.json, honeypot_attacks.json, dns_security.json
+   - behavioral_metrics.json, file_analysis.json, tls_fingerprints.json
+   - crypto_mining.json, tracked_users.json, network_performance.json
+   - network_graph.json, trust_graph.json, tracking_data.json
+   - lateral_movement_alerts.json, attack_sequences.json, integrity_violations.json
+
+3. **Stage 3 - AI Decision Making** (4 files)
+   - decision_history.json, meta_engine_config.json
+   - fp_filter_config.json, causal_analysis.json
+
+4. **Stage 4 - Response & Audit** (7 files)
+   - blocked_ips.json, blocked_devices.json, blocked_peers.json
+   - whitelist.json, comprehensive_audit.json, approval_requests.json
+   - backup_status.json
+
+5. **Stage 5 - Learning & Refinement** (3 files)
+   - honeypot_patterns.json, local_threat_intel.json, reputation_export.json
+
+6. **Stage 6 - P2P Sharing** (1 file)
+   - peer_threats.json
+
+7. **Stage 7 - Continuous Learning** (5 files)
+   - ml_training_data.json, ml_performance_metrics.json
+   - model_lineage.json, drift_baseline.json, drift_reports.json
+
+8. **Enterprise Extensions** (4 files)
+   - soar_incidents.json, cloud_findings.json, sbom.json, governance_policies.json
+
+9. **Subdirectories**
+   - forensic_reports/, compliance_reports/, audit_archive/
+
+**GitHub Clone Behavior:**
+- GitHub excludes `*.json` files via `.gitignore` (prevents runtime data in repo)
+- On fresh clone, `server/json/` is empty
+- **Without initialization**, honeypot/threat logging will fail
+- `init_json_files.py` solves this by auto-creating all files
+
+**Integration Points:**
+- **Docker:** Automatically runs via `entrypoint.sh`
+- **Native:** Automatically runs on `server.py` startup
+- **Manual:** Run `python installation/init_json_files.py` anytime
 
 ### Step 4: Configure Windows Firewall
 
@@ -369,7 +448,7 @@ On first run, the server automatically creates:
 
 **These files are auto-generated and already in .gitignore - never commit them to Git.**
 
-**Note:** The relay server encryption keys (for VPS communication) must be manually shared between your client and VPS relay server. See [RELAY_SETUP.md](RELAY_SETUP.md) for details.
+**Note:** The relay server encryption keys (for VPS communication) must be manually shared between your client and VPS relay server. See [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md) for details.
 
 ### Step 6: Access Dashboard
 
@@ -470,6 +549,329 @@ telnet 192.168.68.111 2222
 ---
 
 ## macOS Installation (Native Python)
+
+### ✅ What You Get
+- Same as Windows (20/20 signals, ~99% capability)
+- Network-wide protection via promiscuous mode
+- Real honeypot + HTTPS dashboard
+
+### System Requirements
+- macOS 11 (Big Sur) or higher
+- Python 3.10+
+- 2 GB RAM, 2 GB disk
+- Administrator access
+
+### Step 1: Install Homebrew
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+### Step 2: Install Python
+
+```bash
+brew install python@3.11
+python3 --version  # Should show 3.10+
+```
+
+### Step 3: Clone Repository and Install Dependencies
+
+```bash
+git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
+cd battle-hardened-ai
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+cd server
+pip install -r requirements.txt
+
+# Initialize JSON files
+python installation/init_json_files.py
+```
+
+### Step 4: Run Battle-Hardened AI
+
+**⚠️ Requires sudo for promiscuous mode:**
+
+```bash
+sudo python3 server.py
+```
+
+**Expected output:**
+```
+[SSL] ✅ SSL certificates generated
+[CRYPTO] ✅ Lineage signing key generated
+[HONEYPOT] Starting 7 honeypot services...
+[HONEYPOT] ✅ SSH honeypot listening on port 2222
+[NETWORK] Starting promiscuous mode monitoring
+[AI] ✅ All 20 detection signals initialized
+[DASHBOARD] HTTPS server running on https://0.0.0.0:60000
+```
+
+### Step 5: Access Dashboard
+
+Browser: **https://localhost:60000**
+
+**⚠️ Firewall Note:** macOS requires manual firewall configuration:
+- System Preferences → Security & Privacy → Firewall → Firewall Options
+- Allow incoming connections for Python
+
+**✅ Installation Complete!**
+
+---
+
+## Relay Server Setup (Optional)
+
+### Why Use a Relay Server?
+
+**Problem: Local-Only Training**
+- Each customer trains AI on their own attacks only
+- Customer A: 100 attacks → AI knows 100 patterns
+- Customer B: 200 attacks → AI knows 200 patterns
+- **Result:** INCONSISTENT protection ❌
+
+**Solution: Centralized Relay Training**
+- Deploy relay server on VPS with ExploitDB (43,971 exploits)
+- ALL customers download same centrally-trained models
+- Customer A (Day 1): Downloads 43,971 patterns ✅
+- Customer B (Month 3): Downloads 43,971 + real-world attacks ✅
+- **Result:** EVERYONE protected equally (or better) ✅
+
+### Architecture
+
+```
+Customer A (Japan)  ─┐
+Customer B (USA)    ─┼─→  Relay Server (VPS)  ←─ ExploitDB (43,971 exploits)
+Customer C (Europe) ─┘         │
+                               ↓
+                     Centralized AI Models
+                     (Everyone downloads same models)
+```
+
+### Relay Server Deployment
+
+**For detailed relay server setup, see: [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)**
+
+**Quick Setup:**
+
+```bash
+# SSH into your VPS
+ssh root@YOUR_VPS_IP
+
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
+cd battle-hardened-ai/relay
+
+# Start relay server (downloads 43,971 ExploitDB exploits)
+docker compose up -d
+
+# Monitor ExploitDB download (takes 5-10 minutes)
+docker compose logs -f | grep "ExploitDB"
+
+# Verify relay is ready
+curl -k https://YOUR_VPS_IP:60002/health
+# Should return: {"status": "healthy", "exploits": 43971}
+```
+
+**VPS Requirements:**
+- Ubuntu/Debian recommended
+- Public IP address
+- Ports 60001 (WebSocket), 60002 (API) open
+- 4 GB RAM, 2 CPU cores
+- 5 GB disk space (for ExploitDB)
+
+---
+
+## Client-Relay Configuration
+
+### Connect Clients to Relay Server
+
+**Option A: Environment Variables (Recommended)**
+
+Create `.env` file in `server/` directory:
+
+```bash
+# server/.env
+RELAY_ENABLED=true
+RELAY_URL=wss://YOUR_VPS_IP:60001
+RELAY_API_URL=https://YOUR_VPS_IP:60002
+CUSTOMER_ID=customer-unique-id-here
+PEER_NAME=customer-location-name
+```
+
+**Option B: Docker Compose (Linux)**
+
+Edit `server/docker-compose.yml`:
+
+```yaml
+environment:
+  - RELAY_ENABLED=true
+  - RELAY_URL=wss://YOUR_VPS_IP:60001
+  - RELAY_API_URL=https://YOUR_VPS_IP:60002
+  - CUSTOMER_ID=customer-123
+  - PEER_NAME=japan-office
+```
+
+**Restart Client:**
+
+```bash
+# Docker
+docker compose down && docker compose up -d
+
+# Native Python
+# Restart server.py (Ctrl+C then rerun)
+```
+
+### Verify Relay Connection
+
+**Check Client Logs:**
+
+```bash
+# Docker
+docker compose logs --tail=100 | grep "AI\|RELAY"
+
+# Native
+# Check terminal output where server.py is running
+```
+
+**SUCCESS indicators:**
+```
+[AI] 🌐 Requesting training from relay server (43,971 ExploitDB exploits)...
+[AI] ✅ Relay trained models using 43971 exploits
+[AI] 📥 Downloading trained models from relay...
+[AI] ✅ Downloaded anomaly detector (280 KB)
+[AI] ✅ Downloaded threat classifier (280 KB)
+[AI] ✅ Downloaded IP reputation model (280 KB)
+[RELAY] ✅ Connected to relay server wss://YOUR_VPS_IP:60001
+```
+
+**FAILURE indicators (relay not configured):**
+```
+[AI] ⚠️  Relay training failed, falling back to local training
+[AI] 🎓 AUTO-TRAINING locally with 100 historical threat events...
+```
+
+### Dashboard Verification
+
+Open: **https://localhost:60000**
+
+**Section 31 - Relay Status:**
+- Connection: ✅ Connected
+- Last Sync: < 1 second ago
+- Shared Attacks: 43,971+ patterns
+- Model Version: v1.x.x
+
+**Section 4 - ML Model Stats:**
+- Training Data Size: Should show **43,971+** (not 100-1000)
+- Last Trained: Recent timestamp
+- Models Status: All showing "TRAINED ✅"
+
+### Training & Synchronization
+
+#### How Training Works
+
+**Without Relay (Default):**
+```
+1. Client starts → No models exist
+2. Loads threat_log.json (100-1000 local attacks)
+3. Trains models locally (30 seconds)
+4. Result: AI knows 100-1000 patterns
+```
+
+**With Relay (Configured):**
+```
+1. Client starts → No models exist
+2. Calls RELAY_API_URL/train
+3. Relay trains using 43,971 ExploitDB exploits (3-5 min)
+4. Client downloads 3 model files (280 KB each)
+5. Result: AI knows 43,971+ patterns ✅
+```
+
+#### Model Update Frequency
+
+**Automatic Updates:**
+- Client checks relay every **24 hours**
+- Downloads new models if relay version is newer
+- No downtime during update
+
+**Manual Retrain:**
+```bash
+# Force immediate retrain from relay
+curl -k -X POST https://localhost:60000/inspector/ai-monitoring/retrain-ml
+```
+
+#### Training Data Growth
+
+**Month 1:**
+- Relay: 43,971 ExploitDB + 0 real attacks = 43,971 patterns
+- New customer downloads 43,971 patterns
+
+**Month 6:**
+- Customer A experienced 5,000 attacks
+- Customer B experienced 3,000 attacks
+- Relay: 43,971 + 8,000 = 51,971 patterns
+- New customer downloads 51,971 patterns ✅
+
+**Year 1:**
+- 100 customers, avg 1,000 attacks each
+- Relay: 43,971 + 100,000 = 143,971 patterns
+- New customer downloads 143,971 patterns ✅ (INSTANT EXPERT!)
+
+#### Troubleshooting Relay Training
+
+**Issue: "Relay training failed, falling back to local"**
+
+**Cause:** Can't connect to RELAY_API_URL
+
+**Fix:**
+```bash
+# Test connection from client machine
+curl -k https://YOUR_VPS_IP:60002/health
+
+# If fails, check:
+# 1. VPS firewall allows port 60002
+# 2. Docker container running on VPS: docker compose ps
+# 3. RELAY_API_URL correct in .env file
+```
+
+**Issue: Training Data Shows 100-1000 (not 43,971)**
+
+**Cause:** Using local training, relay not connected
+
+**Fix:**
+```bash
+# Check environment variables (Docker)
+docker compose exec battle-hardened-ai env | grep RELAY
+
+# Should show:
+# RELAY_ENABLED=true
+# RELAY_API_URL=https://YOUR_VPS_IP:60002
+
+# If empty, update .env and restart
+docker compose down && docker compose up -d
+```
+
+**Issue: Fresh Installation Has 0 Threat Data**
+
+**Cause:** No attacks detected yet, threat_log.json empty
+
+**Solution:**
+- **With Relay:** Training uses ExploitDB (43,971 patterns) - no local data needed ✅
+- **Without Relay:** Generate attacks to populate threat_log.json:
+  ```bash
+  # From another machine (e.g., Kali Linux)
+  curl -k "https://CLIENT_IP:60000/test?id=1'%20OR%20'1'='1"
+  curl -k "https://CLIENT_IP:60000/test?name=<script>alert(1)</script>"
+  nmap -sS CLIENT_IP
+  # Repeat 10-20 times to build training data
+  ```
+
+---
+
+## Post-Installation
 
 ### ✅ What You Get
 - Same as Windows (20/20 signals, ~99% capability)
@@ -834,8 +1236,8 @@ pip uninstall -y -r server/requirements.txt
 
 ### Documentation
 - **[README.md](README.md)** - Features, architecture, MITRE ATT&CK coverage
+- **[relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)** - VPS relay server setup (detailed guide)
 - **[testconnection.md](testconnection.md)** - Client relay troubleshooting
-- **[RELAY_SETUP.md](RELAY_SETUP.md)** - VPS relay server setup
 - **[dashboard.md](dashboard.md)** - Dashboard features and usage
 - **[ai-abilities.md](ai-abilities.md)** - AI capabilities and detection logic
 

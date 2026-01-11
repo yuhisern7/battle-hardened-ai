@@ -17,13 +17,19 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
+# Track first attack time per IP for delayed blocking
+_honeypot_attack_tracker = defaultdict(lambda: None)  # IP -> first_attack_timestamp
+_HONEYPOT_BLOCK_DELAY_SECONDS = 60  # Block after 60 seconds of continuous attacks
+
 # Local storage paths
 if os.path.exists('/app'):
     HONEYPOT_ATTACKS_FILE = "/app/json/honeypot_attacks.json"
     HONEYPOT_PATTERNS_FILE = "/app/json/honeypot_patterns.json"
 else:
-    HONEYPOT_ATTACKS_FILE = "server/json/honeypot_attacks.json"
-    HONEYPOT_PATTERNS_FILE = "server/json/honeypot_patterns.json"
+    # Use absolute path from AI/ directory to server/json/
+    _current_dir = os.path.dirname(os.path.abspath(__file__))
+    HONEYPOT_ATTACKS_FILE = os.path.join(_current_dir, '..', 'server', 'json', 'honeypot_attacks.json')
+    HONEYPOT_PATTERNS_FILE = os.path.join(_current_dir, '..', 'server', 'json', 'honeypot_patterns.json')
 
 
 class HoneypotService:
@@ -253,6 +259,9 @@ class RealHoneypot:
         try:
             os.makedirs(os.path.dirname(HONEYPOT_ATTACKS_FILE), exist_ok=True)
             
+            # Debug: Print actual file path
+            print(f"[HONEYPOT] Saving attack to: {HONEYPOT_ATTACKS_FILE}")
+            
             # Load existing attacks
             attacks = []
             if os.path.exists(HONEYPOT_ATTACKS_FILE):
@@ -269,6 +278,7 @@ class RealHoneypot:
             with open(HONEYPOT_ATTACKS_FILE, 'w') as f:
                 json.dump(attacks, f, indent=2)
             
+            print(f"[HONEYPOT] ✅ Attack saved! Total attacks: {len(attacks)}")
             logger.info(f"[HONEYPOT] Attack from {attack_data['source_ip']} on {attack_data['service']} logged to sandbox")
             
         except Exception as e:
@@ -281,13 +291,24 @@ class RealHoneypot:
         instance._block_attacker_ip(attack_data['source_ip'])
     
     def _block_attacker_ip(self, ip: str):
-        """Block attacker IP in blocked_ips.json"""
+        """Block attacker IP after 60 seconds of attacks (delayed blocking to collect data)"""
         try:
-            # Don't block localhost/private IPs (for testing)
-            if ip.startswith('127.') or ip.startswith('192.168.') or ip.startswith('10.') or ip.startswith('172.'):
-                logger.debug(f"[HONEYPOT] Skipping block for private IP: {ip}")
-                return
+            # Track first attack time
+            if _honeypot_attack_tracker[ip] is None:
+                _honeypot_attack_tracker[ip] = datetime.now(timezone.utc)
+                print(f"[HONEYPOT] 🕒 First attack from {ip} - will block after {_HONEYPOT_BLOCK_DELAY_SECONDS}s of attacks")
+                logger.info(f"[HONEYPOT] First attack from {ip} - delayed blocking enabled")
+                return  # Don't block on first attack
             
+            # Check if enough time has passed
+            first_attack_time = _honeypot_attack_tracker[ip]
+            time_elapsed = (datetime.now(timezone.utc) - first_attack_time).total_seconds()
+            
+            if time_elapsed < _HONEYPOT_BLOCK_DELAY_SECONDS:
+                print(f"[HONEYPOT] ⏳ Attack from {ip} - {int(_HONEYPOT_BLOCK_DELAY_SECONDS - time_elapsed)}s until block")
+                return  # Not enough time passed, allow more attacks
+            
+            # Time to block!
             blocked_ips_file = os.path.join(os.path.dirname(__file__), '..', 'server', 'json', 'blocked_ips.json')
             
             # Load existing blocked IPs
@@ -308,8 +329,10 @@ class RealHoneypot:
             blocked_entry = {
                 'ip': ip,
                 'timestamp': datetime.now(timezone.utc).isoformat(),
-                'reason': 'Honeypot attack attempt',
+                'reason': f'Honeypot attack attempts over {_HONEYPOT_BLOCK_DELAY_SECONDS} seconds',
                 'source': 'honeypot',
+                'first_attack': first_attack_time.isoformat(),
+                'attacks_duration': f'{int(time_elapsed)}s',
                 'permanent': True
             }
             
@@ -317,8 +340,8 @@ class RealHoneypot:
             
             # Save back
             with open(blocked_ips_file, 'w') as f:
-                json.dump(blocked_data, f, indent=2)
-            
+                json.dump(blocked_dLOCKED {ip} after {int(time_elapsed)}s of attacks!")
+            logger.info(f"[HONEYPOT] Blocked attacker IP {ip} after {int(time_elapsed)}s of continuous attacks
             print(f"[HONEYPOT] 🚫 Blocked attacker IP: {ip}")
             logger.info(f"[HONEYPOT] Blocked attacker IP: {ip}")
             

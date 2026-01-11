@@ -10,25 +10,11 @@ fi
 
 echo "✅ SSL certificates found"
 
-# Initialize JSON data files if they don't exist
+# Initialize ALL JSON data files automatically
 echo "📁 Initializing JSON data files..."
-mkdir -p /app/json
+python3 /app/installation/init_json_files.py
 
-# Create all required JSON files with proper initial data
-if [ ! -f /app/json/threat_log.json ]; then
-    echo '[]' > /app/json/threat_log.json
-    echo "✅ Created threat_log.json"
-fi
-
-if [ ! -f /app/json/blocked_ips.json ]; then
-    echo '{}' > /app/json/blocked_ips.json
-    echo "✅ Created blocked_ips.json"
-fi
-
-if [ ! -f /app/json/whitelist.json ]; then
-    echo '[]' > /app/json/whitelist.json
-    echo "✅ Created whitelist.json"
-fi
+echo "✅ JSON initialization complete"
 
 if [ ! -f /app/json/tracking_data.json ]; then
     echo '{}' > /app/json/tracking_data.json

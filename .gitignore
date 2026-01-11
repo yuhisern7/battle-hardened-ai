@@ -2,9 +2,6 @@
 .env
 relay/.env
 
-# Attack test documentation (testing only)
-KALI_ATTACK_TESTS.md
-
 # Python cache
 __pycache__/
 *.py[cod]
