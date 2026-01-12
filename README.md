@@ -33,6 +33,198 @@ Explicitly designed around defensive-only operation, privacy preservation, and f
 
 ## Battle-Hardened AI vs Commercial NDR/XDR Platforms (Architecture-Level Comparison)
 
+### Battle-Hardened AI: Architecture-Level Comparison Against Commercial NDR/XDR Systems
+
+#### Positioning Statement (Critical)
+
+**Battle-Hardened AI is not positioned as "better detection" or "higher accuracy."**  
+**It is positioned as a fundamentally different class of system.**
+
+Most commercial NDR/XDR platforms are **event-driven correlation engines**.  
+Battle-Hardened AI is a **stateful autonomous defense system** that reasons about cause, remembers adversaries across time, and permanently degrades trust.
+
+**This distinction is architectural, not incremental.**
+
+---
+
+#### 1. Detection Architecture: Reasoning vs Correlation
+
+Commercial NDR/XDR platforms are built around **telemetry aggregation and correlation pipelines**. Events are ingested, normalized, scored, and surfaced as alerts. Detection logic is primarily reactive and resets over time.
+
+Battle-Hardened AI uses a **multi-engine, stateful consensus architecture**. Detection is not based on isolated alerts but on independent signal engines voting over time, with each decision updating persistent system state.
+
+**This means:**
+- Detection does not reset between sessions
+- Signals can contradict each other and still be resolved
+- The system accumulates understanding, not just alerts
+
+**This is why Battle-Hardened AI does not rely on "alert volume" as a success metric.**
+
+---
+
+#### 2. Independent Detection Signals (Why 20 Matters)
+
+Battle-Hardened AI explicitly documents **20 independent detection signal classes**.  
+Each class has:
+- A defined purpose
+- Known failure modes
+- Explicit confidence behavior
+- Participation in consensus rather than unilateral triggering
+
+This is rare not because others cannot build more signals, but because:
+- Most vendors do not expose how many signals exist
+- Signal boundaries are intentionally opaque
+- Multiple detections are often re-labelings of the same logic
+
+**The claim here is not "more signals = better."**  
+**The claim is signal independence + transparency.**
+
+If a system cannot enumerate its detection classes publicly, it cannot be independently validated.
+
+---
+
+#### 3. Kernel Telemetry as a First-Class Input
+
+Battle-Hardened AI treats **kernel-level telemetry (eBPF) as a first-class signal source**, not an optional enhancement.
+
+Kernel data is:
+- Consumed directly by reasoning layers
+- Retained as part of entity memory
+- Used to validate or falsify higher-level signals
+
+In most commercial platforms, kernel telemetry (if present) is:
+- Abstracted
+- Heavily filtered
+- Reduced to events before reasoning occurs
+
+**The difference is not access — it is architectural importance.**
+
+---
+
+#### 4. Causal Inference (Layer 19): Understanding Why
+
+Battle-Hardened AI includes an **explicit causal reasoning layer** that evaluates **why** anomalies occur.
+
+This layer:
+- Distinguishes attacks from legitimate deployments
+- Resolves contradictory signals
+- Prevents operational changes from triggering destructive responses
+
+Most commercial NDR/XDR systems perform **correlation, not causation**.  
+They can say **what happened together**, not **why it happened**.
+
+**This is why false positives in commercial systems often require analyst interpretation, while Battle-Hardened AI can self-correct.**
+
+---
+
+#### 5. Persistent Trust Memory (Layer 20)
+
+Battle-Hardened AI models **trust as a persistent, first-class security variable**.
+
+Trust:
+- Degrades permanently based on behavior
+- Persists across sessions, reboots, and time gaps
+- Influences all future decisions
+
+This is fundamentally different from:
+- Reputation feeds
+- Time-decayed anomaly scores
+- Session-bound confidence levels
+
+**Attackers exploit forgetting.**  
+**Battle-Hardened AI is explicitly designed not to forget.**
+
+---
+
+#### 6. Explainability at the Decision Level
+
+Battle-Hardened AI produces **full decision traces**, including:
+- Which signals fired
+- How confidence evolved
+- How trust changed
+- Why an action was taken or withheld
+
+Most platforms expose:
+- Alerts
+- Scores
+- Storylines
+
+**Those are summaries, not explanations.**
+
+Explainability in Battle-Hardened AI exists at the **reasoning layer**, not as a UI feature.
+
+---
+
+#### 7. Failure Awareness Is Explicit
+
+Battle-Hardened AI treats **failure as a modeled system state**.
+
+False positives, uncertainty, and ambiguity:
+- Are explicitly represented
+- Influence future trust
+- Feed back into learning
+
+Commercial systems generally suppress or hide failure because their architectures do not expose internal reasoning states.
+
+**Transparency here increases credibility, not risk.**
+
+---
+
+#### 8. Learning, Adaptation, and Deception Feedback
+
+Battle-Hardened AI supports:
+- Local learning
+- Optional federated learning
+- Persistent post-compromise adaptation
+- Deception outcomes as first-class signals
+
+Most commercial NDRs:
+- Learn primarily in the cloud
+- Reset locally after incidents
+- Treat deception as an external module, if present at all
+
+**This makes Battle-Hardened AI resistant to iterative probing and slow APT campaigns.**
+
+---
+
+#### 9. Analyst Dependency vs Autonomous Defense
+
+Battle-Hardened AI is designed to:
+- Operate autonomously
+- Take defensive action without constant analyst approval
+- Function in constrained or offline environments
+
+Commercial NDR/XDR platforms are architecturally dependent on:
+- SOC workflows
+- Human validation
+- Continuous cloud interaction
+
+**Autonomy in Battle-Hardened AI is not optional — it is foundational.**
+
+---
+
+#### Final Architectural Truth
+
+**Battle-Hardened AI is not an alerting system.**  
+**It is a stateful autonomous defense that reasons, remembers, and adapts.**
+
+Most commercial NDR/XDR platforms:
+- Correlate events
+- Forget attackers
+- Depend on analysts
+- Hide internal logic
+
+Battle-Hardened AI:
+- Maintains long-term state
+- Applies causal reasoning
+- Degrades trust permanently
+- Explains every decision
+
+**This is not a competitive claim.**  
+**It is an architectural fact.**
+
+---
+
 **Interpretation rule (important):**
 - ❌ = Not publicly documented or verifiable as a first-class capability
 - ⚠️ = Present but opaque, partial, or non-explainable
@@ -81,27 +273,7 @@ Explicitly designed around defensive-only operation, privacy preservation, and f
 | **Battle-Hardened AI** | Local + optional federated | ✅ Persistent adaptation | ✅ First-class signal | ✅ Trust degradation vs attacker |
 | Commercial NDRs | Mostly cloud-driven | ❌ Session-bound | ❌ Rare / external | ❌ Not addressed |
 
----
-
-### Why This Architectural Approach Matters
-
-**Battle-Hardened AI is not an alerting system—it is a stateful autonomous defense that remembers attackers, reasons about cause, and degrades trust permanently. Most NDRs correlate events and forget.**
-
-**What You Get:**
-
-✅ **Stateful Detection:** Cross-session memory means attackers cannot "try again later"  
-✅ **Causal Reasoning:** Distinguishes attacks from legitimate deployments and configuration changes  
-✅ **Persistent Trust:** Entity trust degrades permanently—no reset between sessions  
-✅ **Explainable Decisions:** Full signal trace and reasoning transparency  
-✅ **Autonomous Operation:** Can operate without constant analyst intervention  
-
-**What Commercial NDRs Typically Lack:**
-
-❌ **Session-Bound Memory:** Detection state resets between sessions  
-❌ **No Causal Analysis:** Cannot distinguish why anomalies occur  
-❌ **Opaque Decisions:** Black-box ML without transparent reasoning  
-❌ **Analyst-Dependent:** Requires human review for most decisions  
-❌ **Event Correlation Only:** React to events rather than understanding attacker intent  
+*See [Positioning Statement](#positioning-statement-critical) above for detailed architectural comparison and [Why Evasion is Nearly Impossible](#why-evasion-is-nearly-impossible) below for defense-in-depth analysis.*  
 
 ---
 
@@ -295,258 +467,7 @@ Battle-Hardened AI provides comprehensive detection across the MITRE ATT&CK fram
 
 **Result:** Attackers must evade all 20 signals simultaneously while maintaining operational effectiveness — mathematically infeasible.
 
----
-
-### 1️⃣ Reconnaissance & Network Discovery
-**Coverage: ⭐⭐⭐⭐⭐ (Very Strong)**
-
-**MITRE ATT&CK:**
-- TA0043 – Reconnaissance
-- T1595 – Active Scanning
-- T1590 – Gather Victim Network Information
-- T1046 – Network Service Discovery
-- T1018 – Remote System Discovery
-
-**Detected / Prevented Attacks:**
-- Port scanning (TCP/UDP/SYN/FIN)
-- Service enumeration
-- OS & banner fingerprinting
-- Network mapping
-- Distributed and low-rate scans
-
-**How Battle-Hardened AI Detects This:**
-- Behavioral heuristics (port entropy, fan-out, timing variance)
-- Graph intelligence (multi-target probing patterns)
-- Kernel telemetry (syscall ↔ network correlation)
-- LSTM sequence modeling (scan → probe progression)
-- Historical reputation (recurring scanners)
-
-**Outcome:**
-- ✅ Recon detected early
-- ✅ IPs blocked or rate-limited
-- ✅ Attackers prevented from progressing to exploitation
-
----
-
-### 2️⃣ Initial Access – Web & Network Exploitation
-**Coverage: ⭐⭐⭐⭐☆ (High)**
-
-**MITRE ATT&CK:**
-- TA0001 – Initial Access
-- T1190 – Exploit Public-Facing Application
-- T1133 – External Remote Services
-- T1078 – Valid Accounts (credential abuse)
-
-**Detected / Prevented Attacks:**
-- SQL injection
-- Command injection
-- XSS (reflected/stored patterns)
-- Path traversal
-- File inclusion (LFI/RFI)
-- API abuse
-- Web brute-force
-
-**Detection Mechanisms:**
-- Signature matching (known exploit patterns)
-- Autoencoder anomaly detection (unknown payload behavior)
-- Behavioral heuristics (retry frequency, request bursts)
-- LSTM attack stage correlation
-- Threat intelligence correlation
-
-**Outcome:**
-- ✅ Exploitation attempts blocked at the network edge
-- ✅ Zero-day behavior still flagged statistically
-- ✅ No payload storage required
-
----
-
-### 3️⃣ Credential Access & Authentication Abuse
-**Coverage: ⭐⭐⭐⭐⭐ (Very Strong)**
-
-**MITRE ATT&CK:**
-- TA0006 – Credential Access
-- T1110 – Brute Force
-- T1110.003 – Password Spraying
-- T1078 – Valid Accounts
-
-**Detected / Prevented Attacks:**
-- SSH / RDP brute force
-- FTP abuse
-- Web login brute force
-- Credential stuffing
-- Password spraying
-
-**Detection Mechanisms:**
-- Behavioral heuristics (retry rates, timing anomalies)
-- LSTM sequence detection (AUTH_ABUSE state)
-- Historical reputation & recidivism tracking
-- Graph correlation for distributed attacks
-
-**Outcome:**
-- ✅ Accounts protected before compromise
-- ✅ Attackers blocked across sessions
-- ✅ Repeat attackers immediately identified
-
----
-
-### 4️⃣ Lateral Movement & Internal Propagation
-**Coverage: ⭐⭐⭐⭐⭐ (Very Strong)**
-
-**MITRE ATT&CK:**
-- TA0008 – Lateral Movement
-- T1021 – Remote Services
-- T1021.004 – SSH
-- T1021.002 – SMB
-- T1080 – Lateral Tool Transfer
-
-**Detected / Prevented Attacks:**
-- East-west scanning
-- SMB / SSH hopping
-- Internal pivoting
-- Credential reuse across systems
-- Rapid lateral spread
-
-**Detection Mechanisms:**
-- Graph intelligence (hop chains A → B → C)
-- Kernel telemetry (unexpected process-network relationships)
-- Behavioral baseline deviation
-- LSTM multi-stage attack modeling
-
-**Outcome:**
-- ✅ Lateral movement exposed quickly
-- ✅ Compromised nodes isolated
-- ✅ Breach containment before mission success
-
----
-
-### 5️⃣ Command-and-Control (C2) & Persistence Channels
-**Coverage: ⭐⭐⭐⭐☆ (Strong)**
-
-**MITRE ATT&CK:**
-- TA0011 – Command and Control
-- T1071 – Application Layer Protocol
-- T1095 – Non-Application Layer Protocol
-- T1041 – Exfiltration Over C2 Channel
-- T1568 – Dynamic Resolution (DGA)
-
-**Detected / Prevented Attacks:**
-- Botnet callbacks
-- Beaconing behavior
-- DNS tunneling
-- Encrypted C2 patterns
-- Periodic heartbeat traffic
-
-**Detection Mechanisms:**
-- DNS anomaly detection
-- Graph intelligence (beacon periodicity)
-- Autoencoder reconstruction error
-- Threat intelligence feeds
-- Reputation scoring
-
-**Outcome:**
-- ✅ C2 channels disrupted
-- ✅ Malware rendered ineffective
-- ✅ Exfiltration paths broken
-
----
-
-### 6️⃣ Anonymization, VPN, and Proxy Abuse
-**Coverage: ⭐⭐⭐⭐☆ (Moderate–Strong)**
-
-**MITRE ATT&CK:**
-- TA0011 – Command and Control
-- T1090 – Proxy
-- T1090.003 – Multi-Hop Proxy
-
-**Detected / Prevented Attacks:**
-- Tor-based attacks
-- VPN-masked scanners
-- IP rotation campaigns
-- Proxy chaining
-
-**Detection Mechanisms:**
-- VPN/Tor fingerprinting
-- Behavioral fingerprint persistence
-- Timing analysis
-- Cross-IP graph correlation
-
-**Outcome:**
-- ✅ Anonymity reduced
-- ✅ Campaigns linked across IP changes
-- ✅ Rotation strategies weakened
-
----
-
-### 7️⃣ Insider Threats & Post-Compromise Abuse
-**Coverage: ⭐⭐⭐☆☆ (Moderate, by Design)**
-
-**MITRE ATT&CK:**
-- TA0007 – Discovery
-- TA0008 – Lateral Movement
-- TA0010 – Exfiltration
-
-**Detected Behaviors:**
-- Abnormal admin behavior
-- Credential misuse
-- Off-hours access
-- Unusual lateral movement
-- Data staging patterns
-
-**Detection Mechanisms:**
-- Behavioral deviation from baseline
-- Graph intelligence
-- LSTM sequence modeling
-- Predictive threat modeling
-
-**Outcome:**
-- ✅ Insider misuse flagged
-- ⚠️ Human review required (intentional safeguard)
-- ✅ No silent abuse
-
----
-
-### 8️⃣ Zero-Day & Unknown Attacks
-**Coverage: ⭐⭐⭐⭐☆ (Critical Partial Coverage)**
-
-**MITRE ATT&CK:**
-- TA0040 – Impact
-- TA0001 – Initial Access
-- TA0011 – Command and Control
-
-**Detected Attacks:**
-- Unknown exploits
-- Novel attack techniques
-- Custom malware traffic
-
-**Detection Mechanisms:**
-- Autoencoder anomaly detection
-- Behavioral heuristics
-- LSTM attack progression
-- Kernel telemetry mismatch
-
-**Outcome:**
-- ✅ Zero-days detected by behavior, not signatures
-- ✅ Attacks disrupted even without CVEs
-
----
-
-### 9️⃣ Explicitly Out of Scope (By Design)
-**Not Fully Prevented:**
-
-- ❌ Physical access attacks
-- ❌ Fully trusted insiders acting normally
-- ❌ Kernel rootkits with no network activity
-- ❌ Supply-chain compromise before deployment
-
-**Rationale:**
-
-These require:
-- Endpoint EDR
-- Hardware trust
-- Secure boot / TPM
-- Human intelligence
-
-**Battle-Hardened AI is network-centric by design.**
+*For detailed detection mechanisms by attack type, see the [Detection Signal to MITRE Technique Mapping](#detection-signal-to-mitre-technique-mapping) and [Complete Attack Detection Flow](#complete-attack-detection--response-flow) sections below.*
 
 ---
 
@@ -653,8 +574,8 @@ Battle-Hardened AI implements **defense-in-depth** through 20 independent detect
 **Primary Detection (Layers 1-18):** Direct threat identification from network patterns, behavior, and intelligence.
 
 **Strategic Intelligence (Layers 19-20):** Context-aware analysis that defeats sophisticated evasion tactics:
-- **Layer 19** distinguishes between legitimate operational changes and disguised attacks
-- **Layer 20** enforces zero-trust degradation—even if an attacker evades detection once, trust degrades permanently, making subsequent attempts exponentially harder
+- **Layer 19 (Causal Inference):** Distinguishes between legitimate operational changes and disguised attacks *(detailed in [Stage 2: Signal #19](#signal-19-causal-inference-engine-strategic-intelligence-layer))*
+- **Layer 20 (Trust Degradation):** Enforces zero-trust degradation—even if an attacker evades detection once, trust degrades permanently, making subsequent attempts exponentially harder *(detailed in [Stage 2: Signal #20](#signal-20-trust-degradation-graph-strategic-intelligence-layer))*
 
 ### Multi-Layer Detection Coverage
 
@@ -755,6 +676,8 @@ The only theoretical bypass scenarios are:
 - **Zero-day kernel exploit** — but even then, network patterns, behavioral anomalies, and autoencoder reconstruction errors would trigger alerts
 
 The system is specifically designed so **no single evasion technique works**—attackers must evade all 20 signals at once, which is mathematically and practically infeasible for real attacks while maintaining operational effectiveness.
+
+---
 
 ## 🧠 Federated AI Training & Relay Architecture
 
