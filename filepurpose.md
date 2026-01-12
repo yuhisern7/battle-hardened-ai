@@ -148,16 +148,20 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/json/model_lineage.json` — Cryptographic lineage chain
 - `server/json/comprehensive_audit.json` — Lineage/integrity events
 
-**STRATEGIC INTELLIGENCE LAYERS (19-20): Context-aware analysis consuming signals 1-18**
+**STRATEGIC INTELLIGENCE LAYERS (19-20): Dual-role signals that vote AND modulate**
+
+**Note:** Layers 19 and 20 serve a dual purpose:
+1. **As detection signals** (participate in Step 1 weighted voting with all other signals)
+2. **As strategic modulators** (apply additional context-aware adjustments in Steps 3-4)
 
 **Signal #19: Causal Inference Engine**
 - `AI/causal_inference.py` — Root cause analysis (WHY attacks happen, not just THAT they happened)
 - `server/json/causal_analysis.json` — Causal inference logs (auto-rotates at 10,000 entries)
 - **Purpose:** Distinguishes legitimate operational changes from disguised attacks
-- **Inputs:** Primary signals (1-18), deployment events, config changes, identity events (login/privilege changes)
+- **Inputs:** All detection outputs (1-20), deployment events, config changes, identity events (login/privilege changes)
 - **Output:** Causal labels (LEGITIMATE_CAUSE, AUTOMATION_SIDE_EFFECT, EXTERNAL_ATTACK, INSIDER_MISUSE, MISCONFIGURATION, UNKNOWN_CAUSE)
+- **Dual Role:** Participates in weighted voting (Step 1) AND applies causal modulation (Step 3)
 - **Score Modulation:** Downgrade by -20% (legitimate), boost by +15% (attack), route to governance (misconfiguration)
-- **Position:** Runs AFTER primary signals, BEFORE ensemble decision
 - **Privacy:** Metadata-only analysis, no payloads/credentials/PII
 
 **Signal #20: Trust Degradation Graph**
@@ -168,7 +172,8 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - **Trust Model:** 0-100 scale, event-weighted penalties (minor_anomaly=-5 to repeated_attack=-50), natural recovery (+1/day capped at 80% baseline)
 - **Actions:** ALLOW (≥80), MONITOR (60-79), RATE_LIMIT (40-59), ISOLATE (20-39), QUARANTINE (<20)
 - **Recidivism:** 3+ attacks in 7 days = exponential penalty
-- **Position:** Influences Stage 4 response severity, tracked by explainability engine (Signal #15)
+- **Dual Role:** Participates in weighted voting (Step 1) AND applies trust modulation (Step 4)
+- **Position:** Influences final decision thresholds and can force quarantine regardless of score
 - **Privacy:** SHA-256 entity hashing, no PII, statistical scores only
 
 **Additional Detection Support:**
@@ -194,9 +199,11 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 **5-Step Sequential Modulation Flow:**
 
-**Step 1: Weighted Voting (Primary Signals 1-18)**
+**Note:** All 20 signals (including Layers 19 and 20) participate in Step 1 weighted voting. Layers 19 and 20 then apply **additional modulation** in Steps 3-4 to refine the decision based on causal context and trust state.
+
+**Step 1: Weighted Voting (All Signals 1-20)**
 - Calculate base score: Σ(weight × confidence × is_threat) / Σ(weight)
-- Signal weights: Honeypot 0.98, Threat Intel 0.95, Graph 0.92, Signature 0.90, Causal 0.88, LSTM 0.85, Behavioral 0.75, Drift 0.65
+- Signal weights: Honeypot 0.98, Threat Intel 0.95, Graph 0.92, Integrity 0.90, Signature 0.90, Trust 0.90, Causal 0.88, LSTM 0.85, Reputation 0.85, FP Filter 0.82, Autoencoder 0.80, RandomForest 0.80, Gradient Boost 0.78, Explainability 0.78, Behavioral 0.75, IsolationForest 0.75, VPN/Tor 0.70, Drift 0.65
 
 **Step 2: Authoritative Signal Boosting**
 - Honeypot (confidence ≥0.7) → force score to 90%+

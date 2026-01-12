@@ -87,7 +87,7 @@
 │  │ Defense     │ Monitor     │                                              │
 │  └─────────────┴─────────────┘                                              │
 │                                                                               │
-│  STRATEGIC LAYERS (19-20): Context-aware analysis consuming 1-18             │
+│  STRATEGIC LAYERS (19-20): Dual-role signals (vote + modulate)               │
 │  ┌──────────────────────────────┬──────────────────────────────┐            │
 │  │ #19 Causal Inference Engine  │ #20 Trust Degradation Graph  │            │
 │  │ WHY attacks happen            │ Persistent entity tracking   │            │
@@ -203,7 +203,7 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 
 **Primary Detection Signals (1-18):** Direct threat detection from network traffic and system events.
 
-**Strategic Intelligence Layers (19-20):** Context-aware analysis consuming outputs from signals 1-18, deployment logs, config changes, and entity history.
+**Strategic Intelligence Layers (19-20):** Dual-role signals that participate in weighted voting AND provide strategic context. They analyze detection outputs from all signals (1-20), deployment logs, config changes, and entity history to modulate ensemble decisions.
 
 | # | Signal | Module(s) | Model/Data | Output |
 |---|--------|-----------|------------|--------|
@@ -287,23 +287,6 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 - **Privacy:** SHA-256 entity hashing, no PII retention, statistical scores only
 - **Weight in Ensemble:** 0.90 (very high reliability, persistent memory prevents evasion)
 - **Integration:** Feeds from Historical Reputation (Layer 14), influences response severity in Stage 4
-- **Forbidden Inputs:** Raw packet payloads, credentials, exploit code, PII
-- **Core Logic:** Builds causal graphs (not correlations), tests counterfactuals ("Would this anomaly exist without this config change?"), classifies root cause
-- **Causal Labels:** `LEGITIMATE_CAUSE`, `MISCONFIGURATION`, `AUTOMATION_SIDE_EFFECT`, `EXTERNAL_ATTACK`, `INSIDER_MISUSE`, `UNKNOWN_CAUSE`
-- **Modulation:** Downgrade ensemble score if legitimate cause, boost if malicious cause, route to governance if misconfiguration, require human review if unknown
-- **Output Format:** `CausalInferenceResult(causal_label, confidence, primary_causes[], non_causes[])`
-- **Privacy:** Never directly blocks traffic, only modulates confidence and governance
-
-**Layer 20 (Trust Degradation Graph):**
-- **Position:** Influences Stage 4 response severity based on persistent entity trust state
-- **Tracked Entities:** IP addresses, devices, user accounts, services, APIs, cloud roles, containers/workloads
-- **Trust Score:** 0-100 per entity (internal starts at 100, external configurable baseline ~60)
-- **Degradation Model:** Non-linear decay, event-weighted penalties (minor anomaly: -5, confirmed attack: -25, lateral movement: -30, integrity breach: -40)
-- **Recovery:** +1 trust per 24h without incident (slow recovery, capped at initial baseline)
-- **Trust Thresholds:** ≥80 (normal), 60-79 (increased monitoring), 40-59 (rate limiting), 20-39 (isolation/deny-by-default), <20 (quarantine + alert)
-- **Integration Points:** Feeds from Historical Reputation (Layer 14), influenced by Behavioral (Layer 6), Graph Intelligence (Layer 10), Integrity Monitoring (Layer 18)
-- **Output Format:** `TrustStateUpdate(entity_id, entity_type, previous_trust, current_trust, reason[], recommended_action)`
-- **Policy:** All actions remain policy-governed, auditable, reversible
 
 **Stage 2 Output Format:**
 Each signal produces:
@@ -317,7 +300,7 @@ DetectionSignal(
 ```
 
 **Stage 2 → Stage 3 Transition:**
-1. Primary detection signals (1-18) complete analysis → produce list of `DetectionSignal` objects
+1. All detection signals (1-20) complete analysis → produce list of `DetectionSignal` objects
 2. Signals routed through `AI/false_positive_filter.py` (5-gate validation) → filters out low-confidence/whitelisted signals
 3. **Layer 19 (Causal Inference)** analyzes filtered signals + system metadata → produces `CausalInferenceResult`:
    - Checks recent config changes, deployments, identity events
@@ -719,7 +702,7 @@ battle-hardened-ai/
 
 ### Example: Adding Signal #19 (Causal Inference) & Signal #20 (Trust Degradation)
 
-**Note:** Signals 19 and 20 are strategic intelligence layers, not primary detection signals. They consume outputs from signals 1-18.
+**Note:** Signals 19 and 20 are strategic intelligence layers with dual roles: they participate in weighted voting (like signals 1-18) AND provide strategic modulation by analyzing outputs from all signals (1-20).
 
 ```python
 # In AI/causal_inference.py (new module)
@@ -1028,8 +1011,8 @@ def threats_summary():
 ### Key Modules by Stage
 - **Stage 1:** `server/network_monitor.py`, `AI/kernel_telemetry.py`, `AI/system_log_collector.py`
 - **Stage 2:** `AI/pcs_ai.py` (orchestrator), all 20 detection modules:
-  - Primary signals 1-18 (see Section 1 table)
-  - Strategic intelligence: `AI/causal_inference.py` (Layer 19), `AI/trust_graph.py` (Layer 20)
+  - All signals 1-20 (see Section 1 table for complete list)
+  - Includes strategic intelligence: `AI/causal_inference.py` (Layer 19), `AI/trust_graph.py` (Layer 20)
 - **Stage 3:** `AI/meta_decision_engine.py`, `AI/false_positive_filter.py`, Layer 19 & 20 modulation
 - **Stage 4:** `server/device_blocker.py`, `AI/alert_system.py`, `AI/file_rotation.py` (logging infrastructure)
 - **Stage 5:** `AI/signature_extractor.py`, `AI/reputation_tracker.py`, `AI/graph_intelligence.py` (extraction)
@@ -1192,7 +1175,7 @@ This maps each of the **20 active detection signals** from the README to the con
 18. **Integrity Monitoring (model & telemetry tampering)**  
     Files: AI/self_protection.py; AI/emergency_killswitch.py; AI/cryptographic_lineage.py; AI/crypto_security.py; AI/policy_governance.py; server/json/integrity_violations.json; server/json/comprehensive_audit.json and audit_archive/ (governance/integrity + cryptographic lineage audit trail); AI/pcs_ai.py (routes integrity/self-protection and lineage/drift signals into the ensemble).
 
-**STRATEGIC INTELLIGENCE LAYERS (19-20):** Context-aware analysis consuming primary signals 1-18
+**STRATEGIC INTELLIGENCE LAYERS (19-20):** Dual-role signals that vote AND modulate (participate in weighted voting, then apply context-aware adjustments)
 
 19. **Causal Inference Engine (root cause analysis)**  
     Files: AI/causal_inference.py (585 lines, production-ready); AI/meta_decision_engine.py (_apply_causal_modulation method); server/json/causal_analysis.json (auto-rotates at 10,000 entries); AI/pcs_ai.py (integration point).  
