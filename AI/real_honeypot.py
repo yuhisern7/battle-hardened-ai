@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # Track first attack time per IP for delayed blocking
 _honeypot_attack_tracker = defaultdict(lambda: None)  # IP -> first_attack_timestamp
-_HONEYPOT_BLOCK_DELAY_SECONDS = 60  # Block after 60 seconds of continuous attacks
+_HONEYPOT_BLOCK_DELAY_SECONDS = 10  # Block after 10 seconds of attacks (reduced from 60 for faster response)
 
 # Local storage paths - Universal path resolution
 from path_helper import get_json_file
