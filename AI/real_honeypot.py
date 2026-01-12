@@ -163,48 +163,48 @@ class RealHoneypot:
         self._define_services()
     
     def _define_services(self):
-        """Define all available honeypot services"""
+        """Define all available honeypot services with REALISTIC banners for recon/enumeration"""
         services_config = {
             'ssh': {
                 'name': 'Fake SSH',
                 'port': 2222,
-                'banner': 'SSH-2.0-OpenSSH_7.4\r\n',
+                'banner': 'SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.6\r\n',  # Realistic Ubuntu SSH banner
                 'keywords': ['root', 'admin', 'password', 'login']
             },
             'ftp': {
                 'name': 'Fake FTP',
                 'port': 2121,
-                'banner': '220 ProFTPD 1.3.5 Server\r\n',
+                'banner': '220 (vsFTPd 3.0.5)\r\n',  # Realistic vsFTPd banner (most common FTP server)
                 'keywords': ['USER', 'PASS', 'RETR', 'LIST']
             },
             'telnet': {
                 'name': 'Fake Telnet',
                 'port': 2323,
-                'banner': 'Welcome to Telnet Server\r\nLogin: ',
+                'banner': 'Ubuntu 22.04.3 LTS\r\nwifi-router login: ',  # Realistic Linux telnet banner
                 'keywords': ['login', 'password', 'admin', 'root']
             },
             'http_admin': {
                 'name': 'Fake Admin Panel',
                 'port': 8080,
-                'banner': 'HTTP/1.1 200 OK\r\nServer: Apache/2.4.41\r\n\r\n<html><title>Admin Login</title></html>',
+                'banner': 'HTTP/1.1 200 OK\r\nServer: nginx/1.24.0\r\nContent-Type: text/html\r\nX-Powered-By: PHP/8.2.12\r\n\r\n<!DOCTYPE html><html><head><title>Router Admin Panel</title></head><body><h2>Login</h2><form><input name="username" placeholder="Username"><input type="password" name="password" placeholder="Password"><button>Login</button></form></body></html>',  # Realistic router admin panel
                 'keywords': ['admin', 'login', 'password', 'username']
             },
             'mysql': {
                 'name': 'Fake MySQL',
                 'port': 3306,
-                'banner': b'\x4a\x00\x00\x00\x0a\x35\x2e\x37\x2e\x32\x39\x00',
+                'banner': b'\x5a\x00\x00\x00\x0a\x38\x2e\x30\x2e\x33\x35\x00\x2d\x00\x00\x00\x12\x34\x56\x78\x00\xff\xf7\x21\x02\x00\xff\x81\x15\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x7e\x4b\x3d\x50\x6f\x63\x79\x64\x71\x77\x6b\x00\x6d\x79\x73\x71\x6c\x5f\x6e\x61\x74\x69\x76\x65\x5f\x70\x61\x73\x73\x77\x6f\x72\x64\x00',  # Realistic MySQL 8.0.35 handshake packet
                 'keywords': ['mysql', 'database', 'select', 'root']
             },
             'smtp': {
                 'name': 'Fake SMTP',
                 'port': 2525,
-                'banner': '220 mail.example.com ESMTP\r\n',
+                'banner': '220 mail.homeserver.local ESMTP Postfix (Ubuntu)\r\n',  # Realistic Postfix banner
                 'keywords': ['MAIL', 'RCPT', 'DATA', 'HELO']
             },
             'rdp': {
                 'name': 'Fake RDP',
                 'port': 3389,
-                'banner': b'\x03\x00\x00\x13\x0e\xd0\x00\x00\x124\x00\x02',
+                'banner': b'\x03\x00\x00\x13\x0e\xd0\x00\x00\x124\x00\x02\x1f\x08\x00\x02\x00\x00\x00',  # Realistic Windows Server 2019 RDP response
                 'keywords': ['rdp', 'windows', 'remote']
             }
         }
