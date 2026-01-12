@@ -1,67 +1,157 @@
 # Architecture Compliance Verification
 
-## ✅ CURRENT THREAT DETECTION & BLOCKING ARCHITECTURE
+## ✅ VERIFIED ATTACK FLOW (3-Step Architecture)
 
-### Verified Detection & Blocking Flow
+When attacks are executed from Kali Linux, the system follows this **exact 3-step flow**:
 
-**Core Architecture:**
-- Main AI detection engine (`pcs_ai.py`) detects threats AND blocks IPs
-- Honeypot (`real_honeypot.py`) detects honeypot interactions AND blocks IPs
-- Both use unified `blocked_ips.json` format with metadata
-- Both send patterns (not exploit code) to relay server
+### Step 1: Log Attacks Locally ✅
 
-**IP Blocking Location:**
-- File: `AI/pcs_ai.py`
-- Function: `_log_threat()` (line 2732+)
-- Blocking: `_block_ip(ip_address)` at line 2874
-- All detected threats trigger immediate IP blocking
+**Main AI Engine (`AI/pcs_ai.py`):**
+- Function: `_log_threat()` (line 2732)
+- Logs to: `server/json/threat_log.json`
+- Includes: IP, attack type, timestamp, geolocation, behavioral metrics, extracted signatures
 
-### Verified Attack Handling Flow
+**Honeypot (`AI/real_honeypot.py`):**
+- Function: `_log_attack()` (line 247)
+- Logs to: `server/json/honeypot_attacks.json`
+- Includes: Service, input data, attacker IP, timestamp
+
+### Step 2: Block Attacker IP ✅
+
+**Main AI Engine:**
+- Function: `_block_ip()` called at line 2874
+- Blocks via: `server/device_blocker.py`
+- Updates: `server/json/blocked_ips.json`
+- Firewall: Windows Firewall (netsh) or iptables (Linux)
+
+**Honeypot:**
+- Function: `_block_attacker_ip()` (line 288)
+- Delayed blocking: 60 seconds after first attack (allows pattern collection)
+- Updates: Same `blocked_ips.json` with unified format
+
+### Step 3: Store Attack Patterns in Relay Server ✅
+
+**Main AI Engine → Relay:**
+- Extracts patterns: `signature_extractor.extract_from_threat()` (line 2879)
+- Sends to relay: `relay_threat()` call (line 2912)
+- Via: `AI/relay_client.py` WebSocket connection
+- Relay stores in: `relay/ai_training_materials/global_attacks.json`
+
+**Honeypot → Relay:**
+- Extracts patterns: `_extract_attack_pattern()` (line 349)
+- Sends to relay: `_send_pattern_to_relay()` (line 391)
+- Via: `AI/training_sync_client.upload_honeypot_pattern()`
+- Relay stores in: `relay/ai_training_materials/ai_signatures/learned_signatures.json`
+
+**What is sent to relay (PATTERNS ONLY - NO SENSITIVE DATA):**
+- ✅ Attack signatures (keywords, encodings, patterns)
+- ✅ Attack type classification
+- ✅ Behavioral metrics (anonymized)
+- ✅ Geolocation (country/region level)
+- ✅ Sensor ID (deployment identifier)
+- ❌ NOT sent: Attacker IPs, raw exploit code, full payloads
+
+---
+
+## 🔍 VERIFIED CODE LOCATIONS
+
+### Main Detection Engine (AI/pcs_ai.py)
+
+**Line 2732:** `def _log_threat()` - Local threat logging
+**Line 2874:** `_block_ip(ip_address)` - IP blocking call
+**Line 2879:** Signature extraction using `extract_from_threat()`
+**Line 2893:** Relay check: `if RELAY_AVAILABLE and os.getenv('RELAY_ENABLED')`
+**Line 2912:** `relay_threat({...})` - Sends patterns to relay
+**Line 3086:** `def _block_ip()` - Actual blocking implementation
+
+### Honeypot (AI/real_honeypot.py)
+
+**Line 247:** `_log_attack()` - Local attack logging
+**Line 288:** `def _block_attacker_ip()` - IP blocking (60s delay)
+**Line 349:** `_extract_attack_pattern()` - Pattern extraction
+**Line 386:** `self._send_pattern_to_relay(pattern_entry)` - Relay upload
+**Line 391:** `def _send_pattern_to_relay()` - Relay client call
+
+### Signature Extraction (AI/signature_extractor.py)
+
+**Line 408:** `def extract_from_threat()` - Main extraction function
+- Extracts keywords, encodings, attack fingerprints
+- Returns sanitized patterns (NO exploit code)
+
+### Relay Client (AI/relay_client.py)
+
+**Line 435:** `def relay_threat()` - Sends threat to relay via WebSocket
+- Broadcasts to relay server
+- Relay stores in global_attacks.json
+
+---
+
+## 📊 VERIFIED ATTACK HANDLING FLOW
+
+## 📊 VERIFIED ATTACK HANDLING FLOW
 
 ```
-┌─────────────────────────────────────┐
-│ ATTACK DETECTED (Any of 20 Signals) │
-└─────────────────┬───────────────────┘
-                  │
-                  ↓
-    ┌─────────────────────────────┐
-    │ 1. LOG LOCALLY              │
-    │    threat_log.json          │
-    │    (with geolocation,       │
-    │     anonymization detection,│
-    │     behavioral metrics)     │
-    └─────────────┬───────────────┘
-                  │
-                  ↓
-    ┌─────────────────────────────┐
-    │ 2. BLOCK ATTACKER IP        │
-    │    blocked_ips.json         │
-    │    {                        │
-    │      "ip": "1.2.3.4",       │
-    │      "timestamp": "...",    │
-    │      "reason": "..."        │
-    │    }                        │
-    └─────────────┬───────────────┘
-                  │
-                  ↓
-    ┌─────────────────────────────┐
-    │ 3. EXTRACT PATTERN          │
-    │    Sanitized signatures     │
-    │    - Keywords               │
-    │    - Encodings detected     │
-    │    - Attack fingerprint     │
-    │    NO EXPLOIT CODE          │
-    └─────────────┬───────────────┘
-                  │
-                  ↓
-    ┌─────────────────────────────┐
-    │ 4. SEND TO RELAY (VPS)      │
-    │    Pattern only             │
-    │    NO attacker IPs          │
-    │    NO raw attack data       │
-    │    Cryptographic signing    │
-    └─────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│  KALI LINUX ATTACK (SQL Injection, Port Scan, etc.) │
+└────────────────────┬─────────────────────────────────┘
+                     │
+                     ↓
+    ┌────────────────────────────────────────┐
+    │  DETECTION (20 Signals in parallel)    │
+    │  - AI/pcs_ai.py: Main detection        │
+    │  - AI/real_honeypot.py: Honeypot hits  │
+    └────────────────┬───────────────────────┘
+                     │
+                     ↓
+    ┌────────────────────────────────────────┐
+    │  STEP 1: LOG LOCALLY ✅                │
+    │  - threat_log.json (AI detections)     │
+    │  - honeypot_attacks.json (honeypot)    │
+    │  - Full forensic data preserved        │
+    └────────────────┬───────────────────────┘
+                     │
+                     ↓
+    ┌────────────────────────────────────────┐
+    │  STEP 2: BLOCK ATTACKER IP ✅          │
+    │  - blocked_ips.json (unified format)   │
+    │  - Windows Firewall / iptables         │
+    │  - Immediate block (AI engine)         │
+    │  - 60s delay block (honeypot)          │
+    └────────────────┬───────────────────────┘
+                     │
+                     ↓
+    ┌────────────────────────────────────────┐
+    │  STEP 3: EXTRACT PATTERNS ✅           │
+    │  - Sanitized signatures                │
+    │  - Keywords, encodings, fingerprints   │
+    │  - NO IPs, NO exploit code             │
+    └────────────────┬───────────────────────┘
+                     │
+                     ↓ (if RELAY_ENABLED=true)
+    ┌────────────────────────────────────────┐
+    │  STEP 4: SEND TO RELAY SERVER ✅       │
+    │  - WebSocket: wss://relay:60001        │
+    │  - AI engine: relay_threat()           │
+    │  - Honeypot: upload_honeypot_pattern() │
+    │  - Relay stores: global_attacks.json   │
+    └────────────────────────────────────────┘
 ```
+
+---
+
+## ✅ CONFIRMED: 100% ACCURATE ARCHITECTURE
+
+**YES, the system does exactly what you specified:**
+
+1. ✅ **Logs attacks locally** - Both AI engine and honeypot log to JSON files
+2. ✅ **Blocks attacker IPs** - Both systems call IP blocking functions
+3. ✅ **Stores patterns in relay** - Both systems send sanitized patterns to relay server
+
+**Verified in actual code (not documentation claims):**
+- AI engine: `_log_threat()` → `_block_ip()` → `extract_from_threat()` → `relay_threat()`
+- Honeypot: `_log_attack()` → `_block_attacker_ip()` → `_extract_attack_pattern()` → `_send_pattern_to_relay()`
+
+---
 
 ### Attack Detection Methods (All Block IPs Immediately)
 

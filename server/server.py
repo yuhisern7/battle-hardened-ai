@@ -16,6 +16,20 @@ import socket
 import platform
 from report_generator import generate_html_report
 
+# Load environment variables from .env file (for native execution)
+try:
+    from dotenv import load_dotenv
+    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_path):
+        load_dotenv(env_path)
+        print(f"[ENV] Loaded configuration from {env_path}")
+        print(f"[ENV] RELAY_ENABLED={os.getenv('RELAY_ENABLED')}")
+        print(f"[ENV] RELAY_URL={os.getenv('RELAY_URL')}")
+except ImportError:
+    print("[ENV] python-dotenv not installed - using system environment variables only")
+except Exception as e:
+    print(f"[ENV] Warning: Could not load .env file: {e}")
+
 # Setup logging
 logger = logging.getLogger(__name__)
 

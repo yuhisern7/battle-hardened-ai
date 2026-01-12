@@ -21,6 +21,7 @@ scapy==2.5.0
 python-dateutil==2.8.2
 psutil==5.9.6
 pytz==2023.3
+python-dotenv==1.0.0
 
 # Threat Intelligence Integration
 requests==2.31.0
