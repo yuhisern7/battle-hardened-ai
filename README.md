@@ -248,7 +248,7 @@ This section provides a **hardware-only checklist** for two primary deployment p
       - AES-NI capable CPU
       - 16–32 GB RAM
       - SSD/NVMe for logs and ML models
-   - Runs Linux (gateway/router role; see STARTUP_GUIDE + FIREWALL_ENFORCEMENT)
+   - Runs Linux (gateway/router role; installed via the Battle-Hardened AI `.deb`/`.rpm` package as described in INSTALLATION; see STARTUP_GUIDE + FIREWALL_ENFORCEMENT)
 - **Layer-2 Switch**
    - Connects LAN side of BH to internal devices
    - VLAN support recommended (not mandatory)
@@ -286,7 +286,7 @@ This section provides a **hardware-only checklist** for two primary deployment p
    - Minimum 2 physical NICs
       - NIC 1 = upstream (WAN‑side, toward ISP)
       - NIC 2 = downstream (router/firewall‑side)
-   - Linux with:
+   - Linux (typically installed via the Battle-Hardened AI `.deb`/`.rpm` package) with:
       - Bridge support
       - eBPF / packet capture enabled
    - Similar CPU/RAM/storage specs as Option A
@@ -354,7 +354,7 @@ This section provides a **hardware-only checklist** for two primary deployment p
  - ⚠️ **Privileges**: Container runs as root with NET_ADMIN/BPF for eBPF + firewall sync; treat host as a dedicated security appliance
 
 ### Windows / macOS (Native Execution)
-> **Windows customers:** In production you typically use the signed **BattleHardenedAI-Setup.exe** installer, which embeds the production server and watchdog – you do **not** need to install Python or run `server.py` directly. The native Python path below is primarily for **development, CI, and advanced lab environments**.
+> **Windows customers:** In production you typically use the signed **BattleHardenedAI-Setup.exe** installer, which embeds the production server and watchdog – you do **not** need to install Python or run `server.py` directly. The native Python path below is primarily for **development, CI, and advanced lab environments**. macOS is supported as a **developer/test** platform via native Python only; there is no packaged macOS installer.
 
 - ❌ **Docker Limitation**: Bridge mode cannot monitor network-wide traffic (only container traffic)
 - ✅ **Native Python (developer path)**: For labs/contributors running from the GitHub source tree
@@ -367,7 +367,7 @@ This section provides a **hardware-only checklist** for two primary deployment p
 
 **Summary:**
 - **Linux customers**: Install and operate the node via the vendor-provided **.deb/.rpm** package (which runs Battle-Hardened AI inside Docker) – see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md#linux-installation-docker) and **wire firewall enforcement via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
-- **Windows customers**: Use the signed **Windows installer (.exe)** and follow the post-install configuration steps – see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md#windows-installation-native-python) and **configure Windows firewall sync via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
+- **Windows customers**: Use the signed **Windows installer (.exe)** and follow the post-install configuration steps – see the Windows section in [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md) and **configure Windows firewall sync via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
 - **Developers / labs**: May run Docker or native Python directly from the GitHub source tree using [STARTUP_GUIDE.md](STARTUP_GUIDE.md)
 - **Organizations**: Deploy on Linux or dedicated Windows security appliance with proper network policies
 - **GUI Dashboard**: Available on both Docker-backed Linux appliances and Windows EXE deployments
