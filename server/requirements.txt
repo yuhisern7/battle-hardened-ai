@@ -1,0 +1,52 @@
+# Web Server
+Flask==3.0.0
+Werkzeug==3.0.1
+gunicorn==21.2.0  # Linux only (requires fcntl)
+waitress==3.0.0   # Windows/cross-platform production server
+pyopenssl==23.3.0
+
+# AI/ML Security Engine
+scikit-learn==1.3.2
+numpy==1.26.2
+scipy==1.11.4
+joblib==1.3.2
+
+# Deep Learning (for sequence analysis) - OPTIONAL
+# The sequence analyzer + autoencoder gracefully degrade if TensorFlow is missing.
+# TensorFlow currently has limited support for newer Python versions (3.12+),
+# so this dependency is commented out by default. Uncomment only if you run a
+# compatible Python version (<= 3.11) and need the deep-learning features.
+# tensorflow-cpu==2.13.0
+
+# Network Monitoring (requires Administrator on Windows)
+scapy==2.5.0
+
+# Data Processing
+python-dateutil==2.8.2
+psutil==5.9.6
+pytz==2023.3
+python-dotenv==1.0.0
+
+# Authentication / MFA
+pyotp==2.9.0
+
+# Enterprise Identity (LDAP)
+ldap3==2.9.1
+
+# SSO / OIDC (admin GUI)
+python-jose==3.3.0
+
+# Threat Intelligence Integration
+requests==2.31.0
+urllib3==2.1.0
+beautifulsoup4==4.12.3
+
+# WebSocket Relay Client (for global mesh)
+websockets==12.0
+
+# Cryptographic Security (SSL certs, message signing, HMAC, replay protection)
+cryptography==41.0.7
+
+# Enterprise Integration (SIEM/SOC)
+# NOTE: pysyslog is not used in the current code path; leaving it out keeps
+# the core install lighter and avoids pulling unused dependencies.

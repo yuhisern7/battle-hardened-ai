@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+QUICKSTART.md
+*.md
+
+# Scripts (not needed in container)
+setup.sh
+start.sh
+INSTALL.sh
+test_system.py
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Workspace
+*.code-workspace
+
+# Logs
+*.log

@@ -1,0 +1,83 @@
+services:
+  enterprise-security:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    image: battle-hardened-ai
+    container_name: battle-hardened-ai
+    restart: unless-stopped  # Auto-restart on crash (unless manually stopped)
+    network_mode: host   # Required for eBPF/XDP to see real traffic
+    pid: host            # Required for syscall ↔ process correlation
+    
+    # DEFENSE-GRADE: eBPF/XDP capabilities (observer-only mode)
+    # This enables kernel-level telemetry (MODULE A)
+    # SAFE: Observer-only, no packet modification
+    cap_add:
+      - SYS_ADMIN        # Required on some kernels for eBPF
+      - BPF              # Load eBPF programs
+      - PERFMON          # Read kernel events
+      - NET_ADMIN        # Attach to network hooks
+      - NET_RAW          # Raw socket access (scapy fallback)
+    
+    security_opt:
+      - apparmor=unconfined   # Allow BPF syscalls
+      - seccomp=unconfined    # BPF syscalls otherwise blocked
+    
+    # Note: NOT using --privileged (too broad, unnecessary)
+    # This is observer-only - no packet modification or drops
+    
+    # Volumes - persist data between restarts
+    volumes:
+      - ./json:/app/json                      # Threat logs (persistent)
+      - ../AI:/app/AI                          # ML models + code (persistent - survives rebuilds!)
+      # REMOVED: ExploitDB volume (Premium mode downloads models from relay, not ExploitDB)
+      # Free mode users: Uncomment below to mount local ExploitDB
+      # - ../AI/exploitdb:/app/AI/exploitdb:ro  # Optional: Free mode only
+    
+    # Environment variables (load from .env file in server directory)
+    env_file:
+      - .env
+    # Resource limits - prevent memory exhaustion attacks
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - TZ=${TZ:-Asia/Kuala_Lumpur}
+      - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY}
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY:-}
+      - AI_LEARNING_ENABLED=${AI_LEARNING_ENABLED:-true}
+      - DASHBOARD_PORT=${DASHBOARD_PORT:-60000}
+      - P2P_PORT=${P2P_PORT:-60001}
+      - SIGNATURE_MODE=${SIGNATURE_MODE:-auto}  # auto, master, or client
+      - KERNEL_TELEMETRY_ENABLED=${KERNEL_TELEMETRY_ENABLED:-true}  # MODULE A: eBPF
+      - KERNEL_TELEMETRY_INTERFACE=${KERNEL_TELEMETRY_INTERFACE:-eth0}
+      - RELAY_ENABLED=${RELAY_ENABLED:-true}  # Enable remote training
+      - RELAY_URL=${RELAY_URL:-}  # WebSocket relay (wss://your-vps-ip:60001)
+      - RELAY_API_URL=${RELAY_API_URL:-}  # Model download API (https://your-vps-ip:60002)
+      - CUSTOMER_ID=${CUSTOMER_ID:-}  # Unique customer identifier
+      - PEER_NAME=${PEER_NAME:-battle-hardened-ai}  # Customer location/name
+      - RELAY_CRYPTO_ENABLED=${RELAY_CRYPTO_ENABLED:-true}
+      - CUSTOMER_ID=${CUSTOMER_ID:-}
+      # When true, container will sync blocked_ips.json to host ipset/iptables
+      # Requires network_mode: host and NET_ADMIN capabilities (already set)
+      - BH_FIREWALL_SYNC_ENABLED=${BH_FIREWALL_SYNC_ENABLED:-false}
+    
+    # Health check (uses HTTPS dashboard port, self-signed cert)
+    healthcheck:
+      test: ["CMD", "curl", "-kf", "https://localhost:${DASHBOARD_PORT:-60000}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Optional: persistent data volumes (uncomment if you want Docker-managed volumes)
+# volumes:
+#   security_data:
+#     driver: local

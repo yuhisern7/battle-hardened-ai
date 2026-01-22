@@ -1,0 +1,96 @@
+# Environment variables (contains API keys)
+.env
+relay/.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# ML Models (generated at runtime)
+AI/ml_models/*.pkl
+AI/ml_models/node_fingerprint.json
+
+# Legacy / client-only ml_models folder (runtime artifacts, not source)
+ml_models/
+
+# Threat logs (user data)
+server/json/threat_log.json
+server/json/blocked_ips.json
+server/json/blocked_devices.json
+server/json/peer_threats.json
+server/json/network_monitor_state.json
+server/json/device_history.json
+server/json/connected_devices.json
+
+# All other runtime JSON under server/json (per-section data, behavior, forensics, etc.)
+# But KEEP sample_threats.json for fresh installations
+server/json/*.json
+!server/json/sample_threats.json
+server/json/**/*.json
+
+# Runtime databases (IP reputation, forensics, etc.)
+server/json/*.db
+server/json/**/*.db
+
+# Docker volumes
+docker-volumes/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Windows build artifacts (PyInstaller + installer)
+server/dist/
+server/build/
+dist/
+build/
+BattleHardenedAI-Setup.exe
+server/packaging/windows/*.exe
+
+# ExploitDB database (too large for git, auto-downloaded)
+AI/exploitdb/
+
+# Learned signatures (generated at runtime)
+AI/learned_signatures.json
+
+# Crypto keys (customers get these manually from you)
+relay/ai_training_materials/crypto_keys/private_key.pem
+relay/ai_training_materials/crypto_keys/public_key.pem
+relay/ai_training_materials/crypto_keys/shared_secret.key
+server/crypto_keys/private_key.pem
+server/crypto_keys/public_key.pem
+server/crypto_keys/shared_secret.key
+
+# SSL Certificates (auto-generated, never commit private keys!)
+*.pem
+*.key
+*.crt
+server/ssl_cert.pem
+server/ssl_key.pem
+
+# Relay folder (operator-only infrastructure, not for customers)
+relay/
+
+# Temporary files
+*.tmp
+temp/
+server/json/lineage_signing_key.pem
