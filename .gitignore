@@ -90,6 +90,11 @@ server/ssl_key.pem
 # Relay folder (operator-only infrastructure, not for customers)
 relay/
 
+# Hide core implementation folders from Git (ship as binaries/artifacts only)
+AI/
+server/
+policies/
+
 # Temporary files
 *.tmp
 temp/
