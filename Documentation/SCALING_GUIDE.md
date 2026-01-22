@@ -1,5 +1,7 @@
 # Battle-Hardened AI - Scaling to 100,000+ Concurrent Connections
 
+> **Audience & distribution:** This guide is aimed at **advanced Linux operators and developers** tuning capacity. Customer deployments normally use the Linux `.deb`/`.rpm` packages or Windows EXE installer; they run the **same Gunicorn/Docker stack under the hood**, but you typically manage it via the packaged service (systemd/Docker) rather than calling `gunicorn` or `docker compose` directly. Treat explicit `pip`/`gunicorn`/`docker` commands here as **reference or source-based examples**.
+
 ## 📊 Current Capacity vs Extreme Scale (Linux as Primary Tier)
 
 | Configuration | CPU Cores | Workers | Connections/Worker | Max Connections | Use Case |
@@ -119,6 +121,11 @@ server {
 
 **Option A: Docker (Recommended for Most Users)**
 ```bash
+# Packaged appliance (customers): the Linux package starts and manages this Docker stack for you.
+# Use systemctl as documented in INSTALLATION, for example:
+#   sudo systemctl status battle-hardened-ai
+
+# From source / custom Docker management (developers/labs):
 cd server
 docker compose up -d
 ```

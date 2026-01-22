@@ -2,6 +2,11 @@
 
 ## 🚀 Quick Start (TL;DR)
 
+**Linux (Packaged Appliance - Recommended for Linux Customers):**
+- Install the vendor-signed Battle-Hardened AI `.deb`/`.rpm` package as described in INSTALLATION.
+- The package starts and manages the Docker-based server via a systemd service (for example `battle-hardened-ai`).
+   - Access: https://YOUR_IP:60000 (HTTPS)
+
 **Windows (Production) - Recommended:**
 - Install via the Battle-Hardened AI Windows installer, then start via the Start Menu shortcut or by running `BattleHardenedAI.exe` from the install directory (for example `C:\Program Files\Battle-Hardened AI`).
    - Access: https://localhost:60000 (HTTPS)
@@ -17,7 +22,7 @@ python installation/watchdog.py
 ```
 Access: https://localhost:60000 (HTTPS)
 
-**Linux Docker - Server:**
+**Linux Docker - Server (from source / dev-lab):**
 ```bash
 cd server
 docker-compose up -d
@@ -103,9 +108,11 @@ python installation/watchdog.py
 
 ## 🐧 LINUX (Docker)
 
+> **Note:** On packaged Linux appliances, Docker is started and managed for you by the `.deb`/`.rpm` service (see INSTALLATION). The commands below are primarily for **source-based or custom Docker deployments**.
+
 ### 🐳 Server Container (Production)
 
-**Build and run:**
+**Build and run (from source/custom stack):**
 ```bash
 cd server
 docker-compose up -d --build

@@ -2,8 +2,10 @@
 
 This document maps each file in `AI/`, `server/`, and `relay/` folders to the **7-stage attack detection pipeline** documented in the README.
 
+> **Audience & distribution note:** This is a **developer/auditor reference** tied to the Git repository layout. It assumes you have the full source tree checked out (AI/, server/, relay/) so you can inspect modules and JSON surfaces directly. **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE normally do not see this folder structure**; they operate the packaged services using README and INSTALLATION. Use this file when you need to understand or verify how the runtime behavior maps back to individual source files.
+
 **Documentation Index:**
-- **[INSTALLATION.md](INSTALLATION.md)** — Complete installation guide for Linux/Windows/macOS + relay setup
+- **[INSTALLATION.md](INSTALLATION.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
 - **[README.md](README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture
 - **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** — Attack simulation test procedures
 - **[dashboard.md](dashboard.md)** — Core first-layer dashboard API reference
@@ -506,10 +508,10 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 
 ## File Naming Conventions
 
-**Customer Node (server/ + AI/):**
-- `server/json/*.json` — Runtime state (`.gitignored`, created at runtime)
-- `AI/*.py` — Detection modules, orchestration, honeypot, governance
-- `AI/ml_models/` — Canonical ML models directory (RandomForest, IsolationForest, GradientBoosting, scaler, sequence LSTM, node fingerprint, signature cache)
+**Customer node components in the source tree (server/ + AI/):**
+- `server/json/*.json` — Runtime state (`.gitignored`, created at runtime). In packaged Linux/Windows builds these live under the internal JSON directory resolved by AI/path_helper, even though you may not see the raw `server/json` folder on disk.
+- `AI/*.py` — Detection modules, orchestration, honeypot, governance (bundled into the Linux package/Windows EXE for customers; visible only when working from the Git source tree).
+- `AI/ml_models/` — Canonical ML models directory (RandomForest, IsolationForest, GradientBoosting, scaler, sequence LSTM, node fingerprint, signature cache) used by both source-based and packaged deployments.
 
 **Relay (relay/):**
 - `relay/ai_training_materials/` — Training data lake (NOT accessible to customers)

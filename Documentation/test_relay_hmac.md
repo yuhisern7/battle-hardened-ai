@@ -16,17 +16,25 @@ Test message (for reference only, you do not need to type this):
 ```
 
 > Prerequisite: The `shared_secret.key` file must be in the correct path on each
-> machine (see INSTALLATION.md for how to obtain and place this file).
+> machine. For packaged Linux/Windows deployments, the key lives under the
+> installer/package layout documented in INSTALLATION (you do **not** need a Git
+> clone). For developers running from a source checkout, it is typically under
+> `server/crypto_keys/shared_secret.key` on nodes and `relay/crypto_keys/shared_secret.key`
+> on the relay VPS.
 
 ---
 
-### 1. Windows Client (PowerShell, from repo root)
+### 1. Windows Client (PowerShell)
 
-Run this **single PowerShell command** from the `battle-hardened-ai` repo root on the
-Windows client node:
+On a Windows client node, run this **single PowerShell command**, adjusting the
+path to `shared_secret.key` for your deployment:
 
 ```powershell
+# Example (from a source checkout in battle-hardened-ai\):
 python -c "import hmac,hashlib; k=open('server/crypto_keys/shared_secret.key','rb').read(); m=b'{\"test\":\"relay-hmac\",\"version\":1}'; print(hmac.new(k,m,hashlib.sha256).hexdigest())"
+
+# For an installed EXE, update the path, for example:
+#   k=open('C:/Program Files/Battle-Hardened AI/server/crypto_keys/shared_secret.key','rb').read()
 ```
 
 Expected result: a single lowercase hex string (64 characters).
@@ -41,13 +49,17 @@ Copy this value; you will compare it with the Linux client and relay outputs.
 
 ---
 
-### 2. Linux Client Node (bash/sh, from repo root)
+### 2. Linux Client Node (bash/sh)
 
-On any Linux client running Battle-Hardened AI, from the `battle-hardened-ai` repo root,
-run:
+On any Linux client running Battle-Hardened AI, run:
 
 ```bash
+# Example (from a source checkout in battle-hardened-ai/):
 python3 -c 'import hmac,hashlib; k=open("server/crypto_keys/shared_secret.key","rb").read(); m=b"{\"test\":\"relay-hmac\",\"version\":1}"; print(hmac.new(k,m,hashlib.sha256).hexdigest())'
+
+# On a packaged Linux node, point to the installed key path documented in INSTALLATION,
+# for example:
+#   k=open("/opt/battle-hardened-ai/server/crypto_keys/shared_secret.key","rb").read()
 ```
 
 - The printed hex string **must exactly match** the PowerShell output.
@@ -58,8 +70,8 @@ python3 -c 'import hmac,hashlib; k=open("server/crypto_keys/shared_secret.key","
 ### 3. VPS Relay (on the relay server)
 
 On the relay VPS, run this command from the directory where the `relay/` folder lives
-(
-for example, `/opt/battle-hardened-ai`):
+(for example, `/opt/battle-hardened-ai` in a source deployment), or adjust the path
+for a packaged relay installation:
 
 ```bash
 python3 -c 'import hmac,hashlib; k=open("relay/crypto_keys/shared_secret.key","rb").read(); m=b"{\"test\":\"relay-hmac\",\"version\":1}"; print(hmac.new(k,m,hashlib.sha256).hexdigest())'

@@ -65,6 +65,23 @@ Place the `shared_secret.key` file in:
 
 > **Primary architecture:** Battle-Hardened AI is designed first and foremost for **Linux gateway/edge deployments** (physical or virtual appliances in front of a segment). Windows and macOS installs are supported as **host/appliance** tiers for specific servers or branches, but the canonical 7-stage, 21-layer architecture and firewall enforcement story assume a Linux node at the network boundary.
 
+> **Distribution model:** Production customers normally receive **pre-packaged binaries**, not the GitHub source tree:
+> - **Linux gateway/edge nodes:** Installed via a signed **.deb/.rpm package** provided by the vendor.
+> - **Windows hosts/appliances:** Installed via the signed **BattleHardenedAI-Setup.exe** installer.
+> - **Documentation and helper scripts:** Shipped alongside the packages.
+>
+> The **`git clone` and source-based commands** in this guide are intended for **development, lab environments, or contributors**. If you have received an official package/installer, follow the **package/installer subsections** for your platform and you can safely ignore any steps that mention cloning from GitHub.
+
+**Who should read what (customers vs developers):**
+
+| Role / Scenario                         | Use these docs primarily                                                                                         |
+|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| **Customer operator (Linux appliance)** | This INSTALLATION guide (Linux .deb/.rpm sections), README (high level), FIREWALL_ENFORCEMENT, dashboard docs    |
+| **Customer operator (Windows EXE)**     | This INSTALLATION guide (Windows installer/EXE sections), README, FIREWALL_ENFORCEMENT, Windows firewall scripts |
+| **Developers / auditors (source)**      | ai-instructions (architecture & pipeline), ARCHITECTURE_COMPLIANCE, dashboard (API details), filepurpose, etc.  |
+
+If you are running the **packaged Linux or Windows builds**, you normally do **not** interact with the full Git source tree; treat the developer/auditor docs as optional deep-dive references rather than required install steps.
+
 ### 🖥️ Client Installation (Choose One)
 
 #### Linux (Recommended - Full Features)
@@ -136,7 +153,61 @@ Place the `shared_secret.key` file in:
 - Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+, Fedora 36+, or Kali Linux
 - 2 GB RAM (4 GB recommended)
 - 2 GB free disk space
-- Ports 60000 (Dashboard), 60001 (Relay - optional)
+- Ports 60000 (Dashboard), 60001 (Relay/P2P - optional)
+
+**Linux Firewall Checklist (Host OS):**
+- If you run a host firewall (ufw, firewalld, iptables, cloud security groups), ensure:
+   - **Inbound allowed:**
+      - TCP 60000 from your admins/SOC (dashboard/API)
+      - TCP 2121, 2222, 2323, 3306, 8080, 2525, 3389 from the segments you want the real honeypot to see
+   - **Outbound allowed:**
+      - TCP 60001 and 60002 from the Battle-Hardened AI node to your relay VPS (WebSocket + HTTPS API), if you use the optional relay.
+
+Example with `ufw` on the Linux gateway/host:
+
+```bash
+sudo ufw allow 60000/tcp comment 'Battle-Hardened AI Dashboard'
+sudo ufw allow 2121,2222,2323,3306,8080,2525,3389/tcp comment 'Battle-Hardened AI Honeypot'
+sudo ufw allow out 60001,60002/tcp comment 'Battle-Hardened AI Relay'
+```
+
+### Linux Package Installation (.deb/.rpm – Recommended for customers)
+
+If you received a signed **Battle-Hardened AI Linux package** from the vendor (for example `battle-hardened-ai_*.deb` or `battle-hardened-ai-*.rpm`), use this high-level flow:
+
+1. **Install Docker and Docker Compose** on the gateway/host if they are not already present (follow the commands in **Step 1: Install Docker** below).
+2. **Install the package** for your distribution:
+
+   **Debian/Ubuntu/Kali (.deb):**
+
+   ```bash
+   sudo dpkg -i battle-hardened-ai_*.deb
+   sudo apt-get install -f   # pulls any missing dependencies
+   ```
+
+   **RHEL/CentOS/Fedora (.rpm):**
+
+   ```bash
+   sudo rpm -ivh battle-hardened-ai-*.rpm
+   # or (recommended on newer distros):
+   sudo dnf install ./battle-hardened-ai-*.rpm
+   ```
+
+3. **Enable and start the service** (the package sets up a systemd unit named `battle-hardened-ai`):
+
+   ```bash
+   sudo systemctl enable battle-hardened-ai
+   sudo systemctl start battle-hardened-ai
+   sudo systemctl status battle-hardened-ai
+   ```
+
+4. Once the service reports **active (running)** and the firewall checklist above is satisfied, access the dashboard from an admin/SOC workstation:
+
+   ```text
+   https://YOUR_GATEWAY_IP:60000
+   ```
+
+The remaining Docker and `git clone` instructions in this section describe a **developer/source installation** from GitHub and are mainly intended for lab setups or contributors.
 
 ### Step 1: Install Docker
 
@@ -202,7 +273,7 @@ docker compose version
 docker ps
 ```
 
-### Step 2: Install Battle-Hardened AI
+### Step 2: Install Battle-Hardened AI (Developer / from GitHub source)
 
 ```bash
 # Clone repository
@@ -247,6 +318,8 @@ Accept SSL certificate warning (self-signed certificate).
 ---
 
 ## Windows Installation (Native Python)
+
+> **Important:** Production customers normally use the **signed Windows installer** (`BattleHardenedAI-Setup.exe`) distributed by the vendor and **do not need to install Python or clone from GitHub**. The `Native Python` steps below are primarily for **development, labs, and advanced operators**. For packaged installs, skip to **Windows .exe Installer – Post-Install Configuration** and follow those instructions instead.
 
 ### ✅ What You Get
 - **20/20 detection signals** (Signal #1 uses Scapy = ~99% vs Linux 100%)
@@ -789,6 +862,8 @@ telnet 192.168.68.111 2222
 ---
 
 ## macOS Installation (Native Python)
+
+> **Note:** macOS support is primarily for **development and testing** and assumes access to the GitHub source repository. It is **not part of the standard packaged customer distribution** (Linux packages + Windows installer). Treat this section as a developer-only path.
 
 ### ✅ What You Get
 - Same as Windows (20/20 signals, ~99% capability)
@@ -1368,6 +1443,8 @@ server/crypto_keys/ssl_key.pem
 
 ## Updating
 
+> **Package-based installs:** If you installed Battle-Hardened AI using a vendor-provided **.deb/.rpm package** on Linux or the **Windows installer (.exe)**, prefer updating via your **OS package manager** or the latest installer from the vendor. The commands below assume a **source-based deployment** where you cloned the GitHub repository directly.
+
 ### Update Process
 
 **Linux (Docker):**
@@ -1428,6 +1505,8 @@ Copy-Item -Recurse ./backup_json/* server/json/
 ---
 
 ## Uninstallation
+
+> **Package-based installs:** For Linux deployments installed via **.deb/.rpm**, remove Battle-Hardened AI using your distribution's package manager (for example `sudo apt-get remove battle-hardened-ai` or `sudo dnf remove battle-hardened-ai`) and stop/disable the `battle-hardened-ai` systemd service. The commands in this section focus on cleaning up **source-based installs** created from a GitHub clone.
 
 ### Complete Removal
 

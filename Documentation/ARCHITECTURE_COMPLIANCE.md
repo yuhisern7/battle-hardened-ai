@@ -1,5 +1,7 @@
 # Architecture Compliance Verification
 
+> **Distribution note:** This document verifies that the **runtime behavior** of Battle-Hardened AI matches the documented 3-step attack flow and related identity/HA flows **in the source code**. It assumes access to the Git repository layout (`AI/`, `server/`, `relay/`) so you can inspect functions and line numbers directly. Production customers who install via **Linux .deb/.rpm packages** or the **Windows EXE** run the same logic, but do **not** normally see this source tree; treat this file as a developer/auditor reference rather than an end-user operations guide.
+
 ## ✅ VERIFIED ATTACK FLOW (3-Step Architecture)
 
 When attacks are executed from Kali Linux, the system follows this **exact 3-step flow**:

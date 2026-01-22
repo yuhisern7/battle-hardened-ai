@@ -1,11 +1,13 @@
 # Battle-Hardened AI Firewall Enforcement (Linux & Windows)
 
-Battle-Hardened AI already makes **first-layer decisions** about which IPs are malicious and writes them into structured JSON files (for example, `server/json/blocked_ips.json`).
+Battle-Hardened AI already makes **first-layer decisions** about which IPs are malicious and writes them into structured JSON files (for example, a `blocked_ips.json` file in the JSON directory resolved by the path helpers in AI/path_helper – in a source checkout this is typically `server/json/blocked_ips.json`).
 
 This guide shows how to **turn those decisions into real firewall blocks** on:
 
 - Linux gateway / edge boxes (Docker deployment, host networking)
-- Windows hosts (native Python deployment)
+- Windows hosts (packaged EXE or native Python deployment)
+
+> **Distribution note:** Customer deployments normally use Linux packages (`.deb`/`.rpm`) or the Windows EXE installer; you do **not** need a Git clone of the repository. Where this guide references paths like `server/docker-compose.yml` or `server/.env.linux`, treat those as **developer/source examples** – packaged appliances run the same Docker image and entrypoint under a managed service as described in INSTALLATION.
 
 > Battle-Hardened AI remains a **first-layer decision node**. These integrations simply push its `blocked_ips` into the OS firewall so port scans and attacks from those IPs are dropped at the network boundary.
 
@@ -13,7 +15,7 @@ This guide shows how to **turn those decisions into real firewall blocks** on:
 
 ## 1. Linux (Docker, Host Networking) — Automatic Mode
 
-On Linux, Battle-Hardened AI is designed to run in a Docker container with:
+On Linux, Battle-Hardened AI runs in a Docker container with:
 
 - `network_mode: host`
 - `NET_ADMIN` and related capabilities
@@ -22,29 +24,40 @@ The container includes a small daemon that **automatically syncs** Battle-Harden
 
 ### 1.1. Prerequisites
 
-- You are running from the `server` directory using Docker Compose: `docker compose up -d`.
-- The Linux box is a **gateway/router** or **edge device** for the traffic you care about.
-- [server/docker-compose.yml](server/docker-compose.yml) is unmodified with respect to:
+- **Packaged Linux appliance (recommended for customers):** Battle-Hardened AI is installed from a vendor-signed `.deb`/`.rpm` and managed via a systemd service (for example `battle-hardened-ai`). The package internally runs the same Docker Compose stack on the host with `network_mode: host` and `NET_ADMIN`.
+- **From source (developers/labs):** You are running from the `server` directory using Docker Compose: `docker compose up -d` and [server/docker-compose.yml](server/docker-compose.yml) is unmodified with respect to:
   - `network_mode: host`
   - `cap_add` including `NET_ADMIN`.
+- The Linux box is a **gateway/router** or **edge device** for the traffic you care about.
 
 ### 1.2. Enable Automatic Firewall Sync
 
-1. In [server/.env.linux](server/.env.linux) (or your `.env` on Linux), set:
+1. In your Linux environment configuration, enable firewall sync.
+
+  - **Packaged appliance:** Follow the Linux section in INSTALLATION to set `BH_FIREWALL_SYNC_ENABLED=true` in the service’s environment (for example via `/etc/default/battle-hardened-ai` or the package’s `.env` file).
+  - **From source:** In [server/.env.linux](server/.env.linux) (or your `.env` on Linux), set:
 
     ```env
     BH_FIREWALL_SYNC_ENABLED=true
     ```
 
-2. Start or restart the container:
+2. Restart the service or container so the setting is applied:
 
-    ```bash
-    cd battle-hardened-ai/server
-    docker compose build
-    docker compose up -d
-    ```
+    - **Packaged appliance (systemd-managed):**
 
-3. The entrypoint script [server/entrypoint.sh](server/entrypoint.sh):
+      ```bash
+      sudo systemctl restart battle-hardened-ai
+      ```
+
+    - **From source (Docker Compose):**
+
+      ```bash
+      cd battle-hardened-ai/server
+      docker compose build
+      docker compose up -d
+      ```
+
+3. Inside the Docker image (for both packaged and source-based deployments), the entrypoint script [server/entrypoint.sh](server/entrypoint.sh):
     - Detects `BH_FIREWALL_SYNC_ENABLED=true`.
     - Starts `/app/installation/bh_firewall_sync.py` in the background.
 
@@ -53,7 +66,7 @@ From this point onward:
 - You **do not need to run any extra scripts** on Linux.
 - Clicking **Unblock** in the dashboard (Section 7) updates `blocked_ips.json`.
 - The sync daemon:
-  - Reads `/app/json/blocked_ips.json` (host [server/json/blocked_ips.json](server/json/blocked_ips.json)).
+  - Reads `/app/json/blocked_ips.json` (the host-side JSON directory as resolved by AI/path_helper; in a source checkout this is [server/json/blocked_ips.json](server/json/blocked_ips.json)).
   - Rebuilds an `ipset` named `bh_blocked` on the host.
   - Ensures `iptables` rules on `INPUT` and `FORWARD` drop traffic from that set.
 
@@ -76,9 +89,14 @@ If `BH_FIREWALL_SYNC_ENABLED=true` and the container is running, you should see:
 
 ---
 
-## 2. Windows (Native Python or EXE) — PowerShell Integration
+## 2. Windows (EXE or Native Python) — Firewall Integration
 
-On Windows, Battle-Hardened AI runs either as a native Python service or as the packaged Windows EXE and writes to the same JSON file (`server/json/blocked_ips.json`), resolved via the path helpers in `AI/path_helper`. You can use a small PowerShell script to push those IPs into Windows Defender Firewall rules.
+On Windows, Battle-Hardened AI runs either as a native Python service or as the packaged Windows EXE and writes to the same logical JSON file (`blocked_ips.json` in the JSON directory resolved via `AI/path_helper`; in a source checkout this is `server/json/blocked_ips.json`).
+
+There are **two layers** of integration with Windows Defender Firewall:
+
+- **Baseline allow rules (ports opened):** Ensure the dashboard and honeypot/relay ports are reachable on the host.
+- **Dynamic block rules (malicious IPs):** Sync the `blocked_ips.json` list into a firewall rule so malicious IPs are dropped.
 
 ### 2.1. Concept
 
@@ -88,14 +106,34 @@ On Windows, Battle-Hardened AI runs either as a native Python service or as the 
 
 This keeps your firewall configuration simple and centralized.
 
-### 2.2. Example PowerShell Script Location
+### 2.2. Example PowerShell Script Locations
 
-The project includes a ready-to-use script in two common locations:
+The project includes two ready-to-use scripts in both **source** and **installed** layouts:
 
-- From a source clone: [server/windows-firewall/windows_defender_sync.ps1](server/windows-firewall/windows_defender_sync.ps1)
-- From the Windows installer: `{app}\windows-firewall\windows_defender_sync.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\windows_defender_sync.ps1`)
+- **Configure baseline allow rules (dashboard + honeypots + relay):**
+  - From a source clone: [server/windows-firewall/configure_bh_windows_firewall.ps1](server/windows-firewall/configure_bh_windows_firewall.ps1)
+  - From the Windows installer: `{app}\windows-firewall\configure_bh_windows_firewall.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1`)
 
-By default, the script locates `blocked_ips.json` relative to its own directory (it expects a sibling `server\json\blocked_ips.json`), but you can override the `JsonPath` parameter if you have a custom layout.
+  Run once from an elevated PowerShell prompt:
+
+  ```powershell
+  powershell.exe -ExecutionPolicy Bypass -File "C:\\Program Files\\Battle-Hardened AI\\windows-firewall\\configure_bh_windows_firewall.ps1"
+  ```
+
+  This creates inbound allow rules for:
+
+  - Dashboard: TCP 60000
+  - Honeypots: TCP 2121, 2222, 2323, 3306, 8080, 2525, 3389
+
+  And (by default) an outbound allow rule for the optional relay ports:
+
+  - Relay WebSocket/API: TCP 60001–60002
+
+- **Sync blocked IPs into a block rule:**
+  - From a source clone: [server/windows-firewall/windows_defender_sync.ps1](server/windows-firewall/windows_defender_sync.ps1)
+  - From the Windows installer: `{app}\windows-firewall\windows_defender_sync.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\windows_defender_sync.ps1`)
+
+  By default, this script locates `blocked_ips.json` relative to its own directory (it expects a sibling `server\json\blocked_ips.json`), but you can override the `JsonPath` parameter if you have a custom layout.
 
 ### 2.3. Run Manually
 

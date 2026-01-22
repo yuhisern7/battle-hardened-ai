@@ -2,6 +2,8 @@
 
 This document provides a comprehensive guide to the 23 core dashboard sections, mapping them to the **7-stage attack detection pipeline** and their corresponding APIs and AI modules.
 
+> **Distribution note:** In production, customers typically access the dashboard via a **Linux appliance installed from a .deb/.rpm package** or a **Windows host/appliance installed from the signed EXE**, and do **not** work with the Git source tree. The API examples and helper scripts in this file assume a **development or lab environment** where you have the repository checked out and can run Python scripts from the project root. For packaged deployments, you can still hit the same HTTPS endpoints (for example from Postman or your own tools); just ignore any instructions that mention the repo layout.
+
 **Installation & Setup:**
 - For installation instructions, see [INSTALLATION.md](INSTALLATION.md)
 - For relay server setup, see [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)
@@ -20,9 +22,9 @@ This document provides a comprehensive guide to the 23 core dashboard sections, 
 
 ## Quick Start: Testing Dashboard APIs
 
-**Prerequisites:**
-- Dashboard running at `https://localhost:60000`
-- Run scripts from repo root: `battle-hardened-ai/`
+**Prerequisites (developer/lab usage):**
+- Dashboard running at `https://localhost:60000` (packaged node or dev instance)
+- Git checkout of the repo if you want to use the Python helper scripts (run them from the `battle-hardened-ai/` root)
 - Install `requests`: `pip install requests`
 
 **Common Helper:**

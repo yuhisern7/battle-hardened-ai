@@ -1,6 +1,8 @@
 # AI System Architecture & Implementation Guide
 
 > **Purpose:** Comprehensive technical guide for developers. Explains the 7-stage attack detection pipeline implementation, testing procedures, and compliance architecture across AI modules, server components, and relay infrastructure.
+>
+> **Audience & distribution note:** This document assumes access to the **full source tree** (AI/, server/, relay/) as checked out from Git (for example in a development or CI environment). **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE do not receive this source layout by default** – they operate the packaged services and refer primarily to README and INSTALLATION. Use this guide when you are **developing, auditing, or extending** the system from source.
 
 **Related Documentation:**
 - **[README.md](README.md)** - Main documentation with architecture overview
@@ -160,11 +162,11 @@
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Three deployment tiers:**
+**Three deployment tiers (source/architecture view):**
 
-1. **Customer Node (server/ + AI/)** — Runs stages 1-5 locally, optionally connects to relay for stages 6-7
-2. **AI Intelligence Layer (AI/)** — Implements all 20 detection signals, the Step 21 semantic gate, and ensemble logic (stages 2-3)
-3. **Central Relay (relay/)** — Operator-controlled training hub (stages 6-7, **NOT shipped to customers**)
+1. **Customer Node runtime (packaged)** — What production customers run in the Linux package or Windows EXE; contains the compiled/packaged equivalents of `server/` and `AI/` but does **not** expose the raw source tree.
+2. **AI Intelligence Layer (AI/ source tree)** — The source modules that implement all 20 detection signals, the Step 21 semantic gate, and ensemble logic (stages 2-3). Available to developers and auditors working from Git.
+3. **Central Relay (relay/)** — Operator-controlled training hub (stages 6-7). The relay source lives under `relay/` in the repo and is **not shipped with the customer Linux/Windows packages**; it is deployed separately on a VPS when used.
 
 ---
 

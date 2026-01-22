@@ -89,7 +89,7 @@ As a first-layer system, Battle-Hardened AI follows strict data-handling princip
 
 Battle-Hardened AI is intentionally vendor-neutral. It emits **structured JSON decisions** that can be consumed by any SIEM, SOAR, EDR/XDR, NGFW, or custom automation without baking vendor logic into the core.
 
-At runtime, the system maintains JSON surfaces such as [server/json/blocked_ips.json](server/json/blocked_ips.json):
+At runtime, the system maintains JSON surfaces such as a `blocked_ips.json` file in the JSON directory resolved by the path helpers in `AI/path_helper` (in a source checkout this is typically [server/json/blocked_ips.json](server/json/blocked_ips.json)):
 
 ```json
 {
@@ -102,7 +102,7 @@ At runtime, the system maintains JSON surfaces such as [server/json/blocked_ips.
 This format is **identical on Linux (Docker) and Windows** – the core decision engine and JSON schema do not change by platform. Only the **enforcement adapter** differs:
 
 - On **Linux Docker**, [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) shows how the container’s sync daemon converts `blocked_ips.json` into host `ipset`/`iptables` rules when `BH_FIREWALL_SYNC_ENABLED=true`.
-- On **Windows**, [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) documents an optional PowerShell script that reads the same `blocked_ips.json` file and updates a single Windows Defender Firewall rule.
+- On **Windows**, [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) documents the provided PowerShell scripts that open the required dashboard/honeypot/relay ports and keep Windows Defender Firewall rules synchronized with the same `blocked_ips.json` file.
 
 In real enterprise environments with **multiple security products** (SIEM, SOAR, NGFW, EDR/XDR, ZTNA, etc.), operators are expected to treat these JSON outputs as a **canonical decision feed** and wire them into their stack via small, external integration services or SOAR playbooks:
 
@@ -340,36 +340,41 @@ This section provides a **hardware-only checklist** for two primary deployment p
 
 ## ⚠️ Platform Requirements & Startup Guide
 
+> **Distribution model:** Production customers normally receive **pre-packaged binaries**, not the GitHub source tree: a signed **.deb/.rpm** package for Linux gateway/edge deployments and the signed **BattleHardenedAI-Setup.exe** installer for Windows hosts/appliances. The platform notes below describe how the system runs on each OS; any `git clone` / direct Docker or Python commands referenced in the docs are intended for **development, labs, or contributors**, not standard customer installs.
+
 **Network-Wide Protection Depends on Your Operating System:**
 
 ### Linux (Recommended - Full Docker Support)
-- ✅ **Docker**: Full network-wide monitoring + Web GUI dashboard works perfectly
+- ✅ **Docker**: Full network-wide monitoring + Web GUI dashboard (managed by the package)
 - ✅ **Host Network Mode**: Docker can access entire network traffic
-- ✅ **Deployment**: `docker compose up -d` (production-ready with Gunicorn)
-- ✅ **Auto-restart**: Built-in via Docker restart policies
+- ✅ **Deployment (customers)**: Installed and managed via the vendor-signed **.deb/.rpm** package, which provisions the Docker service and systemd unit for you (no manual `git clone` or `docker compose up -d` required).
+- 🧪 **Deployment (developers/labs)**: May be run directly from the GitHub source tree using `docker compose up -d` as documented in Documentation/INSTALLATION.md.
+- ✅ **Auto-restart**: Built-in via Docker restart policies / systemd service
 - ✅ **Capacity**: Handles 1000s of concurrent attacks
  - ⚠️ **Privileges**: Container runs as root with NET_ADMIN/BPF for eBPF + firewall sync; treat host as a dedicated security appliance
 
 ### Windows / macOS (Native Execution)
+> **Windows customers:** In production you typically use the signed **BattleHardenedAI-Setup.exe** installer, which embeds the production server and watchdog – you do **not** need to install Python or run `server.py` directly. The native Python path below is primarily for **development, CI, and advanced lab environments**.
+
 - ❌ **Docker Limitation**: Bridge mode cannot monitor network-wide traffic (only container traffic)
-- ✅ **Native Python**: Required for full network protection
-- ✅ **Web GUI**: Accessible at `https://localhost:60000` when running natively
-- ⚠️ **Production Mode**: Use `python installation/watchdog.py` instead of `python server.py` for crash protection
-- ✅ **Auto-restart**: Watchdog monitors and restarts server on crash
+- ✅ **Native Python (developer path)**: For labs/contributors running from the GitHub source tree
+- ✅ **Web GUI**: Accessible at `https://localhost:60000` when running natively (developer or packaged)
+- ⚠️ **Production-like mode for native dev installs**: Use `python installation/watchdog.py` instead of `python server.py` for crash protection
+- ✅ **Auto-restart**: Watchdog (or the packaged Windows service) monitors and restarts the server on crash
 - ✅ **Capacity**: ~500 concurrent connections (OS limitations)
- - ⚠️ **Privileges**: Run the server and watchdog "as Administrator" to enable packet capture and Windows firewall rule sync
+ - ⚠️ **Privileges**: Run the server and watchdog "as Administrator" (or install/run the EXE as admin) to enable packet capture and Windows firewall rule sync
 - 📈 **Scaling**: For 10,000+ connections, use Linux native or cluster - see [SCALING_GUIDE.md](SCALING_GUIDE.md)
 
 **Summary:**
-- **Linux users**: Use Docker (recommended) - see [STARTUP_GUIDE.md](STARTUP_GUIDE.md#-linux-docker) and **wire firewall enforcement via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
-- **Windows/Mac users**: Run natively with production mode - see [STARTUP_GUIDE.md](STARTUP_GUIDE.md#-windows-native) and **configure Windows firewall sync via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
-- **Quick Start**: See [STARTUP_GUIDE.md](STARTUP_GUIDE.md) for complete instructions
+- **Linux customers**: Install and operate the node via the vendor-provided **.deb/.rpm** package (which runs Battle-Hardened AI inside Docker) – see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md#linux-installation-docker) and **wire firewall enforcement via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
+- **Windows customers**: Use the signed **Windows installer (.exe)** and follow the post-install configuration steps – see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md#windows-installation-native-python) and **configure Windows firewall sync via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
+- **Developers / labs**: May run Docker or native Python directly from the GitHub source tree using [STARTUP_GUIDE.md](STARTUP_GUIDE.md)
 - **Organizations**: Deploy on Linux or dedicated Windows security appliance with proper network policies
-- **GUI Dashboard**: Available on both Docker (Linux) and native execution (all platforms)
+- **GUI Dashboard**: Available on both Docker-backed Linux appliances and Windows EXE deployments
 
 **🚀 Installation & Startup Steps:**
 
-- For complete, step-by-step installation instructions (Windows installer, Windows/macOS native, Linux Docker) and firewall/AV guidance, see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md).
+- For complete, step-by-step installation instructions for **Linux .deb/.rpm packages**, the **Windows .exe installer**, and the optional **developer-only Docker/native flows**, see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md).
 - For runtime configuration and operational startup details, see [STARTUP_GUIDE.md](STARTUP_GUIDE.md).
 - For scaling scenarios (10,000+ connections, clustering), see [SCALING_GUIDE.md](SCALING_GUIDE.md).
 
