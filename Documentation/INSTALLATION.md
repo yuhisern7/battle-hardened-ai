@@ -1557,7 +1557,7 @@ pip uninstall -y -r server/requirements.txt
 - **[README.md](README.md)** - Features, architecture, MITRE ATT&CK coverage
 - **[relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)** - VPS relay server setup (detailed guide)
 - **[testconnection.md](testconnection.md)** - Client relay troubleshooting
-- **[dashboard.md](dashboard.md)** - Dashboard features and usage
+- **[Dashboard](Dashboard.md)** - Dashboard features and usage
 - **[ai-abilities.md](ai-abilities.md)** - AI capabilities and detection logic
 
 ### Quick Commands Reference

@@ -7,9 +7,28 @@ This guide shows how to **turn those decisions into real firewall blocks** on:
 - Linux gateway / edge boxes (Docker deployment, host networking)
 - Windows hosts (packaged EXE or native Python deployment)
 
+It is written for **enterprise and regulated environments** with change control, GPO/MDM, and third‑party EDR/endpoint firewalls. Treat the concrete scripts here as **reference implementations** of the required ports and rules, not as a replacement for your existing policy tooling.
+
 > **Distribution note:** Customer deployments normally use Linux packages (`.deb`/`.rpm`) or the Windows EXE installer; you do **not** need a Git clone of the repository. Where this guide references paths like `server/docker-compose.yml` or `server/.env.linux`, treat those as **developer/source examples** – packaged appliances run the same Docker image and entrypoint under a managed service as described in INSTALLATION.
 
 > Battle-Hardened AI remains a **first-layer decision node**. These integrations simply push its `blocked_ips` into the OS firewall so port scans and attacks from those IPs are dropped at the network boundary.
+
+### Firewall Ports Summary (Enterprise View)
+
+Use this table as the **authoritative reference** when creating firewall rules via GPO/Intune, on-prem firewalls, or EDR policy consoles.
+
+| Component / Role | Direction | Port(s) / Protocol | Purpose |
+|------------------|-----------|--------------------|---------|
+| Linux gateway / edge node | Inbound | 60000/TCP | HTTPS dashboard (SOC/administrator access) |
+| Linux gateway / edge node | Inbound | 2121, 2222, 2323, 3306, 8080, 2525, 3389/TCP | Honeypot services for attacker interaction and training |
+| Linux gateway / edge node | Outbound (optional) | 60001–60002/TCP | Client → relay (WebSocket + HTTPS model API) |
+| Windows host / appliance | Inbound | 60000/TCP | HTTPS dashboard on Windows deployments |
+| Windows host / appliance | Inbound | 2121, 2222, 2323, 3306, 8080, 2525, 3389/TCP | Windows honeypot services (optional, security lab / decoy) |
+| Windows host / appliance | Outbound (optional) | 60001–60002/TCP | Client → relay (WebSocket + HTTPS model API) |
+| Relay server (VPS) | Inbound | 60001/TCP | WebSocket relay endpoint (wss://) |
+| Relay server (VPS) | Inbound | 60002/TCP | HTTPS model distribution API |
+
+In tightly controlled environments, these ports are normally opened on **security appliances and relay servers only**, not on general-purpose endpoints.
 
 ---
 
@@ -114,7 +133,9 @@ The project includes two ready-to-use scripts in both **source** and **installed
   - From a source clone: [server/windows-firewall/configure_bh_windows_firewall.ps1](server/windows-firewall/configure_bh_windows_firewall.ps1)
   - From the Windows installer: `{app}\windows-firewall\configure_bh_windows_firewall.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1`)
 
-  Run once from an elevated PowerShell prompt:
+  In **enterprise environments**, these rules are usually created centrally via GPO/Intune or your EDR/endpoint firewall console. The script below is provided as a **reference** and is suitable for labs, pilots, or controlled security appliances where local rule changes are permitted.
+
+  Run once from an elevated PowerShell prompt on such a host:
 
   ```powershell
   powershell.exe -ExecutionPolicy Bypass -File "C:\\Program Files\\Battle-Hardened AI\\windows-firewall\\configure_bh_windows_firewall.ps1"

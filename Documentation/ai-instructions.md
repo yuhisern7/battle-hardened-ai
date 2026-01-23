@@ -6,10 +6,10 @@
 
 **Related Documentation:**
 - **[README.md](README.md)** - Main documentation with architecture overview
-- **[INSTALLATION.md](INSTALLATION.md)** - Complete installation guide
+- **[Installation](Installation.md)** - Complete installation guide
 - **[relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)** - Relay server deployment
-- **[dashboard.md](dashboard.md)** - Core first-layer dashboard API reference
-- **[filepurpose.md](filepurpose.md)** - File organization by pipeline stage
+- **[Dashboard](Dashboard.md)** - Core first-layer dashboard API reference
+- **[Filepurpose](Filepurpose.md)** - File organization by pipeline stage
 - **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** - Attack testing commands
 
 ---
@@ -1017,7 +1017,7 @@ def __init__(self):
 - [ ] Ensemble voting includes signal with correct weight
 - [ ] Dashboard displays signal contribution (Section 4/15)
 - [ ] Relay receives sanitized signal data (Stage 6)
-- [ ] Documentation updated (README, ai-instructions.md, dashboard.md, filepurpose.md)
+- [ ] Documentation updated (README, Ai-instructions.md, Dashboard.md, Filepurpose.md)
 
 ---
 

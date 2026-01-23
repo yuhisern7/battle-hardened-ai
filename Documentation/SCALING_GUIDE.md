@@ -319,4 +319,4 @@ ab -n 1000000 -c 100000 https://localhost:60000/
 
 ---
 
-See [STARTUP_GUIDE.md](STARTUP_GUIDE.md) for detailed startup instructions.
+See [Startup guide](Startup_guide.md) for detailed startup instructions.

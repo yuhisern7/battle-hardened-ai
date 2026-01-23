@@ -1,8 +1,10 @@
 # COMPLETE ATTACK HANDLING FLOW
 
-## ✅ GUARANTEED BEHAVIOR: EVERY ATTACK BLOCKS THE ATTACKER
+> **Audience & distribution:** This document is written for **security engineers, architects, and auditors** who want to verify that the implemented attack path matches the documented design. It describes the **intended and currently implemented behavior** of the system, not a legal or formal security guarantee. Operational behavior still depends on configuration (for example whitelist entries, deployment mode, and firewall wiring).
 
-**NO EXCEPTIONS** - If it matches ANY attack pattern, the IP is **IMMEDIATELY BLOCKED**.
+## ✅ INTENDED BEHAVIOR: DETECTED ATTACKS ARE IMMEDIATELY BLOCKED
+
+When a request matches any configured or learned attack pattern in scope of the current deployment, the IP is blocked and logged as described below, subject to the documented whitelist and configuration rules.
 
 ---
 
@@ -221,7 +223,7 @@ curl -k "https://192.168.0.116:60000/api/threats?id=1%27%20OR%20%271%27%3D%271"
 
 ## 🔗 HOW THIS MAPS TO THE 7-STAGE PIPELINE & 21 DETECTION LAYERS
 
-This 4-step attack handling flow is a concrete, minimal slice through the full 7-stage, 21-layer architecture described in README, filepurpose.md, dashboard.md, and ai-instructions.md:
+This 4-step attack handling flow is a concrete, minimal slice through the full 7-stage, 21-layer architecture described in README, Filepurpose.md, Dashboard.md, and Ai-instructions.md:
 
 - **Stage 1 – Data Ingestion & Normalization:**
   - Packets from Kali are captured by server/network_monitor.py and normalized before entering the AI pipeline.

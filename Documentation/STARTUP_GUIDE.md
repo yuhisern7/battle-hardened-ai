@@ -329,7 +329,7 @@ Relay nodes exchange **sanitized, privacy-preserving training material** only; t
   - 8-core CPU: 17 workers × 250 = ~4,250 connections
   - 16-core CPU: 33 workers × 250 = ~8,250 connections
 - **Memory**: ~200MB per worker
-- **Extreme scale**: See [SCALING_GUIDE.md](SCALING_GUIDE.md) for 640,000+ connections
+- **Extreme scale**: See [Scaling guide](Scaling_guide.md) for 640,000+ connections
 
 ### Recommended Hardware
 - **Development**: 2 CPU, 4GB RAM (~1,250 connections) — Ideal for **single-host protection** or small lab environments.

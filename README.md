@@ -1,5 +1,13 @@
 ## Battle-Hardened AI
 
+### 🔑 Summary Highlights
+
+- Blocks malicious actions **before execution** using a 21-layer AI ensemble and a final semantic gate.
+- Acts as a **first-layer firewall commander** for gateways and routers, driving enforcement rather than just raising alerts.
+- Works **without agents**, exporting neutral JSON that plugs into existing SIEM, SOAR, firewall, and XDR stacks.
+- Provides documented coverage for **43 MITRE ATT&CK techniques** via pre-execution denial and trust degradation.
+- Built for **enterprise, government, and national-security** defense use cases where autonomy, auditability, and privacy are mandatory.
+
 ### Executive Summary (Non-Technical)
 
 - **Stop breaches before they start:** Battle-Hardened AI sits at the gateway and decides what is allowed to execute, blocking malicious activity before it reaches servers, endpoints, or data.
@@ -31,6 +39,9 @@ Unlike traditional tools that detect attacks **after** execution, Battle-Hardene
 - Persistent trust memory
 
 This ensemble determines when trust, structure, or semantics are invalid, and can autonomously instruct routers and firewalls to block execution **before harm occurs**.
+
+- **Semantic execution validity:** Verifies that a request both makes sense and is safe *before* it is allowed to run.
+- **Causal inference:** Determines the root reason an action occurred, helping identify intent and trustworthiness.
 
 > Attacks are observed, understood, and remembered—yet denied at origin.
 
@@ -108,6 +119,12 @@ ATTACKER REQUEST
 ✅ ALLOW  or  ❌ DENY
 ```
 
+### 🧪 Example: SSH Credential Stuffing
+
+- **Traditional flow:** Attackers perform high-volume or distributed SSH login attempts. Sessions are established, and only then do downstream tools detect anomalies and raise alerts.
+- **With Battle-Hardened AI:** Behavioral, sequence, and trust signals flag abnormal SSH login patterns. Trust for the source degrades, and the semantic gate determines that the login attempts are not legitimate for the entity.
+- **Outcome:** Connections are blocked **before** successful session establishment, and the attacker cannot meaningfully interact with protected systems.
+
 #### Data Handling & Privacy Principles
 
 Battle-Hardened AI follows strict data-handling principles at the first layer:
@@ -119,7 +136,18 @@ Battle-Hardened AI follows strict data-handling principles at the first layer:
 
 ---
 
-### Visual Attack Detection & Response Flow
+## Competitive Landscape
+
+Battle-Hardened AI is designed to sit in front of, and alongside, existing controls rather than replace them.
+
+- **Versus firewalls (NGFW/WAF):** Traditional firewalls enforce static or signature-based rules on packets and sessions. Battle-Hardened AI acts as a semantic commander in front of them, deciding *whether* an interaction should be allowed at all and then driving firewall rules accordingly.
+- **Versus NDR/XDR:** NDR/XDR platforms aggregate telemetry and raise alerts *after* execution. Battle-Hardened AI operates at the execution gate, using 21 documented layers plus a semantic gate to deny malicious actions before they reach those systems.
+- **Versus SD-WAN and routing gear:** SD-WAN optimizes paths and connectivity between sites. Battle-Hardened AI focuses purely on security semantics and trust, determining which flows should exist at all and leaving path selection to the network layer.
+- **Versus EDR (agent-based):** EDR agents live on individual endpoints and watch local processes. Battle-Hardened AI typically runs as a gateway node with no agents, protecting many devices at once and exporting decisions that EDR/XDR tools can still consume.
+
+---
+
+## Visual Attack Detection & Response Flow
 
 ```
 📥 PACKET ARRIVES
@@ -250,15 +278,15 @@ You never modify Battle-Hardened AI code—you wire your tools to the Battle-Har
 **Home / Lab**
 
 - Download the latest Linux package (`.deb`/`.rpm`) or Windows `.exe` installer from the distribution channel provided by the project.
-- Install following [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md), then bring services up as described in [STARTUP_GUIDE.md](STARTUP_GUIDE.md).
-- Open the dashboard documented in [dashboard.md](dashboard.md) to verify live telemetry and decision traces.
-- Wire your local firewall using [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) and confirm that blocked IPs appear both in the dashboard and in JSON outputs.
+- Install following [Documentation/Installation.md](Documentation/Installation.md), then bring services up as described in [Startup guide](Documentation/Startup_guide.md).
+- Open the dashboard documented in [Dashboard](Documentation/Dashboard.md) to verify live telemetry and decision traces.
+- Wire your local firewall using [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md) and confirm that blocked IPs appear both in the dashboard and in JSON outputs.
 
 **Enterprise / SOC**
 
-- Select one gateway or choke point per protected segment, and install Battle-Hardened AI there using [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md).
-- Follow [STARTUP_GUIDE.md](STARTUP_GUIDE.md) to start services, then integrate with SIEM/SOAR as described in [dashboard.md](dashboard.md) and [ATTACK_HANDLING_FLOW.md](ATTACK_HANDLING_FLOW.md).
-- Enable firewall synchronization using [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) so auto-block decisions propagate to `iptables`/`ipset` (Linux) or Windows Defender Firewall.
+- Select one gateway or choke point per protected segment, and install Battle-Hardened AI there using [Documentation/Installation.md](Documentation/Installation.md).
+- Follow [Startup guide](Documentation/Startup_guide.md) to start services, then integrate with SIEM/SOAR as described in [Dashboard](Documentation/Dashboard.md) and [Attack handling flow](Documentation/Attack_handling_flow.md).
+- Enable firewall synchronization using [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md) so auto-block decisions propagate to `iptables`/`ipset` (Linux) or Windows Defender Firewall.
 - Run a controlled test from [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md) to validate end-to-end detection, blocking, and logging before broad rollout.
 
 ### What Battle-Hardened AI Offers (Capabilities & Roadmap)
@@ -295,7 +323,7 @@ These capabilities are **aspirational** unless explicitly marked as implemented.
 | 22 | Cryptocurrency Mining Detection | Specialized analytics for crypto‑mining behavior: detection of mining pools and protocols, anomalous resource usage and long‑lived connections, associated entities and campaigns, and enforcement outcomes so operators can quickly confirm that mining activity is being identified and constrained. |
 | 23 | Governance & Emergency Controls | Command surface for high‑assurance governance: current kill‑switch mode and approval workflow, pending and historical decisions in the approval queue, policy governance and Step 21 policy bundle status, secure‑deployment/tamper health, and audit/log integrity so operators can safely move between observe, approval, and fully autonomous deny modes. |
 
-These core sections are backed by JSON/audit surfaces and exercised by the validation and operational runbooks documented in `ai-instructions.md` (testing & validation guide) and `KALI_ATTACK_TESTS.md`.
+These core sections are backed by JSON/audit surfaces and exercised by the validation and operational runbooks documented in `Ai-instructions.md` (testing & validation guide) and `KALI_ATTACK_TESTS.md`.
 
 #### Implementation Status at a Glance
 
@@ -332,15 +360,15 @@ While isolated forms of semantic validation exist in narrow domains, no known ND
 
 For auditors, engineers, and operators, the following documents serve as the authoritative technical references for this system:
 
-- [filepurpose.md](filepurpose.md) — Maps every core file and JSON surface to the 7-stage pipeline and 21 detection layers
-- [ai-instructions.md](ai-instructions.md) — Developer implementation guide, validation flow, and dashboard/endpoint mapping
-- [dashboard.md](dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
-- [ARCHITECTURE_COMPLIANCE.md](ARCHITECTURE_COMPLIANCE.md) — Formal proof that runtime code paths implement the documented log → block → relay architecture
-- [ATTACK_HANDLING_FLOW.md](ATTACK_HANDLING_FLOW.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
+- [Filepurpose](Documentation/Filepurpose.md) — Maps every core file and JSON surface to the 7-stage pipeline and 21 detection layers
+- [AI instructions](Documentation/Ai-instructions.md) — Developer implementation guide, validation flow, and dashboard/endpoint mapping
+- [Dashboard](Documentation/Dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
+- [Architecture compliance verification](Documentation/Architecture_compliance.md) — Formal proof that runtime code paths implement the documented log → block → relay architecture
+- [Attack handling flow](Documentation/Attack_handling_flow.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
 
 These documents collectively define the system’s intended behavior, guarantees, and constraints.
 
-If you're starting from source as a developer or auditor, begin with [filepurpose.md](filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
+If you're starting from source as a developer or auditor, begin with [Filepurpose](Documentation/Filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
 
 ### Key Terms (For Non-Specialists)
 
@@ -398,7 +426,7 @@ For true control, Battle-Hardened AI must sit at a routing, NAT, or firewall dec
 
 #### Enforcement Requires Firewall Integration
 
-To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
+To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
 
 ### Hardware Deployment Checklists
 
@@ -469,7 +497,7 @@ Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
 | Packet capture & eBPF | ✅ | ⚠️ Requires administrator privileges |
 | Scalability | 10,000+ connections (scalable) | ~500 connections (OS limits) |
 
-See [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md) and [STARTUP_GUIDE.md](STARTUP_GUIDE.md) for setup instructions. For production firewall synchronization, see [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md).
+See [Documentation/Installation.md](Documentation/Installation.md) and [Startup guide](Documentation/Startup_guide.md) for setup instructions. For production firewall synchronization, see [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md).
 
 ---
 
@@ -663,7 +691,7 @@ Autonomy here is not optional — it is foundational.
 
 #### First-Layer vs Everything Else: Architectural Clarity
 
-Most cybersecurity platforms act **after** damage has occurred. In contrast, Battle-Hardened AI operates at the **execution gate**, where it determines whether interactions should be allowed to occur in the first place. This distinction underpins its position as a first-layer control, not a reactive system.
+At a high level, Battle-Hardened AI operates at the **execution gate**, deciding whether interactions should be allowed at all, while most other platforms act **after** state has already changed. The table below summarizes that contrast.
 
 | Category | First-layer systems | Downstream systems |
 |----------|---------------------|--------------------|
@@ -674,9 +702,7 @@ Most cybersecurity platforms act **after** damage has occurred. In contrast, Bat
 | Integration point | Stack entry point (execution gate) | Aggregation, logging, or correlation layer |
 | Core benefit | Block impact before it starts | Understand and recover after the fact |
 
-Battle-Hardened AI is not another alerting layer—it is a **stateful, autonomous, semantic gatekeeper**. Concepts like persistent trust memory, causal reasoning, and execution semantics are foundational design elements, not add-on features.
-
-Comparisons to NDR/XDR platforms highlight architectural boundaries—not category similarity.
+Battle-Hardened AI is not another alerting layer—it is a **stateful, autonomous, semantic gatekeeper** where concepts like persistent trust memory, causal reasoning, and execution semantics are foundational design elements, not add-on features.
 
 #### Interpretation Legend
 
@@ -732,7 +758,7 @@ See [Positioning Statement](#positioning-statement-critical) and [Why Evasion is
 
 ---
 
-### Applicability to Military & Law-Enforcement Environments
+## Applicability to Military & Law-Enforcement Environments
 
 Battle-Hardened AI is suitable for use in defensive cyber security roles within military and law-enforcement organizations, including:
 
@@ -814,9 +840,9 @@ The operator (relay server administrator) has **zero visibility** into your netw
 
 ---
 
-## MITRE ATT&CK Coverage Matrix
+### MITRE ATT&CK Coverage Matrix
 
-Battle-Hardened AI provides comprehensive detection across the MITRE ATT&CK framework. This section maps all **21 detection layers** (20 signals + Step 21 semantic execution-denial gate) to specific tactics and techniques, providing complete visibility into defensive coverage.
+Battle-Hardened AI provides comprehensive detection across the MITRE ATT&CK framework. This section maps the detection layers and semantic gate to specific tactics and techniques, providing complete visibility into defensive coverage.
 
 **Total MITRE ATT&CK Techniques Covered: 43 distinct techniques** (credibly mapped, no inflation)
 
@@ -851,7 +877,7 @@ Each of the **43 techniques** in the matrix is:
 
 In other words, this is a **technical coverage statement**, not a marketing number.
 
-**Battle-Hardened AI defensibly covers 43 MITRE ATT&CK techniques using 21 AI detection layers (20 signals + Step 21 semantic gate).**
+**Battle-Hardened AI defensibly covers 43 MITRE ATT&CK techniques using its documented detection layers and semantic gate.**
 
 ### Per-Technique MITRE ATT&CK Breakdown (43 Techniques)
 
@@ -988,7 +1014,7 @@ Battle-Hardened AI employs **21 layered detection engines**—20 independent sig
 | 20 | Trust Degradation Graph | Persistent entity trust memory for long-term enforcement |
 | 21 | Step 21 Semantic Gate | Final gate enforcing policy, intent, trust, and structural validity |
 
-Each layer produces a distinct signal. These are combined in the ensemble and then finalized by Step 21. This architecture prevents single-point model failure and provides diverse detection redundancy.
+Each layer produces a distinct signal. These are combined in the ensemble and then finalized by Step 21 to avoid single-point model failure and provide diverse detection redundancy.
 
 ### Future Enhancements: Step 21 Policy Hardening
 
@@ -1246,20 +1272,12 @@ The base score of **57.2%** is **intentionally conservative**—a key differenti
 
 | Solution | Evasion Probability | Attack Vectors Attacker Must Bypass |
 |----------|---------------------|-------------------------------------|
-| **Battle-Hardened AI** | Modeled extremely low (see note) | 20 signals + Step 21 semantic gate + causal inference + trust degradation + authoritative overrides |
+| **Battle-Hardened AI** | Modeled extremely low (see note) | Multiple independent signals, semantic gate, causal inference, trust degradation, and authoritative overrides |
 | CrowdStrike Falcon | ~5-10% | 3-4 signals (behavioral, threat intel, static analysis) |
 | Darktrace Enterprise | ~15-20% | 5-6 signals (anomaly detection, entity modeling) |
 | Traditional IDS | ~30-40% | 1 signal (signature matching) |
 
-**Why 21 Detection Layers Matter:**
-
-To evade Battle-Hardened AI, an attacker must **simultaneously**:
-- ✗ Keep base score <50% (evade 12+ out of 20 signals)
-- ✗ Avoid ALL authoritative signals (Threat Intel, Honeypot, FP Filter)
-- ✗ Pass causal inference (not correlate with malicious patterns)
-- ✗ Maintain trust score >20 (across multiple attempts)
-
-**Practically extremely difficult** for real attacks while maintaining operational effectiveness.
+Taken together, the layered ensemble, semantic gate, causal reasoning, and trust model make practical evasion **extremely difficult** for real attacks while maintaining operational effectiveness.
 
 **Transparency Advantage:**
 
@@ -1525,7 +1543,7 @@ Battle-Hardened AI is designed to be operator-friendly: the dashboard focuses on
 
 #### Current Validation Status
 
-At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [ai-instructions.md](ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). As production pilots and third-party assessments are completed, this section will be updated with external metrics and case-study style results.
+At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [AI instructions](Documentation/Ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). As production pilots and third-party assessments are completed, this section will be updated with external metrics and case-study style results.
 
 ### Known Limitations & Edge Cases
 
@@ -1563,7 +1581,7 @@ At present, these figures are derived from internal lab evaluations, adversarial
 - **What It Guarantees:** Best-effort, defense-in-depth detection and blocking across 21 documented layers with full decision transparency, persistent memory, and continuous learning; explicit documentation of 43 mapped MITRE ATT&CK techniques.
 - **What It Does Not Guarantee:** It is not a formal proof of security, not a replacement for endpoint controls, traditional firewalls, or rigorous patch management, and cannot prevent attacks that are fundamentally invisible to its telemetry.
 - **Independent Verification:** Auditors can inspect code, configuration, and logs (threat_log.json, comprehensive_audit.json, causal_analysis.json, trust_graph.json) to verify that the documented layers and policies are active and behaving as described.
-- **Architecture Compliance:** The documented behavior in this README is backed by the architecture and validation materials in ARCHITECTURE_COMPLIANCE.md and related runbooks, allowing formal review against organizational security standards.
+- **Architecture Compliance:** The documented behavior in this README is backed by the architecture and validation materials in Architecture_compliance.md and related runbooks, allowing formal review against organizational security standards.
 - **Control Interaction:** Battle-Hardened AI is designed to complement, not replace, existing NDR, IDS/IPS, firewalls, and EDR controls, adding semantic gating, persistent trust, and federated learning as additional defensive layers.
 
 ### FAQ & Common Objections

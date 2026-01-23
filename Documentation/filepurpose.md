@@ -5,13 +5,13 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 > **Audience & distribution note:** This is a **developer/auditor reference** tied to the Git repository layout. It assumes you have the full source tree checked out (AI/, server/, relay/) so you can inspect modules and JSON surfaces directly. **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE normally do not see this folder structure**; they operate the packaged services using README and INSTALLATION. Use this file when you need to understand or verify how the runtime behavior maps back to individual source files.
 
 **Documentation Index:**
-- **[INSTALLATION.md](INSTALLATION.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
+- **[Installation](Installation.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
 - **[README.md](README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture
 - **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** — Attack simulation test procedures
-- **[dashboard.md](dashboard.md)** — Core first-layer dashboard API reference
-- **[ai-instructions.md](ai-instructions.md)** — Developer guide and implementation details
-- **[ARCHITECTURE_COMPLIANCE.md](ARCHITECTURE_COMPLIANCE.md)** — Architecture documentation and compliance mapping
-- **[ATTACK_HANDLING_FLOW.md](ATTACK_HANDLING_FLOW.md)** — Attack handling flow diagrams
+- **[Dashboard](Dashboard.md)** — Core first-layer dashboard API reference
+- **[AI instructions](Ai-instructions.md)** — Developer guide and implementation details
+- **[Architecture compliance](Architecture_compliance.md)** — Architecture documentation and compliance mapping
+- **[Attack handling flow](Attack_handling_flow.md)** — Attack handling flow diagrams
 - **[test-hmac.md](test-hmac.md)** — HMAC authentication testing guide
 
 **Workspace Files:**
@@ -528,9 +528,9 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 
 ---
 
-**For testing procedures, see:** [ai-instructions.md Section 9](ai-instructions.md#9-testing--validation-guide-10-stage-progressive-validation) (10-stage validation mapped to pipeline)
-**For API reference, see:** [dashboard.md](dashboard.md) (dashboard sections mapped to pipeline stages)
-**For implementation guide, see:** [ai-instructions.md](ai-instructions.md) (developer guide with pipeline implementation details)
+**For testing procedures, see:** [AI instructions Section 9](Ai-instructions.md#9-testing--validation-guide-10-stage-progressive-validation) (10-stage validation mapped to pipeline)
+**For API reference, see:** [Dashboard](Dashboard.md) (dashboard sections mapped to pipeline stages)
+**For implementation guide, see:** [AI instructions](Ai-instructions.md) (developer guide with pipeline implementation details)
 
 ---
 
