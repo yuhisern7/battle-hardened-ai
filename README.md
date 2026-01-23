@@ -280,15 +280,15 @@ You never modify Battle-Hardened AI code—you wire your tools to the Battle-Har
 **Home / Lab**
 
 - Download the latest Linux package (`.deb`/`.rpm`) or Windows `.exe` installer from the distribution channel provided by the project.
-- Install following [Documentation/Installation.md](Documentation/Installation.md), then bring services up as described in [Startup guide](Documentation/Startup_guide.md).
-- Open the dashboard documented in [Dashboard](Documentation/Dashboard.md) to verify live telemetry and decision traces.
-- Wire your local firewall using [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md) and confirm that blocked IPs appear both in the dashboard and in JSON outputs.
+- Install following [documentation/Installation.md](documentation/Installation.md), then bring services up as described in [Startup guide](documentation/Startup_guide.md).
+- Open the dashboard documented in [Dashboard](documentation/Dashboard.md) to verify live telemetry and decision traces.
+- Wire your local firewall using [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md) and confirm that blocked IPs appear both in the dashboard and in JSON outputs.
 
 **Enterprise / SOC**
 
-- Select one gateway or choke point per protected segment, and install Battle-Hardened AI there using [Documentation/Installation.md](Documentation/Installation.md).
-- Follow [Startup guide](Documentation/Startup_guide.md) to start services, then integrate with SIEM/SOAR as described in [Dashboard](Documentation/Dashboard.md) and [Attack handling flow](Documentation/Attack_handling_flow.md).
-- Enable firewall synchronization using [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md) so auto-block decisions propagate to `iptables`/`ipset` (Linux) or Windows Defender Firewall.
+- Select one gateway or choke point per protected segment, and install Battle-Hardened AI there using [documentation/Installation.md](documentation/Installation.md).
+- Follow [Startup guide](documentation/Startup_guide.md) to start services, then integrate with SIEM/SOAR as described in [Dashboard](documentation/Dashboard.md) and [Attack handling flow](documentation/Attack_handling_flow.md).
+- Enable firewall synchronization using [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md) so auto-block decisions propagate to `iptables`/`ipset` (Linux) or Windows Defender Firewall.
 - Run a controlled test from [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md) to validate end-to-end detection, blocking, and logging before broad rollout.
 
 ### What Battle-Hardened AI Offers (Capabilities & Roadmap)
@@ -362,15 +362,15 @@ While isolated forms of semantic validation exist in narrow domains, no known ND
 
 For auditors, engineers, and operators, the following documents serve as the authoritative technical references for this system:
 
-- [Filepurpose](Documentation/Filepurpose.md) — Maps every core file and JSON surface to the 7-stage pipeline and 21 detection layers
-- [AI instructions](Documentation/Ai-instructions.md) — Developer implementation guide, validation flow, and dashboard/endpoint mapping
-- [Dashboard](Documentation/Dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
-- [Architecture compliance verification](Documentation/Architecture_compliance.md) — Formal proof that runtime code paths implement the documented log → block → relay architecture
-- [Attack handling flow](Documentation/Attack_handling_flow.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
+- [Filepurpose](documentation/Filepurpose.md) — Maps every core file and JSON surface to the 7-stage pipeline and 21 detection layers
+- [AI instructions](documentation/Ai-instructions.md) — Developer implementation guide, validation flow, and dashboard/endpoint mapping
+- [Dashboard](documentation/Dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
+- [Architecture compliance verification](documentation/Architecture_compliance.md) — Formal proof that runtime code paths implement the documented log → block → relay architecture
+- [Attack handling flow](documentation/Attack_handling_flow.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
 
 These documents collectively define the system’s intended behavior, guarantees, and constraints.
 
-If you're starting from source as a developer or auditor, begin with [Filepurpose](Documentation/Filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
+If you're starting from source as a developer or auditor, begin with [Filepurpose](documentation/Filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
 
 ### Key Terms (For Non-Specialists)
 
@@ -428,7 +428,7 @@ For true control, Battle-Hardened AI must sit at a routing, NAT, or firewall dec
 
 #### Enforcement Requires Firewall Integration
 
-To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
+To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
 
 ### Hardware Deployment Checklists
 
@@ -499,7 +499,7 @@ Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
 | Packet capture & eBPF | ✅ | ⚠️ Requires administrator privileges |
 | Scalability | 10,000+ connections (scalable) | ~500 connections (OS limits) |
 
-See [Documentation/Installation.md](Documentation/Installation.md) and [Startup guide](Documentation/Startup_guide.md) for setup instructions. For production firewall synchronization, see [Documentation/Firewall_enforcement.md](Documentation/Firewall_enforcement.md).
+See [documentation/Installation.md](documentation/Installation.md) and [Startup guide](documentation/Startup_guide.md) for setup instructions. For production firewall synchronization, see [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md).
 
 ---
 
@@ -1557,7 +1557,7 @@ Battle-Hardened AI is designed to be operator-friendly: the dashboard focuses on
 
 #### Current Validation Status
 
-At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [AI instructions](Documentation/Ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). As production pilots and third-party assessments are completed, this section will be updated with external metrics and case-study style results.
+At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [AI instructions](documentation/Ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). As production pilots and third-party assessments are completed, this section will be updated with external metrics and case-study style results.
 
 ### Known Limitations & Edge Cases
 
