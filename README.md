@@ -24,7 +24,7 @@ There is currently no documented enterprise-grade system that:
 - Maintains persistent trust memory
 - Uses causal inference to command routers and firewalls prior to execution
 
-![Battle Hardened AI](BATTLE%20HARDENED%20AI.png)
+![Battle Hardened AI](assets/BATTLE-HARDENED-AI.png)
 
 ### Canonical Deployment
 
@@ -1683,3 +1683,5 @@ Founded and led by **Yuhisern Navaratnam** (core development and support coordin
 **Contact:** Yuhisern Navaratnam  
 **WhatsApp:** +60172791717  
 **Email:** yuhisern@protonmail.com
+
+![Elite Cybersecurity Specialist](assets/ELITE-CYBERSECURITY-SPECIALIST.png)
