@@ -1,145 +1,150 @@
 ## Battle-Hardened AI
 
-There is currently no documented enterprise-grade security system that:
+Battle-Hardened AI introduces a new category of security: a **first-layer autonomous execution-control system** that operates at the router and gateway boundary, making **pre-execution decisions with full context**—semantic, behavioral, and causal—before any downstream tool is engaged.
+
+There is currently no documented enterprise-grade system that:
 
 - Operates as a first-layer gateway authority
-- Combines semantic execution validation
+- Performs semantic execution validation
 - Maintains persistent trust memory
-- Uses causal inference to autonomously command routers and firewalls prior to execution
+- Uses causal inference to command routers and firewalls prior to execution
 
-Battle-Hardened AI is engineered as one of the most advanced first-layer autonomous defense systems ever built. Its sole purpose is to operate at the frontline of execution—at the router and gateway boundary—denying hostile interactions the ability to produce operational effects before downstream systems are ever engaged. In its **canonical deployment**, Battle-Hardened AI runs on a **Linux gateway or edge appliance** (physical or virtual) in front of the protected segment, with optional Windows/macOS nodes acting as host-level appliances for specific servers or branches. The platform is intentionally focused on this first layer alone, allowing organizations to continue using their existing security stack—SIEM, SOAR, IAM, SOC workflows, firewalls, and governance platforms—unchanged, while Battle-Hardened AI functions as the execution-control authority and gateway decision commander.
+### Canonical Deployment
 
-Rather than detecting attacks after execution or generating alerts for human review, Battle-Hardened AI enforces semantic execution validity using 21 independent detection and reasoning layers operating in consensus. These layers fuse kernel-level telemetry, behavioral and statistical intelligence, graph analysis, causal inference, and persistent trust memory to fully observe adversary behavior, reason about intent and state, and command routers and firewalls to withhold execution authority when trust, structure, or semantics are invalid. Attacks are seen, learned from, and remembered—but never allowed to propagate beyond the first layer.
+In its standard form, Battle-Hardened AI runs on a **Linux gateway or edge appliance** (physical or virtual), directly in front of the protected segment. Optional Windows/macOS nodes act as **host-level defenders** for specific assets or branches. It is designed to integrate without disrupting existing stacks—SIEM, SOAR, IAM, EDR/XDR, NGFW—acting solely as the execution-control authority and gateway commander.
 
-This is not an incremental NDR or XDR enhancement. Battle-Hardened AI represents a new defensive control class: a stateful, autonomous first-layer gateway system that permanently degrades adversary trust, resists iterative probing, and prevents systems from being coerced by malicious input—even when attacks are novel, obfuscated, or syntactically valid. With documented coverage across 43 MITRE ATT&CK techniques, the system is designed for high-assurance environments where pre-execution denial, deterministic control, and autonomous resilience at the network boundary—not alert volume or platform sprawl—define effective defense.
+### Semantic Enforcement Model
 
-### What Makes Us Different: First-Layer vs Everything Else
+Unlike traditional tools that detect attacks **after** execution, Battle-Hardened AI enforces **semantic execution validity** using 21 independent detection and reasoning layers. These layers incorporate:
 
-Most security platforms operate **after** something has already executed. They detect, investigate, and respond to compromises. Battle-Hardened AI operates **before** execution. It decides whether an operation should be allowed to execute at all and withholds execution authority when semantics, structure, or trust are invalid.
+- Kernel-level telemetry
+- Behavioral and statistical intelligence
+- Graph analysis
+- Causal inference
+- Persistent trust memory
 
-#### Before vs After: Where We Sit
+This ensemble determines when trust, structure, or semantics are invalid, and can autonomously instruct routers and firewalls to block execution **before harm occurs**.
 
-Traditional security stack:
+> Attacks are observed, understood, and remembered—yet denied at origin.
+
+### Not an Incremental Add-On
+
+This is not an incremental NDR/XDR feature enhancement. Battle-Hardened AI is a **stateful, pre-execution control class**—a new layer that:
+
+- Resists probing and iterative evasion
+- Degrades adversary trust over time
+- Prevents coercion by malicious inputs
+- Covers 43 MITRE ATT&CK techniques
+- Operates independently of alert volume or SIEM bloat
+
+### What Makes Us Different
+
+Most platforms react **after** execution. Battle-Hardened AI intervenes **before**.
+
+#### Comparison: Execution Timing
+
+Traditional security flow:
 
 ```text
 Attack → Execute → Detect → Investigate → Respond
           ↑
-       (Traditional tools work here)
+     (Other tools operate here)
 ```
 
-Battle-Hardened AI first-layer:
+Battle-Hardened AI flow:
 
 ```text
 Attack → Validate → ❌ DENY (no execution)
       or
-      → ✅ ALLOW → Execute → [Traditional tools]
-          ↑
-     (We work ONLY here – the decision point)
+      → ✅ ALLOW → Execute → [Traditional stack]
+           ↑
+   (We operate only here)
 ```
 
-#### First-Layer Positioning Across the Stack
-
-Battle-Hardened AI enforces execution decisions across the stack, with clear responsibilities at each layer:
+#### Stack Enforcement by Layer
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│                    FIRST LAYER POSITIONING              │
+│                 FIRST-LAYER POSITIONING                 │
 ├─────────────────────────────────────────────────────────┤
-│  Layer 7 (Application) → Step 21 Semantic Gate         │
-│  Layer 4 (Transport)   → Connection / flow decisions   │
-│  Layer 3 (Network)     → IP / routing visibility       │
-│  Layer 2 (Data Link)   → Frame / MAC-level context     │
-│  Kernel Telemetry      → Syscall / socket correlation  │
+│  App Layer (L7)   → Step 21 Semantic Gate               │
+│  Transport (L4)   → Flow validation                     │
+│  Network (L3)     → IP & route context                  │
+│  Link Layer (L2)  → Frame/MAC insights                  │
+│  Kernel Telemetry → Syscall/socket correlation          │
 └─────────────────────────────────────────────────────────┘
 ```
 
 #### What Battle-Hardened AI Is Not
 
-To stay pure as a first-layer control, Battle-Hardened AI deliberately avoids becoming other categories:
+To stay pure as a first-layer decision system, Battle-Hardened AI does **not**:
 
-- ❌ Not a SIEM – it does not aggregate logs from 100+ sources
-- ❌ Not a SOAR – it does not orchestrate responses across 50+ tools
-- ❌ Not an EDR – it does not monitor endpoint processes in real time
-- ❌ Not an IAM – it does not manage user identities or lifecycle policies
-- ❌ Not a threat intel platform – it does not curate millions of external indicators
+- Act as a SIEM (log aggregator)
+- Act as a SOAR (workflow orchestrator)
+- Act as an EDR (host process monitor)
+- Act as an IAM (identity manager)
+- Act as a threat intel aggregator
 
-It is **one thing**: the first layer that decides whether execution should be allowed at all.
+It makes **execution decisions only**.
 
-#### Simple First-Layer Decision Flow
-
-At the moment of an incoming request or operation:
+#### First-Layer Decision Flow
 
 ```text
 ATTACKER REQUEST
    ↓
-[ FIRST LAYER – Battle-Hardened AI ]
-   ├─ Step 1: Does this request make sense? (Semantic Gate)
-   ├─ Step 2: Should this entity be allowed? (Trust Graph)
-   ├─ Step 3: Is this operation valid? (Causal Inference)
-   └─ Step 4: Are we certain? (20 Detection Signals)
+[ Battle-Hardened AI ]
+   ├─ Step 1: Semantic Validity
+   ├─ Step 2: Trust Graph
+   ├─ Step 3: Causal Reasoning
+   └─ Step 4: Consensus (21 layers)
    ↓
-✅ ALLOW (to downstream systems) or ❌ DENY (no further processing)
+✅ ALLOW  or  ❌ DENY
 ```
 
-#### First-Layer Data & Privacy Principles
+#### Data Handling & Privacy Principles
 
-As a first-layer system, Battle-Hardened AI follows strict data-handling principles:
+Battle-Hardened AI follows strict data-handling principles at the first layer:
 
-- The first layer **sees everything but remembers only patterns** (no raw payloads leave the environment)
-- The first layer **validates but does not retain** full content (privacy and data-minimization by design)
-- The first layer **decides but does not investigate** (deep investigation and case-building remain the role of SIEM/SOAR/EDR tooling)
+- Observes all traffic, retains only patterns
+- Validates structure and semantics, not full payloads
+- Makes allow/deny decisions, but does not investigate
+- Maintains trust models without exposing raw content externally
 
-### How Battle-Hardened AI Integrates with Enterprise Security
+### Integration with Enterprise Security
 
-Battle-Hardened AI is intentionally vendor-neutral. It emits **structured JSON decisions** that can be consumed by any SIEM, SOAR, EDR/XDR, NGFW, or custom automation without baking vendor logic into the core.
-
-At runtime, the system maintains JSON surfaces such as a `blocked_ips.json` file in the JSON directory resolved by the path helpers in `AI/path_helper` (in a source checkout this is typically [server/json/blocked_ips.json](server/json/blocked_ips.json)):
+Battle-Hardened AI emits **vendor-neutral JSON decision feeds**. Example:
 
 ```json
 {
-   "blocked_ips": [
-      { "ip": "203.0.113.10", "timestamp": "2026-01-20T17:51:38.361466+00:00", "reason": "Threat detection by AI engine" }
-   ]
+  "blocked_ips": [
+    {
+      "ip": "203.0.113.10",
+      "timestamp": "2026-01-20T17:51:38.361466+00:00",
+      "reason": "Threat detection by AI engine"
+    }
+  ]
 }
 ```
 
-This format is **identical on Linux (Docker) and Windows** – the core decision engine and JSON schema do not change by platform. Only the **enforcement adapter** differs:
+The JSON format is **identical across Linux (Docker) and Windows**. Enforcement is handled externally via:
 
-- On **Linux Docker**, [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) shows how the container’s sync daemon converts `blocked_ips.json` into host `ipset`/`iptables` rules when `BH_FIREWALL_SYNC_ENABLED=true`.
-- On **Windows**, [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) documents the provided PowerShell scripts that open the required dashboard/honeypot/relay ports and keep Windows Defender Firewall rules synchronized with the same `blocked_ips.json` file.
+- `ipset`/`iptables` (Linux)
+- PowerShell + Windows Defender Firewall (Windows)
+- JSON feeds consumed by SIEM/SOAR/NGFW/EDR integrations
 
-In real enterprise environments with **multiple security products** (SIEM, SOAR, NGFW, EDR/XDR, ZTNA, etc.), operators are expected to treat these JSON outputs as a **canonical decision feed** and wire them into their stack via small, external integration services or SOAR playbooks:
+No vendor-specific code is baked into the core. Adapters or SOAR playbooks watch the JSON and translate it into:
 
-- A lightweight adapter (or SOAR playbook) watches the JSON decision surface, computes deltas (new blocks / unblocks), and emits normalized "decision" events (e.g., `{ action, subject_type, subject_value, confidence, reason, timestamp }`).
-- Those events are then mapped, per environment, into vendor-specific APIs:
-   - SIEM/SOAR: ingest events and trigger playbooks.
-   - NGFW / WAF: update dynamic address groups or block lists.
-   - EDR/XDR: create indicators, isolate hosts, or adjust policies.
+- SIEM/SOAR: trigger rules and playbooks
+- NGFW/WAF: update dynamic address groups and blocklists
+- EDR/XDR: isolate hosts or adjust policy
 
-This separation keeps Battle-Hardened AI focused solely on **first-layer decisions** while allowing different organizations to connect those decisions to **any** enterprise security stack without modifying core code. The Linux Docker and Windows deployments both produce the same JSON decision surfaces; only the enforcement and integration wiring differ.
+#### Where to Configure BH Outputs
 
-#### Where Do I Configure Existing Tools to Read BH Output?
+- **SIEM/SOAR**: Create a data source to ingest Battle-Hardened AI JSON; trigger enforcement via playbooks or rules.
+- **NGFW/WAF**: Use your automation layer (SOAR, scripts, or connectors) to call vendor APIs when Battle-Hardened AI outputs change.
+- **EDR/XDR**: Integrate with vendor APIs through SOAR or connector scripts to apply block/allow decisions to endpoints.
 
-Because every enterprise product has different menus and terminology, Battle-Hardened AI does **not** try to talk to each vendor directly. Instead, you point your existing platforms at the BH decision feed using the integration surfaces they already expose:
-
-- **SIEM / SOAR platforms (Splunk, Azure Sentinel, QRadar, Elastic, etc.)**
-   - In the SIEM/SOAR UI, create a **data source / collector / log source** that accepts events from BH (for example: HTTP collector endpoint, syslog/CEF input, or custom JSON ingestion).
-   - Point your BH integration service (or a small script) at that endpoint and send normalized BH decision events there.
-   - In the same SIEM/SOAR, create **rules or playbooks** that say: "IF event.source = 'Battle-Hardened AI' AND action = 'block' THEN call firewall/EDR/ZTNA API".
-
-- **NGFW / WAF / reverse proxies (Palo Alto, Fortinet, Check Point, F5, etc.)**
-   - These devices typically do **not** read BH JSON directly. Instead, your SIEM/SOAR or a small connector service calls their **REST APIs** to update dynamic address groups, objects, or block lists when BH issues a block/unblock decision.
-   - The "configuration" for this lives in your automation layer (playbook actions or connector config: base URL, credentials, object names), not inside Battle-Hardened AI itself.
-
-- **EDR / XDR platforms (Microsoft Defender, CrowdStrike, SentinelOne, Cortex XDR, etc.)**
-   - Use their documented **automation / API / integration** surfaces to receive BH decisions via SOAR or a connector script.
-   - For example: when BH emits `action = block` on an IP, hash, or device, your automation calls the EDR/XDR API to create an indicator, isolate a device, or adjust policy.
-
-In all cases:
-
-- Battle-Hardened AI exposes a **single, stable JSON decision feed** (e.g., `blocked_ips.json` and related decision surfaces) on both Linux Docker and Windows.
-- Vendor-specific wiring happens **in your existing tools** under their normal "Data sources / Connectors" and "Automations / Playbooks" sections.
-- You never recompile or customize Battle-Hardened AI per vendor; you adjust **configs and playbooks** in your SIEM/SOAR/EDR/NGFW stack to consume BH's outputs and enforce decisions using their own APIs.
+You never modify Battle-Hardened AI code—you wire your tools to the Battle-Hardened AI feed.
 
 ### What Battle-Hardened AI Offers (Capabilities & Roadmap)
 
