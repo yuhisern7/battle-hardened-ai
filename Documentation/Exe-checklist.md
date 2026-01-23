@@ -1,5 +1,21 @@
 # EXE Build Checklist - Battle Hardened AI
 
+## ✅ BUILD STATUS (2026-01-24)
+
+**Last Build:** In progress (websockets included)  
+**PyInstaller Spec:** `server/BattleHardenedAI.spec` ✅ Updated  
+**Icon:** `assets/desktop.ico` (1024x1024) ✅ Included  
+**Environment Files:** `.env` and `.env.windows` ✅ Synchronized  
+
+### Recent Fixes Applied
+- ✅ Added `websockets` module (was missing - caused relay_client.py error)
+- ✅ Added `websockets.client` and `asyncio` for async support
+- ✅ Updated `.env.windows` to match `.env` relay server values
+- ✅ Fixed Documentation file capitalization for GitHub
+- ✅ Included all 52 JSON files, ML models, crypto keys, policies
+- ✅ All 55 AI Python modules included
+- ✅ Windows firewall scripts, installation utilities, packaging files included
+
 ## ✅ CORE PYTHON MODULES
 
 ### AI Detection Modules (55 files)
@@ -195,21 +211,46 @@
 - [ ] /api/admin
 - [ ] All other REST endpoints functional
 
-## BUILD COMMAND
+## POST-BUILD VERIFICATION
+
+1. [ ] EXE has desktop.ico icon
+2. [ ] EXE size is reasonable (check for bloat)
+3. [ ] Run EXE and verify NO import errors (especially `websockets`)
+4. [ ] Check all 21 AI layers load without errors
+5. [ ] Verify dashboard loads at http://localhost:60000
+6. [ ] Test relay connection works (if RELAY_ENABLED=true in .env)
+7. [ ] Verify JSON files are accessible and readable
+8. [ ] Confirm ML models load (anomaly_detector.pkl, etc.)
+9. [ ] Test crypto operations work (private/public keys)
+10. [ ] Verify NO relay/ folder references or files included
+11. [ ] Check .env and .env.windows are included in bundle
+12. [ ] Verify crypto_keys/ directory is accessible
+13. [ ] Test Step21 semantic gate loads
+14. [ ] Confirm honeypot functionality works
+15. [ ] Verify all APIs respond correctly
+
+## KNOWN ISSUES FIXED
+
+- ❌ **RESOLVED:** `ModuleNotFoundError: No module named 'websockets'` - Added to spec
+- ❌ **RESOLVED:** `.env.windows` had placeholder URLs - Updated to match `.env`
+- ❌ **RESOLVED:** Documentation files had inconsistent capitalization on GitHub - Fixed with git mv
+
+## CURRENT BUILD COMMAND
 
 ```powershell
 .venv/Scripts/pyinstaller.exe server/BattleHardenedAI.spec
 ```
 
-## POST-BUILD VERIFICATION
+## CLEAN REBUILD (if needed)
 
-1. [ ] EXE has desktop.ico icon
-2. [ ] EXE size is reasonable (check for bloat)
-3. [ ] Run EXE and verify no import errors
-4. [ ] Check all 21 AI layers load
-5. [ ] Verify dashboard loads
-6. [ ] Test each API endpoint
-7. [ ] Verify JSON files are accessible
-8. [ ] Confirm ML models load
-9. [ ] Test crypto operations
-10. [ ] Verify no relay/ folder references
+```powershell
+Remove-Item -Path server\build, server\dist -Recurse -Force -ErrorAction SilentlyContinue
+.venv/Scripts/pyinstaller.exe server/BattleHardenedAI.spec
+```
+
+## EXPECTED OUTPUT
+
+- **Location:** `server/dist/BattleHardenedAI.exe`
+- **Size:** ~200-300 MB (includes numpy, scipy, sklearn)
+- **Startup Time:** ~5-10 seconds (first run slower)
+- **Dependencies Bundled:** All (no external installs needed)
