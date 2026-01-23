@@ -1,5 +1,12 @@
 ## Battle-Hardened AI
 
+### Executive Summary (Non-Technical)
+
+- **Stop breaches before they start:** Battle-Hardened AI sits at the gateway and decides what is allowed to execute, blocking malicious activity before it reaches servers, endpoints, or data.
+- **Reduce analyst load, not add to it:** It runs autonomously with explainable decisions and conservative defaults, cutting noise instead of generating more alerts.
+- **Integrate with what you already have:** Decisions are exported as simple JSON and enforced through existing firewalls, SIEM, SOAR, and EDR/XDR tools—no rip-and-replace.
+- **Protect privacy and sovereignty:** Detection happens on your infrastructure, sharing only anonymized patterns when the optional relay is enabled.
+
 Battle-Hardened AI introduces a new category of security: a **first-layer autonomous execution-control system** that operates at the router and gateway boundary, making **pre-execution decisions with full context**—semantic, behavioral, and causal—before any downstream tool is engaged.
 
 There is currently no documented enterprise-grade system that:
@@ -334,6 +341,14 @@ For auditors, engineers, and operators, the following documents serve as the aut
 These documents collectively define the system’s intended behavior, guarantees, and constraints.
 
 If you're starting from source as a developer or auditor, begin with [filepurpose.md](filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
+
+### Key Terms (For Non-Specialists)
+
+- **eBPF/XDP:** Linux kernel technologies that let the system observe and filter packets directly in the OS with very low overhead.
+- **PCAP:** Packet capture format used to record raw network traffic for analysis and replay in lab testing.
+- **LSTM:** A type of recurrent neural network specialized for understanding sequences over time (for example, multi-step attack campaigns).
+- **Autoencoder:** An unsupervised neural network used here to spot "never-seen-before" traffic patterns and potential zero-day attacks.
+- **MITRE ATT&CK:** A community-maintained catalog of real-world attacker tactics and techniques; this README maps coverage against those techniques.
 
 ### Deployment Scope — What Can Be Protected
 
@@ -710,6 +725,8 @@ Comparisons to NDR/XDR platforms highlight architectural boundaries—not catego
 |----------|-----------------------|----------------------|--------------------|-------------|
 | **Battle-Hardened AI** | Local + federated optional | Persistent adaptation | Deception as first-class | Trust degradation model |
 | NDR/XDR (general) | Primarily cloud-based | ND or session-bound | ND or limited | ND |
+
+*Competitor capabilities are inferred from publicly available documentation and marketing materials. "ND" indicates aspects that are not clearly or explicitly documented and therefore cannot be independently verified.*
 
 See [Positioning Statement](#positioning-statement-critical) and [Why Evasion is Nearly Impossible](#why-evasion-is-nearly-impossible) for further architectural insights.
 
@@ -1489,6 +1506,8 @@ The system continuously improves through feedback:
 
 ## High-Level Capabilities
 
+Battle-Hardened AI is designed to be operator-friendly: the dashboard focuses on clear, explainable decisions, conservative defaults, and monitor-only modes so that it reduces analyst workload instead of creating another noisy alert stream.
+
 ### Threat Model & Assumptions
 
 - **Scope:** Network-level detection and response for IP-based entities (devices, users, services, cloud roles) using packet, flow, and log telemetry. Endpoint EDR/host-level controls remain separate and complementary.
@@ -1503,6 +1522,10 @@ The system continuously improves through feedback:
 - **Accuracy Figures (~94% Recidivism / Byzantine Rejection):** Measured on held-out evaluation sets constructed from historical threat logs and simulated relay updates. Metrics are computed as standard classification accuracy on labeled events (attack vs benign or valid vs poisoned updates), with time windows and dataset sizes documented in internal test harness notebooks.
 - **Evasion Probability (modeled extremely low):** An order-of-magnitude illustration assuming independence across multiple high-confidence signals and conservative success probabilities per evasion dimension. It is not a formal cryptographic guarantee.
 - **Thresholds & Weights:** Defense thresholds (50% log, 75% block) and signal weights (0.65–0.98) were tuned via cross-validation on mixed benign/attack corpora to minimize false positives while preserving high recall on known and synthetic attack traces.
+
+#### Current Validation Status
+
+At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [ai-instructions.md](ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). As production pilots and third-party assessments are completed, this section will be updated with external metrics and case-study style results.
 
 ### Known Limitations & Edge Cases
 
