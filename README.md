@@ -1683,5 +1683,3 @@ Founded and led by **Yuhisern Navaratnam** (core development and support coordin
 **Contact:** Yuhisern Navaratnam  
 **WhatsApp:** +60172791717  
 **Email:** yuhisern@protonmail.com
-
-![Elite Cybersecurity Specialist](assets/ELITE-CYBERSECURITY-SPECIALIST.png)
