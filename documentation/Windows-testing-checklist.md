@@ -14,7 +14,7 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
     - `AI/docs_portal.html`
     - `AI/docs_viewer.html`
     - `AI/swagger_ui.html`
-- **Inno Setup installer payload** (per `server/packaging/windows/BattleHardenedAI.iss`):
+- **Inno Setup installer payload** (per `packaging/windows/BattleHardenedAI.iss`):
   - `BattleHardenedAI.exe` into `{pf}/Battle-Hardened AI`.
   - `README.md`, `LICENSE`.
   - Full `documentation/*` and `policies/*` trees.
@@ -26,9 +26,9 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
 ## A. Build and payload sanity
 
 - [ ] On the build machine, ensure the virtual environment has all of `server/requirements.txt` installed.
-- [ ] Run `server/packaging/windows/build_windows_installer.ps1` and confirm:
-  - [ ] `dist/BattleHardenedAI.exe` is (re)built from `server/BattleHardenedAI.spec` with no errors.
-  - [ ] `server/packaging/windows/BattleHardenedAI-Setup.exe` is produced successfully.
+- [ ] Run `packaging/windows/build_windows_installer.ps1` and confirm:
+  - [ ] `packaging/windows/dist/BattleHardenedAI.exe` is (re)built from `server/BattleHardenedAI.spec` with no errors.
+  - [ ] `packaging/windows/BattleHardenedAI-Setup.exe` is produced successfully.
 - [ ] Verify the installer contents (via Inno Setup log or 7‑Zip) include:
   - [ ] `BattleHardenedAI.exe`.
   - [ ] `README.md`, `LICENSE`.

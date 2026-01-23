@@ -65,6 +65,7 @@ dist/
 build/
 BattleHardenedAI-Setup.exe
 server/packaging/windows/*.exe
+packaging/
 
 # ExploitDB database (too large for git, auto-downloaded)
 AI/exploitdb/
