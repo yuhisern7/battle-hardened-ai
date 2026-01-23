@@ -24,6 +24,8 @@ There is currently no documented enterprise-grade system that:
 - Maintains persistent trust memory
 - Uses causal inference to command routers and firewalls prior to execution
 
+![Battle Hardened AI](BATTLE%20HARDENED%20AI.png)
+
 ### Canonical Deployment
 
 In its standard form, Battle-Hardened AI runs on a **Linux gateway or edge appliance** (physical or virtual), directly in front of the protected segment. Optional Windows/macOS nodes act as **host-level defenders** for specific assets or branches. It is designed to integrate without disrupting existing stacks—SIEM, SOAR, IAM, EDR/XDR, NGFW—acting solely as the execution-control authority and gateway commander.
