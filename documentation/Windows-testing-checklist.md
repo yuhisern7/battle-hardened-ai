@@ -17,7 +17,7 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
 - **Inno Setup installer payload** (per `server/packaging/windows/BattleHardenedAI.iss`):
   - `BattleHardenedAI.exe` into `{pf}/Battle-Hardened AI`.
   - `README.md`, `LICENSE`.
-  - Full `Documentation/*` and `policies/*` trees.
+  - Full `documentation/*` and `policies/*` trees.
   - `server/.env.windows` → installed as `{app}/.env.windows` (primary configuration template).
   - `server/windows-firewall/windows_defender_sync.ps1` → installed as `{app}/windows-firewall/windows_defender_sync.ps1`.
 
@@ -32,7 +32,7 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
 - [ ] Verify the installer contents (via Inno Setup log or 7‑Zip) include:
   - [ ] `BattleHardenedAI.exe`.
   - [ ] `README.md`, `LICENSE`.
-  - [ ] `Documentation/*` and `policies/*`.
+  - [ ] `documentation/*` and `policies/*`.
   - [ ] `.env.windows` at the application root.
   - [ ] `windows-firewall/windows_defender_sync.ps1`.
 
@@ -57,7 +57,7 @@ After installing `BattleHardenedAI-Setup.exe`:
   - [ ] `C:/Program Files/Battle-Hardened AI/BattleHardenedAI.exe`.
 - [ ] Confirm the following are present under `{app}`:
   - [ ] `.env.windows`.
-  - [ ] `Documentation/...` and `policies/...`.
+  - [ ] `documentation/...` and `policies/...`.
   - [ ] `windows-firewall/windows_defender_sync.ps1`.
 - [ ] Edit `.env.windows` in-place to point to your test relay (or disable relay for free mode):
   - [ ] `RELAY_ENABLED=true/false` set to the desired mode.

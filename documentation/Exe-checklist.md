@@ -5,7 +5,7 @@
 **Last Build:** In progress (websockets included)  
 **PyInstaller Spec:** `server/BattleHardenedAI.spec` ✅ Updated  
 **Icon:** `assets/desktop.ico` (1024x1024) ✅ Included  
-**Environment Files:** `.env` and `.env.windows` ✅ Synchronized  
+**Environment Files:** `server/.env` (Linux) and `packaging/windows/dist/.env.windows` (Windows EXE) ✅ Synchronized  
 
 ### Recent Fixes Applied
 - ✅ Added `websockets` module (was missing - caused relay_client.py error)
@@ -140,8 +140,8 @@
 ## ✅ CONFIGURATION
 
 ### Environment Files
-- [ ] .env
-- [ ] .env.windows
+- [ ] server/.env (Linux/Docker runtime configuration)
+- [ ] packaging/windows/dist/.env.windows (Windows EXE runtime configuration copied by the installer)
 
 ### Runtime Directories (auto-create on startup)
 - [ ] logs/
@@ -157,7 +157,16 @@
 - [ ] server/installation/ directory contents
 
 ### Packaging
-- [ ] server/packaging/ directory contents
+- [ ] packaging/windows/ directory contents (build scripts, .iss, local dist/)
+
+### Required Source Folders for EXE Build
+- [ ] AI/ (all detection modules and AI/ml_models/)
+- [ ] server/json/ (all JSON configuration and state files)
+- [ ] server/crypto_keys/ (TLS and HMAC keys)
+- [ ] server/installation/ (watchdog, Gunicorn configs, init_json_files.py)
+- [ ] server/windows-firewall/ (Windows firewall integration scripts)
+- [ ] policies/step21/ (semantic gate policies)
+- [ ] packaging/windows/ (BattleHardenedAI.iss, build scripts, local dist/)
 
 ## ✅ ICON & BRANDING
 
@@ -238,19 +247,20 @@
 ## CURRENT BUILD COMMAND
 
 ```powershell
-.venv/Scripts/pyinstaller.exe server/BattleHardenedAI.spec
+Set-Location packaging/windows
+.\build_windows_exe.ps1 -Clean
 ```
 
 ## CLEAN REBUILD (if needed)
 
 ```powershell
-Remove-Item -Path server\build, server\dist -Recurse -Force -ErrorAction SilentlyContinue
-.venv/Scripts/pyinstaller.exe server/BattleHardenedAI.spec
+Set-Location packaging/windows
+.\build_windows_exe.ps1 -Clean
 ```
 
 ## EXPECTED OUTPUT
 
-- **Location:** `server/dist/BattleHardenedAI.exe`
+- **Location:** `packaging/windows/dist/BattleHardenedAI.exe`
 - **Size:** ~200-300 MB (includes numpy, scipy, sklearn)
 - **Startup Time:** ~5-10 seconds (first run slower)
 - **Dependencies Bundled:** All (no external installs needed)
