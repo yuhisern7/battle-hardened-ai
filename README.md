@@ -2,7 +2,7 @@
 
 ### 🔑 Summary Highlights
 
-- Blocks malicious actions **before execution** using a 21-layer AI ensemble and a final semantic gate.
+- Blocks malicious actions **before execution** using a 21-layer AI ensemble and a final semantic execution-denial gate.
 - Acts as a **first-layer firewall commander** for gateways and routers, driving enforcement rather than just raising alerts.
 - Works **without agents**, exporting neutral JSON that plugs into existing SIEM, SOAR, firewall, and XDR stacks.
 - Provides documented coverage for **43 MITRE ATT&CK techniques** via pre-execution denial and trust degradation.
@@ -76,7 +76,7 @@ Attack → Validate → ❌ DENY (no execution)
       or
       → ✅ ALLOW → Execute → [Traditional stack]
            ↑
-   (We operate only here)
+   (BH-AI operates exclusively at this pre-execution decision point)
 ```
 
 #### Stack Enforcement by Layer
@@ -85,7 +85,7 @@ Attack → Validate → ❌ DENY (no execution)
 ┌─────────────────────────────────────────────────────────┐
 │                 FIRST-LAYER POSITIONING                 │
 ├─────────────────────────────────────────────────────────┤
-│  App Layer (L7)   → Step 21 Semantic Gate               │
+│  App Layer (L7)   → Step 21 Semantic Execution-Denial Gate │
 │  Transport (L4)   → Flow validation                     │
 │  Network (L3)     → IP & route context                  │
 │  Link Layer (L2)  → Frame/MAC insights                  │
@@ -95,7 +95,7 @@ Attack → Validate → ❌ DENY (no execution)
 
 #### What Battle-Hardened AI Is Not
 
-To stay pure as a first-layer decision system, Battle-Hardened AI does **not**:
+To remain strictly focused as a first-layer decision system, Battle-Hardened AI does **not**:
 
 - Act as a SIEM (log aggregator)
 - Act as a SOAR (workflow orchestrator)
@@ -122,7 +122,7 @@ ATTACKER REQUEST
 ### 🧪 Example: SSH Credential Stuffing
 
 - **Traditional flow:** Attackers perform high-volume or distributed SSH login attempts. Sessions are established, and only then do downstream tools detect anomalies and raise alerts.
-- **With Battle-Hardened AI:** Behavioral, sequence, and trust signals flag abnormal SSH login patterns. Trust for the source degrades, and the semantic gate determines that the login attempts are not legitimate for the entity.
+- **With Battle-Hardened AI:** Behavioral, sequence, and trust signals flag abnormal SSH login patterns. Trust for the source degrades, and the semantic execution-denial gate determines that the login attempts are not legitimate for the entity.
 - **Outcome:** Connections are blocked **before** successful session establishment, and the attacker cannot meaningfully interact with protected systems.
 
 #### Data Handling & Privacy Principles
@@ -141,7 +141,7 @@ Battle-Hardened AI follows strict data-handling principles at the first layer:
 Battle-Hardened AI is designed to sit in front of, and alongside, existing controls rather than replace them.
 
 - **Versus firewalls (NGFW/WAF):** Traditional firewalls enforce static or signature-based rules on packets and sessions. Battle-Hardened AI acts as a semantic commander in front of them, deciding *whether* an interaction should be allowed at all and then driving firewall rules accordingly.
-- **Versus NDR/XDR:** NDR/XDR platforms aggregate telemetry and raise alerts *after* execution. Battle-Hardened AI operates at the execution gate, using 21 documented layers plus a semantic gate to deny malicious actions before they reach those systems.
+- **Versus NDR/XDR:** NDR/XDR platforms aggregate telemetry and raise alerts *after* execution. Battle-Hardened AI operates at the execution gate, using 21 documented layers plus the semantic execution-denial gate to reject malicious actions before they reach those systems.
 - **Versus SD-WAN and routing gear:** SD-WAN optimizes paths and connectivity between sites. Battle-Hardened AI focuses purely on security semantics and trust, determining which flows should exist at all and leaving path selection to the network layer.
 - **Versus EDR (agent-based):** EDR agents live on individual endpoints and watch local processes. Battle-Hardened AI typically runs as a gateway node with no agents, protecting many devices at once and exporting decisions that EDR/XDR tools can still consume.
 
@@ -190,7 +190,7 @@ Battle-Hardened AI is designed to sit in front of, and alongside, existing contr
    ├─ Evaluate state legitimacy (lifecycle, sequence, authentication)
    ├─ Evaluate intent legitimacy (role vs requested action)
    ├─ Validate structural legitimacy (payload/schema/encoding safety)
-   ├─ Check trust sufficiency (trust_graph thresholds per entity)
+   ├─ Check trust sufficiency (trust_graph thresholds per entity; thresholds are customizable per organization policy)
    ├─ If SEMANTICALLY_INVALID → deny execution meaning (no state change, no backend call)
    └─ If SEMANTICALLY_VALID → proceed to response execution
    ↓
@@ -760,6 +760,8 @@ See [Positioning Statement](#positioning-statement-critical) and [Why Evasion is
 
 ## Applicability to Military & Law-Enforcement Environments
 
+After understanding how Battle-Hardened AI operates and how it compares to other platforms, this section focuses on where it can be safely deployed in high-assurance environments.
+
 Battle-Hardened AI is suitable for use in defensive cyber security roles within military and law-enforcement organizations, including:
 
 - Cyber defense research and development (R&D) programs
@@ -840,9 +842,9 @@ The operator (relay server administrator) has **zero visibility** into your netw
 
 ---
 
-### MITRE ATT&CK Coverage Matrix
+## MITRE ATT&CK Coverage Matrix
 
-Battle-Hardened AI provides comprehensive detection across the MITRE ATT&CK framework. This section maps the detection layers and semantic gate to specific tactics and techniques, providing complete visibility into defensive coverage.
+Building on the execution-control and competitive sections above, this matrix shows where Battle-Hardened AI’s detection layers and semantic execution-denial gate align with the MITRE ATT&CK framework.
 
 **Total MITRE ATT&CK Techniques Covered: 43 distinct techniques** (credibly mapped, no inflation)
 
@@ -981,6 +983,16 @@ Below is an auditor-style mapping from each MITRE technique to the **primary Bat
 Battle-Hardened AI adopts a **single-node-per-network architecture**. Each protected network segment typically requires only one Battle-Hardened AI server, eliminating the need for endpoint agents while still providing comprehensive, network-wide visibility and control.
 
 An optional private relay allows these nodes to share anonymized AI training insights—such as signatures, behavioral patterns, and reputation updates—without exposing sensitive data. This federated learning approach supports global intelligence gains while maintaining strong data sovereignty.
+
+## 🛡️ Security & Compliance
+
+Battle-Hardened AI is designed for high-assurance environments and aligns with modern security and governance expectations:
+
+- **Zero Trust Architecture principles (NIST 800-207):** Treats every entity as untrusted by default, using persistent trust scores and semantic checks before allowing execution.
+- **Federated learning privacy isolation:** Shares only anonymized patterns and model updates; no PII or raw payloads are transmitted, even when the relay is enabled.
+- **Edge-enforceable policies without central dependency:** Enforcement decisions run locally at the gateway or host, so execution control does not rely on cloud services or centralized orchestrators.
+- **Optional relay for multi-organization intelligence fusion:** The relay augments local detection with global intelligence without compromising data sovereignty or regulatory boundaries.
+- **Compliance-ready posture:** Designed to support HIPAA, FedRAMP, ISO 27001, PCI-DSS, and similar frameworks by providing explainable decisions, audit trails, and clear separation of duties between detection, enforcement, and orchestration.
 
 ## 21 Detection Layers: Core AI Capabilities
 
@@ -1314,7 +1326,7 @@ For the exact decision thresholds, boosting rules, and Stage 3→4 wiring, see t
 Based on ensemble decision, the system executes controlled responses:
 
 **Immediate Actions (if `should_block = true`):**
-1. **Firewall Block:** Add IP to `iptables` or `nftables` with TTL (e.g., 24 hours)
+1. **Firewall Block:** Add IP to `iptables` or `nftables` with TTL (e.g., 24 hours), or invoke Fortinet, Cisco ASA, and other programmable firewalls via their APIs
 2. **Connection Drop:** Terminate active TCP connections from attacker
 3. **Rate Limiting:** If partial threat (50-74%), apply aggressive rate limiting instead of full block
 
