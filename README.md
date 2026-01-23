@@ -213,179 +213,124 @@ These documents collectively define the system’s intended behavior, guarantees
 
 ### Deployment Scope — What Can Be Protected
 
-Battle-Hardened AI is **built as a gateway/router-style first-layer decision node**. It is designed to sit **in front of networks, segments, or critical services**, where it can decide which interactions are allowed to have operational meaning. It can also operate in **host-only** or **observer** roles when a true gateway position is not available.
+Battle-Hardened AI is built as a **first-layer decision authority** designed to operate in a **gateway or router role**—strategically positioned to decide which interactions are permitted to produce operational effects before downstream systems are even touched. It may also be deployed in **host-only** or **observer** mode when direct inline placement isn’t possible.
 
-- **Home & Small Office Networks** – When deployed as a **gateway** (Linux box, router, or dedicated security appliance in front of the home router), Battle-Hardened AI can protect the **entire network** behind it. When run on a single Windows or macOS machine in **host-only mode**, it protects that host and any traffic explicitly routed or mirrored through it.
-- **Enterprise Networks** – Deployed at the **edge of a LAN/VLAN/VPN** or as a **tap/observer** on a mirrored/SPAN port, Battle-Hardened AI provides first-layer execution control for traffic crossing that boundary (north–south and, where mirrored, east–west). It can also run as a SOC observer for high-fidelity threat sensing without changing existing routing.
-- **Servers, Data Centers & Applications** – Installed directly on **servers, reverse proxies, or dedicated security appliances** in front of critical services, Battle-Hardened AI acts as the first-layer execution gate for those specific workloads and their exposed ports.
-- **Website & API Hosting Environments** – Placed in front of web servers, API gateways, or reverse proxies, Battle-Hardened AI validates inbound HTTP(S) traffic before it reaches application stacks, operating alongside existing WAFs rather than replacing them.
-- **Cloud Infrastructure (IaaS / PaaS)** – Deployed as a **security appliance, sidecar, or observability node** with access to VPC/VNet flows, load-balancer traffic, or control-plane telemetry, Battle-Hardened AI provides first-layer execution decisions for cloud-exposed endpoints and services.
-- **Critical Infrastructure & Research Environments** – Used as a **controlled observer or gateway** around OT, SCADA/ICS, lab, or R&D networks, Battle-Hardened AI delivers pre-execution denial and high-fidelity telemetry without introducing agents into sensitive devices.
-- **Government, Defense & Law-Enforcement SOCs** – Operated as a **frontline defensive node or observer appliance** in classified or regulated environments, Battle-Hardened AI enforces first-layer semantic execution control while preserving strict data-sovereignty guarantees.
+#### Deployment Modes and Coverage
 
-In all cases, **protection coverage is determined by placement and routing**:
+##### 🏠 Home & Small Office Networks
 
-- **Gateway placement (primary design)** – Battle-Hardened AI sits in front of the network, segment, or service, with full visibility into inbound and outbound traffic for that boundary.
-- **Server/host placement** – Battle-Hardened AI protects the local host and any services it terminates (including web, API, SSH, RDP, or custom protocols). This is effectively a gateway role scoped to that host and its directly terminated services.
-- **Observer/monitoring placement** – When attached to a mirror/SPAN port or cloud flow log stream, Battle-Hardened AI operates as a first-layer observer and decision engine; enforcement depends on how its block/allow decisions are wired into firewalls, routers, or orchestration.
+- As a gateway node (for example, a Linux box or dedicated appliance between modem and LAN), Battle-Hardened AI protects the **entire network** behind it.
+- In host-only mode on Windows or macOS, Battle-Hardened AI secures that individual host and any mirrored traffic explicitly routed through it.
 
-For **true network-wide protection**, Battle-Hardened AI should be deployed at a **gateway or routing/control point** (physical or virtual) where traffic naturally passes through it or is explicitly mirrored for enforcement. Host-only deployments still provide full first-layer semantics for that host and its directly terminated services, but do not replace upstream firewalls or routers.
+##### 🏢 Enterprise Networks
 
-To turn first-layer decisions into **real packet drops** at these boundaries, operators **must wire Battle-Hardened AI into the underlying firewall**. **Before deploying in production, read [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) end-to-end** for Linux (Docker host) and Windows host integration patterns.
+- Positioned at the LAN/VLAN/VPN edge or attached to a SPAN/mirror port, Battle-Hardened AI provides execution control at the boundary (north–south) and can observe lateral (east–west) traffic when mirrored.
+- Deployed as a SOC sensor, it delivers deep threat visibility without requiring routing changes.
 
-### Hardware Deployment Checklists (Gateway vs Inline)
+##### 🖥 Servers, Data Centers & Application Stacks
 
-This section provides a **hardware-only checklist** for two primary deployment patterns you can hand directly to network/infrastructure engineers and procurement teams. It assumes Linux as the primary OS for gateway/inline roles (recommended); Windows native deployments are typically host-only or appliance-style for specific segments.
+- Installed directly on reverse proxies or appliance nodes, Battle-Hardened AI governs first-layer execution control for inbound connections to mission-critical workloads and services.
 
-#### ✅ Option A — Battle-Hardened AI as the Edge Router (Strongest, Cleanest)
+##### 🌐 Websites & APIs
 
-**Topology**
+- Deployed in front of web servers or API gateways, Battle-Hardened AI filters inbound HTTP(S) traffic semantically before application stacks process it, working alongside WAFs—not as a replacement.
 
-- ISP Modem/ONT → Battle-Hardened AI → Switch / APs / Internal Network
+##### ☁️ Cloud Infrastructure (IaaS / PaaS)
 
-**Required Equipment**
+- Operates as a sidecar or inline observer within cloud deployments, with access to VPC/VNet flows, load balancers, or telemetry, allowing pre-execution enforcement for exposed cloud services.
 
-- **ISP Modem / ONT**
-   - Must support bridge mode
-   - Routing, NAT, and firewall disabled (passes raw WAN to BH)
-- **Dedicated Battle-Hardened AI Machine (Security Appliance)**
-   - Minimum 2 physical NICs
-      - NIC 1 = WAN
-      - NIC 2 = LAN
-   - Recommended hardware characteristics:
-      - Intel-class NICs (e.g., i210 / i350 family)
-      - AES-NI capable CPU
-      - 16–32 GB RAM
-      - SSD/NVMe for logs and ML models
-   - Runs Linux (gateway/router role; installed via the Battle-Hardened AI `.deb`/`.rpm` package as described in INSTALLATION; see STARTUP_GUIDE + FIREWALL_ENFORCEMENT)
-- **Layer-2 Switch**
-   - Connects LAN side of BH to internal devices
-   - VLAN support recommended (not mandatory)
-- **Access Points / Wi‑Fi Router (AP mode only)**
-   - Must support dedicated AP/bridge mode
-   - DHCP & NAT disabled (handled by BH)
+##### 🏭 OT, Critical Infrastructure & R&D Environments
 
-**Optional / Enterprise Add‑Ons**
+- Deployed as a non-intrusive observer or segment gateway, Battle-Hardened AI enforces semantic denial without inserting agents into sensitive ICS/SCADA/lab equipment.
 
-- Secondary BH node for failover/HA
-- UPS (BH is now a mission‑critical security appliance)
-- Hardware TPM / secure boot (for additional integrity assurance)
+##### ⚖️ Government, Defense & Regulated SOCs
 
-**What This Guarantees**
+- As a semantic command node in front of classified or sovereign environments, Battle-Hardened AI enforces execution control while maintaining strict data privacy and sovereignty.
 
-- Battle-Hardened AI is the **default gateway** for the protected segment
-- All ingress/egress traffic must pass through BH (no bypass without physical changes)
-- BH has full authority over:
-   - Routing
-   - NAT
-   - Firewall policy (when wired per FIREWALL_ENFORCEMENT)
-   - First-layer execution decisions
+#### Placement Determines Authority
 
-#### ✅ Option B — Battle-Hardened AI as Transparent Inline Bridge (Bump‑in‑the‑Wire)
+| Placement Type | Visibility & Authority |
+|----------------|------------------------|
+| Gateway (primary) | Full control of inbound/outbound traffic; pre-execution enforcement |
+| Host-level | Protection scoped to local host services (for example, SSH, RDP, HTTP) |
+| Observer | High-fidelity telemetry; enforcement via connected firewall/router |
 
-**Topology**
+For true control, Battle-Hardened AI must sit at a routing, NAT, or firewall decision point—either as a bridge, gateway, or authoritative observer wired into enforcement APIs.
 
-- ISP Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router/Firewall (WAN port)
+#### Enforcement Requires Firewall Integration
 
-**Required Equipment**
+To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
 
-- **ISP Modem / ONT**
-   - Same as Option A: bridge mode preferred
-- **Dedicated Battle-Hardened AI Machine**
-   - Minimum 2 physical NICs
-      - NIC 1 = upstream (WAN‑side, toward ISP)
-      - NIC 2 = downstream (router/firewall‑side)
-   - Linux (typically installed via the Battle-Hardened AI `.deb`/`.rpm` package) with:
-      - Bridge support
-      - eBPF / packet capture enabled
-   - Similar CPU/RAM/storage specs as Option A
-- **Existing Router / Firewall**
-   - Continues to handle:
-      - PPPoE / DHCP client
-      - NAT
-      - Internal routing and Wi‑Fi (if integrated)
-   - BH sits inline, transparently, in front of it
-- **Switch / APs**
-   - Same as your current topology behind the existing router/firewall
+### Hardware Deployment Checklists
 
-**Optional / Enterprise Add‑Ons**
+These checklists describe hardware setups for gateway and inline bridge roles. Linux is the primary OS for routing and enforcement. Windows is supported for host-only or appliance-style deployments.
 
-- Inline fail‑open relay or bypass appliance (rare, high‑end deployments)
-- TAP/SPAN port for independent monitoring or out‑of‑band sensors
-- UPS for BH and core network stack
+#### ✅ Option A — Battle-Hardened AI as Edge Gateway Router (Recommended for Full Control)
 
-**What This Guarantees**
+**Network Topology**
 
-- All WAN‑bound traffic **must pass through** Battle-Hardened AI before reaching the router
-- Existing router/firewall configuration can remain largely unchanged
-- BH can block, rate‑limit, or deny at the first layer **before** the router sees traffic (when enforcement is wired correctly)
+```text
+Modem/ONT → Battle-Hardened AI → Switch → Internal Network
+```
 
-#### ⚠️ What You Do **Not** Need (Common Procurement Mistakes)
+**Required Hardware**
 
-- ❌ No special "BH‑specific" router or proprietary chassis
-- ❌ No SD‑WAN or cloud‑managed router requirement
-- ❌ No cloud dependency for core detection
-- ❌ No endpoint agents (BH protects at the gateway/segment boundary)
+- Modem/ONT in bridge mode (disables NAT and firewall)
+- Dedicated Linux appliance (2 NICs: WAN + LAN)
+- Intel-class NICs (for example, i210/i350)
+- AES-NI capable CPU
+- 16–32 GB RAM
+- SSD/NVMe storage
+- Layer-2 switch (VLAN-capable preferred)
+- Wi‑Fi AP in bridge mode (no DHCP/NAT)
 
-#### 🔒 Security Reality Check
+**What This Delivers**
 
-- Both options assume BH runs with elevated privileges (root/admin) appropriate for a security appliance
-- Treat the BH node like any other critical firewall/router:
-   - Lock racks/cabinets and wiring closets
-   - Lock switch ports and disable unused physical ports
-   - Restrict router/firewall and BH admin access to trusted operators
+- Battle-Hardened AI becomes the default gateway
+- All traffic flows through Battle-Hardened AI (no bypass without physical change)
+- Full control over NAT, routing, firewall, and semantic validation
 
-**Quick Decision Guide**
+#### ✅ Option B — Battle-Hardened AI as Transparent Inline Bridge (No Routing Changes)
 
-| Requirement                          | Recommended Option |
-|--------------------------------------|--------------------|
-| Absolute control, zero bypass        | Option A           |
-| Keep existing router configuration   | Option B           |
-| Fastest deployment                   | Option B           |
-| Cleanest long‑term architecture      | Option A           |
-| High‑assurance / military posture    | Option A           |
+**Network Topology**
 
----
+```text
+Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
+```
 
-## ⚠️ Platform Requirements & Startup Guide
+**Required Hardware**
 
-> **Distribution model:** Production customers normally receive **pre-packaged binaries**, not the GitHub source tree: a signed **.deb/.rpm** package for Linux gateway/edge deployments and the signed **BattleHardenedAI-Setup.exe** installer for Windows hosts/appliances. The platform notes below describe how the system runs on each OS; any `git clone` / direct Docker or Python commands referenced in the docs are intended for **development, labs, or contributors**, not standard customer installs.
+- Modem/ONT in bridge mode
+- Battle-Hardened AI Linux node with 2 NICs (WAN-side + LAN-side)
+- Existing router handling NAT, DHCP, and Wi‑Fi
 
-**Network-Wide Protection Depends on Your Operating System:**
+**What This Delivers**
 
-### Linux (Recommended - Full Docker Support)
-- ✅ **Docker**: Full network-wide monitoring + Web GUI dashboard (managed by the package)
-- ✅ **Host Network Mode**: Docker can access entire network traffic
-- ✅ **Deployment (customers)**: Installed and managed via the vendor-signed **.deb/.rpm** package, which provisions the Docker service and systemd unit for you (no manual `git clone` or `docker compose up -d` required).
-- 🧪 **Deployment (developers/labs)**: May be run directly from the GitHub source tree using `docker compose up -d` as documented in Documentation/INSTALLATION.md.
-- ✅ **Auto-restart**: Built-in via Docker restart policies / systemd service
-- ✅ **Capacity**: Handles 1000s of concurrent attacks
- - ⚠️ **Privileges**: Container runs as root with NET_ADMIN/BPF for eBPF + firewall sync; treat host as a dedicated security appliance
+- No router reconfiguration needed
+- Battle-Hardened AI still sees and filters traffic before router interaction
+- Minimal architectural disruption
 
-### Windows / macOS (Native Execution)
-> **Windows customers:** In production you typically use the signed **BattleHardenedAI-Setup.exe** installer, which embeds the production server and watchdog – you do **not** need to install Python or run `server.py` directly. The native Python path below is primarily for **development, CI, and advanced lab environments**. macOS is supported as a **developer/test** platform via native Python only; there is no packaged macOS installer.
+#### ⚠️ What You Don’t Need
 
-- ❌ **Docker Limitation**: Bridge mode cannot monitor network-wide traffic (only container traffic)
-- ✅ **Native Python (developer path)**: For labs/contributors running from the GitHub source tree
-- ✅ **Web GUI**: Accessible at `https://localhost:60000` when running natively (developer or packaged)
-- ⚠️ **Production-like mode for native dev installs**: Use `python installation/watchdog.py` instead of `python server.py` for crash protection
-- ✅ **Auto-restart**: Watchdog (or the packaged Windows service) monitors and restarts the server on crash
-- ✅ **Capacity**: ~500 concurrent connections (OS limitations)
- - ⚠️ **Privileges**: Run the server and watchdog "as Administrator" (or install/run the EXE as admin) to enable packet capture and Windows firewall rule sync
-- 📈 **Scaling**: For 10,000+ connections, use Linux native or cluster - see [SCALING_GUIDE.md](SCALING_GUIDE.md)
+- ❌ SD-WAN or cloud-managed routers
+- ❌ Proprietary routers or expensive chassis
+- ❌ Agents on endpoints
+- ❌ Cloud connectivity for core detection
 
-**Summary:**
-- **Linux customers**: Install and operate the node via the vendor-provided **.deb/.rpm** package (which runs Battle-Hardened AI inside Docker) – see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md#linux-installation-docker) and **wire firewall enforcement via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
-- **Windows customers**: Use the signed **Windows installer (.exe)** and follow the post-install configuration steps – see the Windows section in [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md) and **configure Windows firewall sync via [FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md)**
-- **Developers / labs**: May run Docker or native Python directly from the GitHub source tree using [STARTUP_GUIDE.md](STARTUP_GUIDE.md)
-- **Organizations**: Deploy on Linux or dedicated Windows security appliance with proper network policies
-- **GUI Dashboard**: Available on both Docker-backed Linux appliances and Windows EXE deployments
+### Platform & OS Support Summary
 
-**🚀 Installation & Startup Steps:**
+| Feature | Linux (Recommended) | Windows / macOS (Host-Only) |
+|---------|---------------------|-----------------------------|
+| Deployment mode | Gateway / router / bridge | Host-level / appliance |
+| GUI dashboard | ✅ | ✅ |
+| Docker support | ✅ Full (with NET_ADMIN) | ❌ Limited (bridge-mode isolation) |
+| Native firewall integration | ✅ `iptables`/`ipset` | ✅ Windows Defender Firewall |
+| Package format | `.deb` / `.rpm` | `.exe` installer |
+| Auto-restart | `systemd` + Docker policies | Watchdog / Windows service |
+| Packet capture & eBPF | ✅ | ⚠️ Requires administrator privileges |
+| Scalability | 10,000+ connections (scalable) | ~500 connections (OS limits) |
 
-- For complete, step-by-step installation instructions for **Linux .deb/.rpm packages**, the **Windows .exe installer**, and the optional **developer-only Docker/native flows**, see [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md).
-- For runtime configuration and operational startup details, see [STARTUP_GUIDE.md](STARTUP_GUIDE.md).
-- For scaling scenarios (10,000+ connections, clustering), see [SCALING_GUIDE.md](SCALING_GUIDE.md).
+See [Documentation/INSTALLATION.md](Documentation/INSTALLATION.md) and [STARTUP_GUIDE.md](STARTUP_GUIDE.md) for setup instructions. For production firewall synchronization, see [Documentation/FIREWALL_ENFORCEMENT.md](Documentation/FIREWALL_ENFORCEMENT.md).
 
 ---
 
@@ -577,74 +522,72 @@ Autonomy here is not optional — it is foundational.
 
 ---
 
-#### First-Layer vs Everything Else: The Architectural Truth
+#### First-Layer vs Everything Else: Architectural Clarity
 
-Even among advanced platforms, very few controls truly sit at the execution gate. The distinction between a first-layer system and downstream tooling can be summarized as:
+Most cybersecurity platforms act **after** damage has occurred. In contrast, Battle-Hardened AI operates at the **execution gate**, where it determines whether interactions should be allowed to occur in the first place. This distinction underpins its position as a first-layer control, not a reactive system.
 
-| Aspect | First-layer systems | Downstream systems |
-|--------|---------------------|--------------------|
-| Primary question | "Should this be allowed to execute?" | "What happened?" |
-| Decision timing | Before any state change | After state change has already occurred |
-| Failure mode to minimize | False negatives (letting bad execute) | False positives (alert fatigue and noise) |
-| Data retention | Patterns and aggregates, no payloads required | Full payloads and logs for deep investigation |
-| Integration point | Execution gate in front of the stack | Data aggregation and analysis layer inside the stack |
-| Value proposition | **Prevent damage entirely** | **Understand and respond to damage** |
+| Category | First-layer systems | Downstream systems |
+|----------|---------------------|--------------------|
+| Primary question | "Should this be allowed to execute?" | "What just happened, and how do we respond?" |
+| Decision timing | Before any state change | After state has already changed |
+| Failure concern | False negatives (allowing malicious execution) | False positives (alert fatigue) |
+| Data use | Patterns, signals, semantic structure | Payloads, logs, full forensic visibility |
+| Integration point | Stack entry point (execution gate) | Aggregation, logging, or correlation layer |
+| Core benefit | Block impact before it starts | Understand and recover after the fact |
 
-Battle-Hardened AI is not an alerting add-on but a **stateful autonomous first-layer defense system**. Persistent memory, causal reasoning, trust degradation, semantic execution-denial, and full decision transparency are structural properties of the design, not positioning language.
+Battle-Hardened AI is not another alerting layer—it is a **stateful, autonomous, semantic gatekeeper**. Concepts like persistent trust memory, causal reasoning, and execution semantics are foundational design elements, not add-on features.
 
-Comparisons to NDR/XDR platforms serve to clarify architectural boundaries, not to claim category equivalence.
+Comparisons to NDR/XDR platforms highlight architectural boundaries—not category similarity.
 
----
+#### Interpretation Legend
 
-**Interpretation rule (important):**
-- ND = Not publicly documented or verifiable as a first-class capability
-- Partial = Present but opaque, partial, or non-explainable
-- Documented = Explicitly implemented, documented, and architecturally integral
+- **ND** = Not publicly documented
+- **Partial** = Present but undocumented or non-explainable
+- **Documented** = Explicit, transparent, and architecturally core
 
 ### Core Detection & Reasoning Capabilities
 
-| Platform | Detection Architecture | Independent Signal Classes | Kernel Telemetry | Causal Inference | Persistent Trust Memory |
-|----------|------------------------|----------------------------|------------------|------------------|-------------------------|
-| **Battle-Hardened AI** | Multi-engine consensus (stateful) | Documented 21 layers (20 signals + Step 21 semantic gate) | Documented eBPF (first-class) | Documented Layer 19 | Documented Layer 20 (cross-session) |
-| CrowdStrike Falcon | Correlation pipelines (event-driven) | ND (undisclosed) | Partial (abstracted) | ND | ND |
-| SentinelOne Singularity | Behavior + rules (event-driven) | ND (undisclosed) | Partial | ND | ND |
-| Palo Alto Cortex XDR | Data lake correlation | ND (undisclosed) | ND | ND | ND |
-| Microsoft Defender ATP | Telemetry correlation | ND (undisclosed) | Partial (limited) | ND | ND |
-| Darktrace | Statistical anomaly detection | ND (undisclosed) | ND | ND | Partial (time-decayed) |
-| Vectra AI | Behavioral + ML scoring | ND (undisclosed) | ND | ND | ND |
-| ExtraHop | Protocol analytics | ND (undisclosed) | ND | ND | ND |
-| Cisco Secure NDR | Signature + analytics | ND (undisclosed) | ND | ND | ND |
-| Trend Micro XDR | Multi-product correlation | ND (undisclosed) | Partial | ND | ND |
-| Carbon Black | Endpoint behavior tracking | ND (undisclosed) | Partial | ND | ND |
-| Fortinet FortiNDR | Signature + heuristics | ND (undisclosed) | ND | ND | ND |
-| Stellar Cyber | Open XDR correlation | ND (undisclosed) | ND | ND | ND |
-| Corelight | Zeek-based analytics | ND (undisclosed) | ND | ND | ND |
-| Fidelis Network | Signature + session analysis | ND (undisclosed) | ND | ND | ND |
-| Suricata + ML | Rules + limited ML | Partial (1–2 visible) | ND | ND | ND |
+| Platform | Detection Architecture | Signal Types | Kernel Telemetry | Causal Reasoning | Trust Memory |
+|----------|------------------------|-------------|------------------|------------------|-------------|
+| **Battle-Hardened AI** | Multi-engine, semantic-first | 21-layer consensus | Documented eBPF | Layer 19 (documented) | Layer 20 (persistent) |
+| CrowdStrike Falcon | Correlation pipelines | ND | Partial | ND | ND |
+| SentinelOne Singularity | Behavior + rules | ND | Partial | ND | ND |
+| Cortex XDR | Data lake correlation | ND | ND | ND | ND |
+| Microsoft Defender ATP | Telemetry correlation | ND | Partial | ND | ND |
+| Darktrace | Statistical anomaly detection | ND | ND | ND | Partial (decaying) |
+| Vectra AI | Behavior + ML scoring | ND | ND | ND | ND |
+| ExtraHop | Protocol analytics | ND | ND | ND | ND |
+| Cisco Secure NDR | Signature + analytics | ND | ND | ND | ND |
+| Trend Micro XDR | Multi-product correlation | ND | Partial | ND | ND |
+| Carbon Black | Endpoint behavior monitoring | ND | Partial | ND | ND |
+| Fortinet FortiNDR | Heuristics + signatures | ND | ND | ND | ND |
+| Stellar Cyber | Open XDR correlation | ND | ND | ND | ND |
+| Corelight | Zeek-based analytics | ND | ND | ND | ND |
+| Fidelis Network | Session analysis | ND | ND | ND | ND |
+| Suricata + ML | Rules + partial ML | Partial | ND | ND | ND |
 
-### Explainability, Transparency & Failure Handling
+### Transparency & Analyst Burden
 
 | Platform | Explainability | Decision Trace | Failure Awareness | Analyst Dependency |
 |----------|----------------|----------------|-------------------|-------------------|
-| **Battle-Hardened AI** | Documented | Documented full signal & trust trace | Documented explicit failure states | Optional (autonomous) |
-| CrowdStrike Falcon | Limited (not publicly documented) | Alert-level only | Not documented | Required |
-| SentinelOne | Limited (not publicly documented) | Storyline only | Not documented | Required |
-| Palo Alto Cortex XDR | Partial | Partial (event chain) | Not documented | Required |
-| Microsoft Defender | Limited (not publicly documented) | Alert abstraction | Not documented | Required |
-| Darktrace | Limited (not publicly documented) | Anomaly score | Not documented | Required |
-| Vectra AI | Partial | Partial (scoring rationale) | Not documented | Required |
-| ExtraHop | Partial | Partial (protocol views) | Not documented | Required |
-| Cisco Secure NDR | Partial | Partial (correlated events) | Not documented | Required |
-| Others | Limited (not publicly documented) | Not documented | Not documented | Required |
+| **Battle-Hardened AI** | Full and documented | Layer-by-layer trace | Explicit failure states | Optional (autonomous) |
+| CrowdStrike Falcon | Limited | Alert-level only | ND | Required |
+| SentinelOne | Limited | Storyline abstraction | ND | Required |
+| Cortex XDR | Partial | Event chain trace | ND | Required |
+| Microsoft Defender | Limited | Alert-level | ND | Required |
+| Darktrace | Limited | Anomaly scores | ND | Required |
+| Vectra AI | Partial | Score explanations | ND | Required |
+| ExtraHop | Partial | Protocol summaries | ND | Required |
+| Others | Limited | ND | ND | Required |
 
-### Learning, Adaptation & Attack Resistance
+### Adaptation & Adversary Resistance
 
-| Platform | Learning Model | Post-Compromise Adaptation | Deception Feedback | AI Self-Protection |
-|----------|----------------|---------------------------|--------------------|--------------------|
-| **Battle-Hardened AI** | Local + optional federated | Documented persistent adaptation | Documented first-class signal | Documented trust degradation vs attacker |
-| Commercial NDRs | Mostly cloud-driven | Not documented (session-bound) | Not documented / rare | Not documented |
+| Platform | Learning Architecture | Attack Feedback Loop | Deception Handling | Self-Defense |
+|----------|-----------------------|----------------------|--------------------|-------------|
+| **Battle-Hardened AI** | Local + federated optional | Persistent adaptation | Deception as first-class | Trust degradation model |
+| NDR/XDR (general) | Primarily cloud-based | ND or session-bound | ND or limited | ND |
 
-*See [Positioning Statement](#positioning-statement-critical) above for detailed architectural comparison and [Why Evasion is Nearly Impossible](#why-evasion-is-nearly-impossible) below for defense-in-depth analysis.*  
+See [Positioning Statement](#positioning-statement-critical) and [Why Evasion is Nearly Impossible](#why-evasion-is-nearly-impossible) for further architectural insights.
 
 ---
 
