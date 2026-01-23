@@ -110,6 +110,98 @@ Battle-Hardened AI follows strict data-handling principles at the first layer:
 - Makes allow/deny decisions, but does not investigate
 - Maintains trust models without exposing raw content externally
 
+---
+
+### Visual Attack Detection & Response Flow
+
+```
+📥 PACKET ARRIVES
+    ↓
+📊 Pre-processing (metadata extraction, normalization)
+    ↓
+⚡ 20 PARALLEL DETECTIONS (Primary Signals 1-18 + Strategic Intelligence 19-20)
+    ├─ Kernel Telemetry (eBPF/XDP syscall correlation)
+    ├─ Signatures (3,066+ attack patterns)
+    ├─ RandomForest ML (supervised classification)
+    ├─ IsolationForest ML (unsupervised anomaly detection)
+    ├─ GradientBoosting ML (reputation modeling)
+    ├─ Behavioral (15 metrics + APT: low-and-slow, off-hours, credential reuse)
+    ├─ LSTM Sequences (6 attack states + APT campaign patterns)
+    ├─ Autoencoder (zero-day via reconstruction error)
+    ├─ Drift Detection (model degradation monitoring)
+    ├─ Graph Intelligence (lateral movement, C2, hop chains)
+    ├─ VPN/Tor Fingerprint (de-anonymization)
+    ├─ Threat Intel (VirusTotal, AbuseIPDB, ExploitDB, etc.)
+    ├─ False Positive Filter (5-gate consensus validation)
+    ├─ Historical Reputation (cross-session recidivism ~94%)
+    ├─ Explainability Engine (human-readable decisions)
+    ├─ Predictive Modeling (24-48h threat forecasting)
+    ├─ Byzantine Defense (poisoned update rejection)
+    ├─ Integrity Monitoring (tampering detection)
+    ├─ 🧠 Causal Inference Engine (root cause: why did this happen?)
+    └─ 🔐 Trust Degradation Graph (zero-trust: entity trust scoring 0-100)
+   ↓
+🎯 ENSEMBLE VOTING (weighted consensus + causal adjustment + trust modulation)
+    ├─ Calculate weighted score (0.65-0.98 per signal)
+    ├─ Apply authoritative boosting (honeypot, threat intel override)
+    ├─ Causal inference adjustment (downgrade if legitimate, boost if malicious)
+    ├─ Trust state modulation (stricter thresholds if trust <40, quarantine if <20)
+    ├─ Check consensus strength (unanimous / strong / divided)
+   └─ Decision: Block (≥75%) / Log (≥50%) / Allow (<50%)
+   │   └─ APT Mode: Block threshold lowered to ≥70%
+   │   └─ Low Trust (<40): Block threshold lowered to ≥60%
+   ↓
+🧩 STEP 21: SEMANTIC EXECUTION-DENIAL GATE
+   ├─ Evaluate state legitimacy (lifecycle, sequence, authentication)
+   ├─ Evaluate intent legitimacy (role vs requested action)
+   ├─ Validate structural legitimacy (payload/schema/encoding safety)
+   ├─ Check trust sufficiency (trust_graph thresholds per entity)
+   ├─ If SEMANTICALLY_INVALID → deny execution meaning (no state change, no backend call)
+   └─ If SEMANTICALLY_VALID → proceed to response execution
+   ↓
+🛡️ RESPONSE EXECUTION (policy-governed)
+    ├─ Firewall block (iptables/nftables + TTL)
+    ├─ Connection drop (active session termination)
+    ├─ Rate limiting (if 50-74% confidence)
+    ├─ Local logging → threat_log.json (rotates at 100MB) + 10+ audit surfaces
+    ├─ Dashboard update (real-time WebSocket push)
+   └─ Alerts (critical-event email/SMS + SIEM integration)
+    ↓
+🧬 TRAINING MATERIAL EXTRACTION (privacy-preserving, customer-side)
+   ├─ Extract to local staging: honeypot_patterns.json under the JSON directory returned by AI.path_helper.get_json_dir()
+    ├─ Signatures (patterns only, zero exploit code)
+    ├─ Statistics (anonymized: connection rate, port entropy, fan-out)
+    ├─ Reputation (SHA-256 hashed IPs → reputation.db, not raw addresses)
+    ├─ Graph patterns (topology labels A→B→C → network_graph.json)
+    └─ Model weight deltas (RandomForest/LSTM/Autoencoder adjustments)
+    ↓
+🌍 RELAY SHARING (optional, authenticated)
+    ├─ Push: Local findings → Relay Server (every hour)
+    ├─ Pull: Global intel ← Relay Server (every 6 hours)
+    │   ├─ 3,000+ new signatures from worldwide nodes
+    │   ├─ Known bad IP/ASN reputation feed
+    │   ├─ Model updates (Byzantine-validated)
+    │   └─ Emerging threat statistics (CVEs, attack trends)
+    └─ Merge: Integrate global knowledge into local detection
+    ↓
+🔄 CONTINUOUS LEARNING (feedback-driven improvement)
+    ├─ Signature database auto-updated (hourly)
+    ├─ ML models retrained (weekly with labeled data)
+    ├─ Reputation tracker updated (with decay, half-life 30 days)
+    ├─ Drift baseline refreshed (monthly adaptation)
+    └─ Byzantine validation (94% malicious update rejection)
+    ↓
+🔁 LOOP: Next packet processed with improved defenses
+```
+
+**This architecture creates a federated, privacy-preserving defense mesh where:**
+
+- **One server protects an entire network segment** (no endpoint agents required)
+- **Every attack makes the system smarter** (automated signature extraction + ML retraining)
+- **Every node benefits from global learning** (relay-shared intelligence from worldwide attacks)
+- **Organizations retain full control** (relay participation is optional, all data anonymized)
+- **Privacy is preserved** (no raw payloads, no PII, only statistical features shared)
+
 ### Integration with Enterprise Security
 
 Battle-Hardened AI emits **vendor-neutral JSON decision feeds**. Example:
@@ -1392,98 +1484,6 @@ The system continuously improves through feedback:
 5. Cycle repeats: better detection → more accurate training data → better models → better detection...
 
 **This continuous feedback loop enables the system to adapt to evolving threats without manual intervention.**
-
----
-
-### Visual Attack Detection & Response Flow
-
-```
-📥 PACKET ARRIVES
-    ↓
-📊 Pre-processing (metadata extraction, normalization)
-    ↓
-⚡ 20 PARALLEL DETECTIONS (Primary Signals 1-18 + Strategic Intelligence 19-20)
-    ├─ Kernel Telemetry (eBPF/XDP syscall correlation)
-    ├─ Signatures (3,066+ attack patterns)
-    ├─ RandomForest ML (supervised classification)
-    ├─ IsolationForest ML (unsupervised anomaly detection)
-    ├─ GradientBoosting ML (reputation modeling)
-    ├─ Behavioral (15 metrics + APT: low-and-slow, off-hours, credential reuse)
-    ├─ LSTM Sequences (6 attack states + APT campaign patterns)
-    ├─ Autoencoder (zero-day via reconstruction error)
-    ├─ Drift Detection (model degradation monitoring)
-    ├─ Graph Intelligence (lateral movement, C2, hop chains)
-    ├─ VPN/Tor Fingerprint (de-anonymization)
-    ├─ Threat Intel (VirusTotal, AbuseIPDB, ExploitDB, etc.)
-    ├─ False Positive Filter (5-gate consensus validation)
-    ├─ Historical Reputation (cross-session recidivism ~94%)
-    ├─ Explainability Engine (human-readable decisions)
-    ├─ Predictive Modeling (24-48h threat forecasting)
-    ├─ Byzantine Defense (poisoned update rejection)
-    ├─ Integrity Monitoring (tampering detection)
-    ├─ 🧠 Causal Inference Engine (root cause: why did this happen?)
-    └─ 🔐 Trust Degradation Graph (zero-trust: entity trust scoring 0-100)
-   ↓
-🎯 ENSEMBLE VOTING (weighted consensus + causal adjustment + trust modulation)
-    ├─ Calculate weighted score (0.65-0.98 per signal)
-    ├─ Apply authoritative boosting (honeypot, threat intel override)
-    ├─ Causal inference adjustment (downgrade if legitimate, boost if malicious)
-    ├─ Trust state modulation (stricter thresholds if trust <40, quarantine if <20)
-    ├─ Check consensus strength (unanimous / strong / divided)
-   └─ Decision: Block (≥75%) / Log (≥50%) / Allow (<50%)
-   │   └─ APT Mode: Block threshold lowered to ≥70%
-   │   └─ Low Trust (<40): Block threshold lowered to ≥60%
-   ↓
-🧩 STEP 21: SEMANTIC EXECUTION-DENIAL GATE
-   ├─ Evaluate state legitimacy (lifecycle, sequence, authentication)
-   ├─ Evaluate intent legitimacy (role vs requested action)
-   ├─ Validate structural legitimacy (payload/schema/encoding safety)
-   ├─ Check trust sufficiency (trust_graph thresholds per entity)
-   ├─ If SEMANTICALLY_INVALID → deny execution meaning (no state change, no backend call)
-   └─ If SEMANTICALLY_VALID → proceed to response execution
-   ↓
-🛡️ RESPONSE EXECUTION (policy-governed)
-    ├─ Firewall block (iptables/nftables + TTL)
-    ├─ Connection drop (active session termination)
-    ├─ Rate limiting (if 50-74% confidence)
-    ├─ Local logging → threat_log.json (rotates at 100MB) + 10+ audit surfaces
-    ├─ Dashboard update (real-time WebSocket push)
-   └─ Alerts (critical-event email/SMS + SIEM integration)
-    ↓
-🧬 TRAINING MATERIAL EXTRACTION (privacy-preserving, customer-side)
-   ├─ Extract to local staging: honeypot_patterns.json under the JSON directory returned by AI.path_helper.get_json_dir()
-    ├─ Signatures (patterns only, zero exploit code)
-    ├─ Statistics (anonymized: connection rate, port entropy, fan-out)
-    ├─ Reputation (SHA-256 hashed IPs → reputation.db, not raw addresses)
-    ├─ Graph patterns (topology labels A→B→C → network_graph.json)
-    └─ Model weight deltas (RandomForest/LSTM/Autoencoder adjustments)
-    ↓
-🌍 RELAY SHARING (optional, authenticated)
-    ├─ Push: Local findings → Relay Server (every hour)
-    ├─ Pull: Global intel ← Relay Server (every 6 hours)
-    │   ├─ 3,000+ new signatures from worldwide nodes
-    │   ├─ Known bad IP/ASN reputation feed
-    │   ├─ Model updates (Byzantine-validated)
-    │   └─ Emerging threat statistics (CVEs, attack trends)
-    └─ Merge: Integrate global knowledge into local detection
-    ↓
-🔄 CONTINUOUS LEARNING (feedback-driven improvement)
-    ├─ Signature database auto-updated (hourly)
-    ├─ ML models retrained (weekly with labeled data)
-    ├─ Reputation tracker updated (with decay, half-life 30 days)
-    ├─ Drift baseline refreshed (monthly adaptation)
-    └─ Byzantine validation (94% malicious update rejection)
-    ↓
-🔁 LOOP: Next packet processed with improved defenses
-```
-
-**This architecture creates a federated, privacy-preserving defense mesh where:**
-
-- **One server protects an entire network segment** (no endpoint agents required)
-- **Every attack makes the system smarter** (automated signature extraction + ML retraining)
-- **Every node benefits from global learning** (relay-shared intelligence from worldwide attacks)
-- **Organizations retain full control** (relay participation is optional, all data anonymized)
-- **Privacy is preserved** (no raw payloads, no PII, only statistical features shared)
 
 ---
 
