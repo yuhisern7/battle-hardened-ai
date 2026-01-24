@@ -62,7 +62,8 @@ After installing `BattleHardenedAI-Setup.exe`:
 - [ ] Edit `.env.windows` in-place to point to your test relay (or disable relay for free mode):
   - [ ] `RELAY_ENABLED=true/false` set to the desired mode.
   - [ ] `RELAY_URL` and `RELAY_API_URL` point at your test VPS (if Premium/relay is tested).
-  - [ ] `MESSAGE_SECURITY_KEY_DIR` path is valid (defaults to `server/crypto_keys` under the EXE root via `AI/path_helper.py`).
+    - [ ] `MESSAGE_SECURITY_KEY_DIR` path is valid (or unset to use the default from `AI/path_helper.get_crypto_keys_dir()`:
+      `%LOCALAPPDATA%/Battle-Hardened AI/server/crypto_keys` on Windows EXE).
   - [ ] `DASHBOARD_PORT` and `P2P_PORT` set to intended test ports (default 60000/60001).
 - [ ] Start `BattleHardenedAI.exe` once and verify:
   - [ ] Logs directory created next to the EXE (for example, `{app}/logs/server.log`, `{app}/logs/errors.log`).

@@ -2,10 +2,10 @@
 
 ## ✅ BUILD STATUS (2026-01-24)
 
-**Last Build:** In progress (websockets included)  
+**Last Build:** Completed 2026-01-24 (websockets included)  
 **PyInstaller Spec:** `server/BattleHardenedAI.spec` ✅ Updated  
-**Icon:** `assets/desktop.ico` (1024x1024) ✅ Included  
-**Environment Files:** `server/.env` (Linux) and `packaging/windows/dist/.env.windows` (Windows EXE) ✅ Synchronized  
+**Icon:** `assets/BATTLE-HARDENED-AI.ico` (multi-size ICO: 16–256px) ✅ Included  
+**Environment Files:** `server/.env` (Linux/Docker) and `server/.env.windows` (Windows template copied to `packaging/windows/dist/.env.windows` for the EXE) ✅ Synchronized  
 
 ### Recent Fixes Applied
 - ✅ Added `websockets` module (was missing - caused relay_client.py error)
@@ -107,12 +107,14 @@
 - [ ] node_fingerprint.json
 - [ ] signature_cache/ directory
 
-### Crypto Keys (server/crypto_keys/)
-- [ ] private_key.pem
-- [ ] public_key.pem
-- [ ] shared_secret.key
-- [ ] ssl_cert.pem
-- [ ] ssl_key.pem
+### Crypto Keys
+- [ ] Build-time source keys present in `server/crypto_keys/` (for Linux/Docker and initial TLS)
+- [ ] `server/crypto_keys/private_key.pem`
+- [ ] `server/crypto_keys/public_key.pem`
+- [ ] `server/crypto_keys/shared_secret.key`
+- [ ] `server/crypto_keys/ssl_cert.pem`
+- [ ] `server/crypto_keys/ssl_key.pem`
+- [ ] Windows EXE runtime keys stored in `%LOCALAPPDATA%\Battle-Hardened AI\server\crypto_keys` (auto-created on first run)
 
 ### Step21 Policies (policies/step21/)
 - [ ] manifest.json
@@ -141,9 +143,9 @@
 
 ### Environment Files
 - [ ] server/.env (Linux/Docker runtime configuration)
-- [ ] packaging/windows/dist/.env.windows (Windows EXE runtime configuration copied by the installer)
+- [ ] packaging/windows/dist/.env.windows (Windows EXE runtime configuration copied from `server/.env.windows` by the EXE build script)
 
-### Runtime Directories (auto-create on startup)
+### Runtime Directories (auto-create on startup; for Windows EXE these live under `%LOCALAPPDATA%/Battle-Hardened AI/server/`)
 - [ ] logs/
 - [ ] pcap/
 - [ ] json/ (if not exists)
@@ -162,7 +164,7 @@
 ### Required Source Folders for EXE Build
 - [ ] AI/ (all detection modules and AI/ml_models/)
 - [ ] server/json/ (all JSON configuration and state files)
-- [ ] server/crypto_keys/ (TLS and HMAC keys)
+- [ ] server/crypto_keys/ (TLS and HMAC keys; build-time source, Windows EXE runtime uses per-user data dir)
 - [ ] server/installation/ (watchdog, Gunicorn configs, init_json_files.py)
 - [ ] server/windows-firewall/ (Windows firewall integration scripts)
 - [ ] policies/step21/ (semantic gate policies)
@@ -170,7 +172,7 @@
 
 ## ✅ ICON & BRANDING
 
-- [ ] assets/desktop.ico (for EXE icon)
+- [ ] assets/BATTLE-HARDENED-AI.ico (single multi-size ICO for EXE icon)
 
 ## ✅ EXCLUSIONS (DO NOT INCLUDE)
 
@@ -222,18 +224,18 @@
 
 ## POST-BUILD VERIFICATION
 
-1. [ ] EXE has desktop.ico icon
+1. [ ] EXE has BATTLE-HARDENED-AI.ico icon
 2. [ ] EXE size is reasonable (check for bloat)
 3. [ ] Run EXE and verify NO import errors (especially `websockets`)
 4. [ ] Check all 21 AI layers load without errors
 5. [ ] Verify dashboard loads at http://localhost:60000
-6. [ ] Test relay connection works (if RELAY_ENABLED=true in .env)
+6. [ ] Test relay connection works (if RELAY_ENABLED=true in .env.windows)
 7. [ ] Verify JSON files are accessible and readable
 8. [ ] Confirm ML models load (anomaly_detector.pkl, etc.)
 9. [ ] Test crypto operations work (private/public keys)
 10. [ ] Verify NO relay/ folder references or files included
-11. [ ] Check .env and .env.windows are included in bundle
-12. [ ] Verify crypto_keys/ directory is accessible
+11. [ ] Check .env.windows is present next to BattleHardenedAI.exe (`packaging/windows/dist/.env.windows`)
+12. [ ] Verify runtime crypto_keys directory is accessible at `%LOCALAPPDATA%/Battle-Hardened AI/server/crypto_keys`
 13. [ ] Test Step21 semantic gate loads
 14. [ ] Confirm honeypot functionality works
 15. [ ] Verify all APIs respond correctly
