@@ -208,19 +208,23 @@
 
 ## ✅ API ENDPOINTS TO VERIFY
 
-- [ ] /api/threats
-- [ ] /api/devices
-- [ ] /api/block_ip
-- [ ] /api/honeypot
-- [ ] /api/dns
-- [ ] /api/tls
-- [ ] /api/graph
-- [ ] /api/compliance
-- [ ] /api/soar
-- [ ] /api/alerts
-- [ ] /api/backup
-- [ ] /api/admin
-- [ ] All other REST endpoints functional
+- [ ] /api/stats
+- [ ] /api/threat_log
+- [ ] /api/connected-devices
+- [ ] /api/traffic/analysis
+- [ ] /api/dns/stats
+- [ ] /api/adaptive_honeypot/status
+- [ ] /api/signatures/extracted
+- [ ] /api/system-status
+- [ ] /api/compliance/summary
+- [ ] /api/governance/stats
+- [ ] /api/killswitch/status
+- [ ] /api/alerts/stats
+- [ ] /api/sandbox/stats
+- [ ] /api/traffic/crypto-mining
+- [ ] /api/enterprise-integration/config
+- [ ] Representative SOAR/documentation endpoints: /api/soar/stats, /api/openapi.json, /api/docs
+- [ ] All other REST endpoints documented in documentation/Dashboard.md respond with 2xx or appropriate auth errors
 
 ## POST-BUILD VERIFICATION
 
@@ -228,7 +232,7 @@
 2. [ ] EXE size is reasonable (check for bloat)
 3. [ ] Run EXE and verify NO import errors (especially `websockets`)
 4. [ ] Check all 21 AI layers load without errors
-5. [ ] Verify dashboard loads at http://localhost:60000
+5. [ ] Verify dashboard loads at https://localhost:60000 (self-signed by default; or http://localhost:60000 if TLS is terminated by an external proxy)
 6. [ ] Test relay connection works (if RELAY_ENABLED=true in .env.windows)
 7. [ ] Verify JSON files are accessible and readable
 8. [ ] Confirm ML models load (anomaly_detector.pkl, etc.)

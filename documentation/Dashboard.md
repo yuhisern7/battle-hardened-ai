@@ -1,6 +1,6 @@
 # Dashboard Sections: Complete API Reference
 
-This document provides a comprehensive guide to the 23 core dashboard sections, mapping them to the **7-stage attack detection pipeline** and their corresponding APIs and AI modules.
+This document provides a comprehensive guide to the core dashboard sections, mapping them to the **7-stage attack detection pipeline** and their corresponding APIs and AI modules.
 
 > **Distribution note:** In production, customers typically access the dashboard via a **Linux appliance installed from a .deb/.rpm package** or a **Windows host/appliance installed from the signed EXE**, and do **not** work with the Git source tree. The API examples and helper scripts in this file assume a **development or lab environment** where you have the repository checked out and can run Python scripts from the project root. For packaged deployments, you can still hit the same HTTPS endpoints (for example from Postman or your own tools); just ignore any instructions that mention the repo layout.
 
@@ -657,3 +657,22 @@ Clustered deployments also rely on two non-dashboard endpoints for governance an
 - `/health` – lightweight node/cluster health used by external load balancers and passive nodes (driven by `cluster_config.json` in the JSON directory resolved by AI/path_helper).
 - `/cluster/config/snapshot` – active-node-only snapshot of selected JSON config surfaces listed in `config_sync_paths` inside the same `cluster_config.json`, used by passive nodes for safe config synchronization.
 ```
+
+## Section 25 – Enterprise Security Integrations
+
+**Plane:** Enterprise Integration (visibility & coordination only)
+
+**Purpose:** Configure and inspect outbound adapters that export first‑layer execution‑denial decisions into enterprise tooling such as SIEM, SOAR, and IT‑operations platforms, without introducing any new primary enforcement path.
+
+**APIs:**
+- `/api/enterprise-integration/config` (GET) – returns the normalized enterprise integration configuration used by the AI engine.
+- `/api/enterprise-integration/config` (POST) – updates the configuration (admin‑only); writes the JSON surface consumed on startup.
+
+**Backend Modules & Surfaces:**
+- `server/server.py` – helper functions `_load_enterprise_integration_config()`, `_save_enterprise_integration_config()` and the secured HTTP handlers.
+- `enterprise_integration.json` – JSON configuration file resolved by the core JSON directory helper (syslog_targets, webhook_targets, etc.).
+- `AI/enterprise_integration.py` – integration logic used by the AI engine to wire outbound adapters at runtime.
+
+**Notes:**
+- These integrations are <strong>export‑only</strong>: they send events and summaries out but do not control the first‑layer firewall enforcement path.
+- For safety and audit clarity, the integration plane is deliberately separated from the enforcement plane described in the firewall enforcement and attack‑handling documentation.

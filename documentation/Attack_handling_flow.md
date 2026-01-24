@@ -244,6 +244,47 @@ The guarantees in this document are therefore a strict, end-to-end instantiation
 
 ---
 
+## Enforcement vs Enterprise Integration (Critical Distinction)
+
+Battle-Hardened AI operates across two separate planes that serve different purposes and must not be confused.
+
+### 1. Enforcement Plane (Execution Authority)
+
+Battle-Hardened AI enforces decisions locally and directly at the first layer.
+
+When deployed as a gateway, inline bridge, or privileged host appliance, Battle-Hardened AI runs with appropriate system authority and applies enforcement actions immediately using the underlying operating system's firewall and networking controls.
+
+This includes:
+
+- Dropping or rejecting connections
+- Temporarily or permanently blocking sources
+- Applying rate limits or isolation rules
+
+These actions are executed without reliance on external systems, cloud services, or third-party APIs. This is what allows Battle-Hardened AI to deny execution before any downstream system is engaged.
+
+In short: Battle-Hardened AI does not ask another system to block traffic – it enforces the decision itself at the boundary.
+
+### 2. Enterprise Integration Plane (Visibility & Coordination)
+
+Separately, Battle-Hardened AI emits structured decision events (JSON / syslog) to enterprise platforms such as SIEMs, SOAR tools, and security dashboards.
+
+These integrations exist to:
+
+- Provide visibility into decisions
+- Support auditing and compliance
+- Enable correlation with other security telemetry
+- Drive optional secondary workflows
+
+Enterprise platforms do not perform first-layer blocking. They observe, record, and coordinate around decisions that have already been enforced.
+
+This separation ensures:
+
+- Deterministic, low-latency protection
+- No dependency on vendor APIs for enforcement
+- No requirement for per-vendor firewall integrations
+
+---
+
 ## 📈 CURRENT STATUS
 
 | Component | Status | Details |

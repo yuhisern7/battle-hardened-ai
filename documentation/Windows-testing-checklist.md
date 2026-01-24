@@ -65,9 +65,9 @@ After installing `BattleHardenedAI-Setup.exe`:
     - [ ] `MESSAGE_SECURITY_KEY_DIR` path is valid (or unset to use the default from `AI/path_helper.get_crypto_keys_dir()`:
       `%LOCALAPPDATA%/Battle-Hardened AI/server/crypto_keys` on Windows EXE).
   - [ ] `DASHBOARD_PORT` and `P2P_PORT` set to intended test ports (default 60000/60001).
-- [ ] Start `BattleHardenedAI.exe` once and verify:
+  - [ ] Start `BattleHardenedAI.exe` once and verify:
   - [ ] Logs directory created next to the EXE (for example, `{app}/logs/server.log`, `{app}/logs/errors.log`).
-  - [ ] JSON storage directory exists via the path helper: `{app}/server/json/` (for `threat_log.json`, `blocked_ips.json`, and related files).
+  - [ ] JSON storage directory exists via the path helper under your user profile: `%LOCALAPPDATA%/Battle-Hardened AI/server/json/` (for `threat_log.json`, `blocked_ips.json`, and related files).
 
 ---
 
@@ -76,13 +76,13 @@ After installing `BattleHardenedAI-Setup.exe`:
 With `BattleHardenedAI.exe` running:
 
 - [ ] **Dashboard**
-  - [ ] Browse to `http://localhost:60000` (or configured port) from the same machine.
+  - [ ] Browse to `https://localhost:60000` (or configured port) from the same machine (self-signed by default; use `http://localhost:60000` only if TLS is terminated by an external proxy).
   - [ ] Basic login and system-status pages load without errors.
 - [ ] **Template loading**
   - [ ] Navigate to the inspector/monitoring view and docs portal to confirm the bundled templates render correctly.
 - [ ] **Threat logging and blocked IPs**
   - [ ] Trigger at least one test "attack" path (for example, using the KALI/port-scan lab scenario or an internal test route).
-  - [ ] Confirm `threat_log.json` and `blocked_ips.json` are written under `{app}/server/json/` (paths resolved via `AI.path_helper.get_json_dir`).
+  - [ ] Confirm `threat_log.json` and `blocked_ips.json` are written under `%LOCALAPPDATA%/Battle-Hardened AI/server/json/` (paths resolved via `AI.path_helper.get_json_dir`).
 - [ ] **Windows firewall sync**
   - [ ] From an elevated PowerShell in `{app}/windows-firewall`, run:
     - [ ] `./windows_defender_sync.ps1` (with or without explicit `-JsonPath`; default is `{app}/server/json/blocked_ips.json`).
