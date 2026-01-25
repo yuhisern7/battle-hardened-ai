@@ -26,6 +26,12 @@ There is currently no documented enterprise-grade system that:
 
 ![Battle Hardened AI](assets/BATTLE-HARDENED-AI.png)
 
+In the standard shipping profiles:
+
+- The **Linux gateway container** and the **Windows EXE** both include the persistent reputation tracker by default (backed by `reputation.db` under the JSON directory), so repeat offenders and long-lived bad actors are remembered across sessions.
+- Core OSINT threat crawlers (hash/URL/score–only feeds such as MalwareBazaar, URLhaus, and CVE scores) are enabled by default and feed the threat intelligence and DNS/geo sections, while heavier text-based feeds remain optional and operator-controlled.
+- Advanced TensorFlow-based autoencoder and sequence models are available as an optional, environment-specific profile for customers that explicitly want the full ML stack and are prepared for the larger footprint.
+
 ### Canonical Deployment
 
 In its standard form, Battle-Hardened AI runs on a **Linux gateway or edge appliance** (physical or virtual), directly in front of the protected segment. Optional Windows/macOS nodes act as **host-level defenders** for specific assets or branches. It is designed to integrate without disrupting existing stacks—SIEM, SOAR, IAM, EDR/XDR, NGFW—acting solely as the execution-control authority and gateway commander.
@@ -208,7 +214,7 @@ Battle-Hardened AI is designed to sit in front of, and alongside, existing contr
    ├─ Extract to local staging: honeypot_patterns.json under the JSON directory returned by AI.path_helper.get_json_dir()
     ├─ Signatures (patterns only, zero exploit code)
     ├─ Statistics (anonymized: connection rate, port entropy, fan-out)
-    ├─ Reputation (SHA-256 hashed IPs → reputation.db, not raw addresses)
+   ├─ Reputation (SHA-256 hashed IPs → reputation.db, not raw addresses)
     ├─ Graph patterns (topology labels A→B→C → network_graph.json)
     └─ Model weight deltas (RandomForest/LSTM/Autoencoder adjustments)
     ↓
@@ -224,7 +230,7 @@ Battle-Hardened AI is designed to sit in front of, and alongside, existing contr
 🔄 CONTINUOUS LEARNING (feedback-driven improvement)
     ├─ Signature database auto-updated (hourly)
     ├─ ML models retrained (weekly with labeled data)
-    ├─ Reputation tracker updated (with decay, half-life 30 days)
+   ├─ Reputation tracker updated (with decay, half-life 30 days)
     ├─ Drift baseline refreshed (monthly adaptation)
     └─ Byzantine validation (94% malicious update rejection)
     ↓
@@ -316,20 +322,20 @@ These capabilities are **aspirational** unless explicitly marked as implemented.
 | 13 | Attack Chain Visualization (Graph Intelligence) | Interactive graph view of multi‑step attacks and campaigns: nodes for hosts, users, and services; edges for reconnaissance, exploitation, lateral movement, and exfiltration; and overlays for tactics/severity so defenders can see how an intrusion is unfolding across the environment in real time. |
 | 14 | Decision Explainability Engine | Per‑decision forensic surface that exposes which of the 21 layers fired, their confidence scores, trust changes, causal reasoning, and final Step 21 semantic gate outcome, along with human‑readable narratives so SOC and IR teams can understand and defend every autonomous block or allow. |
 | 15 | Real Honeypot – AI Training Sandbox | Live view of the integrated honeypot environment: which services are exposed, which ports are active or auto‑skipped due to conflicts, attack traffic and payload patterns hitting decoy services, and how those interactions are being converted into new training material and signatures without risking production assets. |
-| 16 | AI Security Crawlers & Threat Intelligence Sources | Status board for security crawlers and external intelligence: crawl schedules and last‑run times, coverage of external sources (exploit databases, OSINT, dark‑web indicators), error conditions, and how many indicators have been promoted into local reputation/threat‑intel layers. |
+| 16 | AI Security Crawlers & Threat Intelligence Sources | Status board for security crawlers and external intelligence: crawl schedules and last‑run times, coverage of external sources (exploit databases, OSINT, dark‑web indicators), error conditions, and how many indicators have been promoted into local reputation/threat‑intel layers. In the standard builds (Linux container and Windows EXE), hash/URL/score‑only OSINT crawlers are enabled by default, while heavier text‑based feeds remain optional and operator‑controlled. |
 | 17 | Traffic Analysis & Inspection | Deep packet and flow analysis for live traffic: protocol and application breakdowns, encrypted vs cleartext ratios, unusual ports and methods, inspection verdicts from relevant detection layers, and enforcement summaries so operators can verify that network controls match policy and understand what is being blocked. |
-| 18 | DNS & Geo Security | Dedicated surface for DNS and geographic‑risk analytics: DGA and tunneling heuristics, suspicious query patterns, NXDOMAIN and entropy metrics, geo‑IP risk zoning, and how those signals feed blocking, reputation, and trust so defenders can spot command‑and‑control, staging, and reconnaissance activity. |
+| 18 | DNS & Geo Security | Dedicated surface for DNS and geographic‑risk analytics: DGA and tunneling heuristics, suspicious query patterns, NXDOMAIN and entropy metrics, geo‑IP risk zoning, and how those signals feed blocking, reputation, and trust so defenders can spot command‑and‑control, staging, and reconnaissance activity. This view is enriched by the OSINT crawlers and the local reputation tracker, so repeated bad infrastructure is treated more aggressively over time. |
 | 19 | User & Identity Trust Signals | Identity‑centric view of entities the system observes: behavioral risk scores, unusual login and session patterns, device/location changes, Zero‑Trust trust deltas, and how identity signals are influencing execution decisions—explicitly without acting as IAM, lifecycle, or policy administration tooling. |
 | 20 | Sandbox Detonation | Overview of file detonation and sandboxing results: how many artifacts have been detonated, verdict classifications, extracted indicators (domains, hashes, behaviors), and how those outcomes inform signatures, reputation, and causal reasoning, all while keeping payload inspection local to the protected environment. |
 | 21 | Email/SMS Alerts (Critical Only) | Configuration and runtime status for critical out‑of‑band alerts: which destinations are configured, which events (system failure, kill‑switch changes, integrity breaches) will trigger notifications, recent send history, and failure diagnostics—positioned as a narrow safety‑of‑operation channel rather than a full alerting platform. |
-| 22 | Cryptocurrency Mining Detection | Specialized analytics for crypto‑mining behavior: detection of mining pools and protocols, anomalous resource usage and long‑lived connections, associated entities and campaigns, and enforcement outcomes so operators can quickly confirm that mining activity is being identified and constrained. |
+| 22 | Cryptocurrency Mining Detection | Specialized analytics for crypto‑mining behavior: detection of mining pools and protocols, anomalous resource usage and long‑lived connections, associated entities and campaigns, and enforcement outcomes so operators can quickly confirm that mining activity is being identified and constrained. Mining detections are strengthened by OSINT feeds and the persistent reputation tracker, which remember and escalate repeat abuse from the same entities. |
 | 23 | Governance & Emergency Controls | Command surface for high‑assurance governance: current kill‑switch mode and approval workflow, pending and historical decisions in the approval queue, policy governance and Step 21 policy bundle status, secure‑deployment/tamper health, and audit/log integrity so operators can safely move between observe, approval, and fully autonomous deny modes. |
 | 24 | Forensics Export for Offline Hunting | Read‑only export surface for JSON/HTML enterprise reports and curated PCAP‑based hunting material generated by the first‑layer engine, supporting offline analysis and compliance reporting without introducing new detection logic or network‑facing attack surface. |
 | 25 | Enterprise Security Integrations | Configuration and status view of outbound adapters that stream Battle‑Hardened AI first‑layer decisions into SIEM, SOAR, and IT‑operations platforms, ensuring centralized visibility and orchestration while all primary blocking remains on the local firewall enforcement plane. |
 
 These core sections are backed by JSON/audit surfaces and exercised by the validation and operational runbooks documented in `Ai-instructions.md` (testing & validation guide) and `KALI_ATTACK_TESTS.md`.
 
-Section 25 – Enterprise Security Integrations is configured via the System Settings modal, which edits the enterprise_integration.json JSON surface used by the AI engine to wire outbound adapters on the enterprise integration plane (visibility and coordination only) while all first‑layer blocking remains on the local firewall enforcement plane.
+Section 25 – Enterprise Security Integrations is configured via the Section 25 dashboard editor, which edits the enterprise_integration.json JSON surface used by the AI engine to wire outbound adapters on the enterprise integration plane (visibility and coordination only) while all first‑layer blocking remains on the local firewall enforcement plane.
 
 #### Implementation Status at a Glance
 
