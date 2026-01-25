@@ -338,9 +338,9 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 **Purpose:** Push local findings → relay → pull global intel → merge
 
 **Push to Relay:**
-- `AI/relay_client.py` — WebSocket/HTTP client
+- `AI/relay_client.py` — WebSocket client for sanitized threat summaries
 - `AI/signature_uploader.py` — Signature sharing
-- `AI/training_sync_client.py` — Training data sync
+- `AI/training_sync_client.py` — Optional upload of sanitized honeypot patterns (no raw training data)
 - `AI/central_sync.py` — Central server sync
 - `AI/crypto_security.py` — HMAC authentication
 - `server/crypto_keys/` — Shared HMAC keys
@@ -355,8 +355,8 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 **Pull from Relay:**
 - `AI/signature_distribution.py` — Download signatures
-- `AI/training_sync_client.py` — Download models
-- `relay/training_sync_api.py` — Model distribution API
+- `AI/training_sync_client.py` — Download ONLY pre-trained ML models (no raw training data)
+- `relay/training_sync_api.py` — HTTPS model distribution and training stats API (port 60002)
 
 **Relay Infrastructure (NOT shipped to customers):**
 - `relay/docker-compose.yml` — Relay deployment
@@ -436,7 +436,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - `server/docker-compose.yml` — Linux deployment
 - `server/entrypoint.sh` — Container entrypoint
 - `server/.env` — Primary server environment file for Linux/Docker deployments.
-- `server/packaging/windows/dist/.env.windows` — Windows EXE environment file that ships alongside `BattleHardenedAI.exe` in the Windows packaging dist folder.
+- `packaging/windows/dist/.env.windows` — Windows EXE environment file that ships alongside `BattleHardenedAI.exe` in the Windows packaging dist folder.
 - `server/requirements.txt` — Python dependencies
 
 **Installation & Startup (server/installation/):**
@@ -509,7 +509,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - `relay/ai_training_materials/trained_models/` — Model archive
 - `relay/ai_training_materials/ml_models/` — Active models for distribution
 - `relay/ai_training_materials/training_datasets/` — Feature tables
-- `relay/ai_training_materials/crypto_keys/` — Relay HMAC keys
+- `relay/crypto_keys/` — Relay HMAC keys (shared_secret.key and related material used by relay_server.py)
 
 **Documentation:**
 - `relay/README.md` — Relay architecture and deployment guide
@@ -583,7 +583,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - AI/pcap_capture.py — Packet capture helper for saving traffic (pcap) samples for offline analysis or training.
 - AI/pcs_ai.py — Central AI orchestrator and source of truth: wires together models, detection modules (including DNS/TLS analyzers), logs, and the dashboard API, tags relay-bound threats with a stable sensor_id, and routes integrity/lineage/federated/cloud/backup/compliance signals into the audit/relay paths.
 - AI/policy_governance.py — Models security policies, approvals, and governance workflows around automated actions.
-- AI/relay_client.py — Client-side relay connector used by customer nodes to talk to the relay WebSocket and model API.
+- AI/relay_client.py — Client-side relay connector used by customer nodes to talk to the relay WebSocket mesh (threat sharing, stats, no model downloads).
 - AI/reputation_tracker.py — Maintains local IP/domain reputation, aggregating stats from threat logs and external intel.
 - AI/self_protection.py — Implements self-protection checks so the AI/agent can detect tampering or local compromise, writing violations into integrity_violations.json and comprehensive_audit.json and optionally triggering the kill switch.
 - AI/sequence_analyzer.py — Sequence analysis utilities for logs/traffic, feeding sequence models like the LSTM.
@@ -598,7 +598,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - AI/dns_analyzer.py — DNS security analyzer that uses metadata-only heuristics (tunneling/DGA/exfil) to score DNS activity and write aggregated metrics into dns_security.json.
 - AI/tls_fingerprint.py — TLS/encrypted-flow fingerprinting engine that tracks non-standard TLS ports and suspicious encrypted C2 patterns, writing per-IP metrics into tls_fingerprints.json.
 - AI/traffic_analyzer.py — Higher-level traffic analysis module that combines metrics and detections from network monitors.
-- AI/training_sync_client.py — Customer-side client for syncing models/training artifacts with the relay’s training API.
+- AI/training_sync_client.py — Customer-side client for downloading pre-trained ML models from the relay’s HTTPS training API and optionally uploading sanitized honeypot patterns (never raw training data).
 - AI/user_tracker.py — Tracks user accounts and behavior patterns (logins, anomalies) on the protected environment.
 - AI/vulnerability_manager.py — Manages vulnerability findings and risk views, tying CVEs/scan data into the dashboard.
 - AI/zero_trust.py — Implements zero-trust style checks and posture scoring for devices/users/services.

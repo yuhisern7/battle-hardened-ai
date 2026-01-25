@@ -237,6 +237,11 @@ Battle-Hardened AI is designed to sit in front of, and alongside, existing contr
 🔁 LOOP: Next packet processed with improved defenses
 ```
 
+Implementation-wise, customer nodes:
+- Push sanitized threat summaries and extracted patterns to your own relay over WebSocket (typically `wss://<relay-host>:60001`) using a dedicated relay client; no raw payloads or customer data are sent.
+- Pull **only pre-trained models** and curated signature/reputation/intel bundles from an HTTPS training API (typically `https://<relay-host>:60002`); raw training datasets and history remain on the relay.
+- Load downloaded models from their local ML models directory (resolved by `AI.path_helper.get_ml_models_dir()`); nodes never read `relay/ai_training_materials/` directly.
+
 **This architecture creates a federated, privacy-preserving defense mesh where:**
 
 - **One server protects an entire network segment** (no endpoint agents required)
@@ -346,7 +351,7 @@ This table summarizes major capability areas, where they live in the repository,
 | Kernel telemetry & packet capture | `AI/kernel_telemetry.py`, `AI/pcap_capture.py` | Implemented | eBPF/syscall visibility and packet capture used in core detection layers. |
 | Ensemble scoring & meta-decision engine | `AI/meta_decision_engine.py`, `AI/pcs_ai.py` | Implemented | Weighted voting, boosting, and decision export to JSON/firewall. |
 | Causal inference & trust graph | `AI/causal_inference.py`, `AI/trust_graph.py` | Implemented (initial) | Produces root-cause and long-term trust signals (Layers 19 & 20). |
-| Federated relay & training sync | `relay/relay_server.py`, `relay/training_sync_api.py`, `AI/training_sync_client.py`, `AI/byzantine_federated_learning.py` | Implemented (early access) | Optional; supports sanitized sharing and model updates with Byzantine validation. |
+| Federated relay & training sync | `relay/relay_server.py`, `relay/training_sync_api.py`, `AI/training_sync_client.py`, `AI/byzantine_federated_learning.py` | Implemented (early access) | Optional; supports sanitized sharing and **models-only** updates with Byzantine validation (no raw training data leaves the relay). |
 | Cloud security & API ingestion | `AI/cloud_security.py` | Partial / roadmap | Initial support present; broader provider coverage and runbooks will expand over time. |
 | Step 21 semantic gate & policy governance | `AI/step21_semantic_gate.py`, `AI/policy_governance.py` | Implemented; refinement planned | Core semantic gate is active; additional policy bundles and hardening are listed under "Future Enhancements". |
 | Compliance reporting & governance | `AI/compliance_reporting.py`, `AI/policy_governance.py` | Partial / roadmap | Baseline evidence surfaces exist; deeper framework mappings will grow with customer usage. |
@@ -809,6 +814,9 @@ If you choose to enable the optional global intelligence relay, only the followi
 3. **Reputation Hashes** (SHA-256 hashed attacker IPs, not raw addresses or victim IPs)
 4. **Graph Topologies** (anonymized patterns like "A→B→C", not real server names or IP addresses)
 5. **ML Model Weight Deltas** (neural network parameter updates, not training data)
+
+**What is NEVER Shared:**
+In implementation, raw training datasets and history under the relay's `ai_training_materials/` directory (for example `global_attacks.json`, `learned_signatures.json`, `training_datasets/`) are used **only** by the relay for retraining. Customer nodes talk to the relay's HTTPS training API to download **pre-trained model files and curated signature/reputation/intel bundles**, not the underlying training data.
 
 **What is NEVER Shared:**
 

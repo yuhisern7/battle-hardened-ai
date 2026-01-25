@@ -321,6 +321,22 @@ All of these behaviors are implemented and wired to real JSON surfaces; there is
 - Local file paths (security)
 - Internal network topology (security)
 
+### Verified Model & Signature Distribution (Relay → Nodes)
+
+While this document focuses on the upload path, the **download path is also fully implemented and constrained**:
+
+✅ **Pulled from Relay:**
+- Pre-trained ML model files only (for example `*.pkl`) via `AI/training_sync_client.py` talking to `relay/training_sync_api.py` (HTTPS on port 60002)
+- Signature and reputation bundles via `AI/signature_distribution.py` (signatures, reputation feeds, emerging threat statistics)
+
+❌ **NOT Pulled from Relay:**
+- Raw training datasets from `relay/ai_training_materials/` (for example `global_attacks.json`, `training_datasets/`)
+- Customer JSON logs or honeypot raw data
+
+**Runtime behavior:**
+- `AI/training_sync_client.py` writes downloaded models into the ML models directory returned by `AI/path_helper.get_ml_models_dir()` and never pulls raw training data.
+- `AI/signature_distribution.py` merges downloaded signatures and intel into local JSON surfaces and reputation stores; all enforcement still happens locally at the customer node.
+
 ### IP Blocking Whitelist
 
 **Never Blocked (Hardcoded):**

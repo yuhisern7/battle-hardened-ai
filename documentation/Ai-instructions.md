@@ -465,16 +465,16 @@ DetectionSignal(
   - `relay/ai_training_materials/attack_statistics.json` (aggregated trends)
 
 **Pull from Relay (every 6 hours):**
-- **Module:** `AI/training_sync_client.py`, `AI/signature_distribution.py`
+- **Module:** `AI/training_sync_client.py` (models), `AI/signature_distribution.py` (signatures/intel)
 - **Downloads:**
-  - 3,000+ new signatures from worldwide nodes
-  - Known bad IP/ASN reputation feed
-  - Model updates (Byzantine-validated)
-  - Emerging threat statistics (CVEs, attack trends)
-- **Destination:** ML models directory resolved via `AI/path_helper.get_ml_models_dir()` (typically `AI/ml_models/` in the repo, `/app/ml_models/` in Docker)
+    - Pre-trained ML model files (for example `*.pkl`) produced by the relay retraining pipeline (no raw training data)
+    - Signature and threat-intel bundles via `AI/signature_distribution.py` (for example reputation feeds, emerging threat statistics)
+- **Destination:**
+    - Models → ML models directory resolved via `AI/path_helper.get_ml_models_dir()` (typically `AI/ml_models/` in the repo, `/app/ml_models/` in Docker)
+    - Signatures/intel → Local signature store and JSON surfaces managed by `AI/signature_distribution.py` and `AI/reputation_tracker.py`
 
 **Merge & Integration:**
-- New signatures → signature database
+- New signatures → Local signature database via `AI/signature_distribution.py`
 - Reputation feed → `AI/reputation_tracker.py`
 - Model updates → `AI/byzantine_federated_learning.py` validation → replace local models
 
@@ -483,6 +483,17 @@ DetectionSignal(
 - `relay/training_sync_api.py` — Model distribution API
 - `relay/exploitdb_scraper.py` — ExploitDB integration (3,066+ patterns)
 - `relay/threat_crawler.py` — OSINT aggregation (VirusTotal, AbuseIPDB, URLhaus, MalwareBazaar)
+
+**Relay Quick Reference (Developers/Auditors):**
+- **Node → Relay (outbound)**
+    - Threat patterns: `AI/relay_client.py` → `relay/relay_server.py` over `wss://<relay-host>:60001` (sanitized summaries only, HMAC via `AI/crypto_security.py`).
+    - Optional honeypot patterns: `AI/training_sync_client.upload_honeypot_pattern()` → `relay/training_sync_api.py` (HTTPS, sanitized patterns only).
+- **Relay → Node (inbound)**
+    - Models: `AI/training_sync_client.py` → `relay/training_sync_api.py` over `https://<relay-host>:60002` (downloads **only** pre-trained models into `AI/path_helper.get_ml_models_dir()`).
+    - Signatures/intel: `AI/signature_distribution.py` → `relay/training_sync_api.py` (downloads signatures, reputation feeds, and trend stats; merges into local JSON surfaces).
+- **Training data boundaries:**
+    - Raw training datasets and history stay under `relay/ai_training_materials/` (for example `global_attacks.json`, `training_datasets/`, `reputation_data/`) and are never pulled to customer nodes.
+    - Customer nodes expose only their **sanitized** summaries and patterns to the relay; all enforcement decisions remain local.
 
 **Stage 6 → Stage 7 Transition:**
 1. Customer nodes push training materials to relay (every hour) → relay stores in `ai_training_materials/`
@@ -539,10 +550,10 @@ DetectionSignal(
 **Stage 7 → Stage 1 Feedback Loop (Completes the 7-Stage Cycle):**
 1. Relay retrains models using aggregated data → new `*.pkl` and `*.keras` models created
 2. Models pushed to relay API → `relay/training_sync_api.py` serves updated models
-3. Customer nodes pull updates (every 6 hours) via `AI/training_sync_client.py`:
-   - New signatures downloaded → merged into local signature database
-    - New ML models downloaded → replace old models in the ML models directory returned by `AI/path_helper.get_ml_models_dir()`
-   - `AI/byzantine_federated_learning.py` validates updates (94% malicious rejection rate)
+3. Customer nodes pull updates (every 6 hours) via `AI/training_sync_client.py` (models) and `AI/signature_distribution.py` (signatures/intel):
+    - `AI/training_sync_client.py` downloads ONLY pre-trained ML models into the ML models directory returned by `AI/path_helper.get_ml_models_dir()`
+    - `AI/signature_distribution.py` downloads new signatures and threat-intel bundles and merges them into the local signature and reputation stores
+    - `AI/byzantine_federated_learning.py` validates model updates (94% malicious rejection rate)
 4. Updated models loaded by Stage 2 detection signals → **improved accuracy for next packet analysis in Stage 1**
 5. Cycle repeats: better detection → more accurate training data → better models → better detection...
 

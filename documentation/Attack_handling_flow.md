@@ -238,7 +238,8 @@ This 4-step attack handling flow is a concrete, minimal slice through the full 7
 - **Stage 6 – Relay Sharing (Optional):**
   - AI/relay_client.py sends the sanitized pattern to relay/relay_server.py, which persists into relay/ai_training_materials/global_attacks.json and, over time, learned_signatures.json.
 - **Stage 7 – Continuous Learning:**
-  - Relay/ai_retraining.py and related tooling use global_attacks.json and learned_signatures.json to retrain models and distribute updated signatures and models back to nodes.
+  - Relay/ai_retraining.py and related tooling use global_attacks.json and learned_signatures.json to retrain models and write updated signatures and models into relay/ai_training_materials (for example ml_models/).
+  - Customer nodes later pull **only** pre-trained models via AI/training_sync_client.py (HTTPS to relay/training_sync_api.py) and updated signatures/threat-intel bundles via AI/signature_distribution.py; no raw training data ever leaves relay.
 
 The guarantees in this document are therefore a strict, end-to-end instantiation of the broader 7-stage, 21-layer design: any attack that triggers the detection stack will follow exactly this log → block → extract → relay path.
 
