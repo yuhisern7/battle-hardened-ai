@@ -1,5 +1,21 @@
 ## Battle-Hardened AI
 
+---
+
+## We Are Now Approaching Stage 2
+
+Stage 1 - Currently, Yuhisern Navaratnam, an Ethical Hacker that represents Elite Cybersecurity Specialist is performing the penetration testing and the results are phenomenal.
+
+Stage 2 - By February 2026 onwards other Cybersecurity Companies would conduct the penetration test and produce the review.
+
+Stage 3 - By May 2026 could start to obtain the required Licensing.
+
+Stage 4 - By August 2026 we could begin publishing Battle-Hardened AI Worldwide to reveal the overall Cybersecurity breakthroughs we have achieved. Approach investors, call the news agencies and social media marketing agencies related to AI and Cybersecurity.
+
+Stage 5 - By December 2026, discuss with Antivirus and Firewall Companies to partner with us, and other Organizations that would be interested.
+
+---
+
 ### 🔑 Summary Highlights
 
 - Blocks malicious actions **before execution** using a 21-layer AI ensemble and a final semantic execution-denial gate.
@@ -15,21 +31,6 @@
 - **Integrate with what you already have:** Decisions are exported as simple JSON and enforced through existing firewalls, SIEM, SOAR, and EDR/XDR tools—no rip-and-replace.
 - **Protect privacy and sovereignty:** Detection happens on your infrastructure, sharing only anonymized patterns when the optional relay is enabled.
 
----
-
-## Where Are We Taking This ?
-
-Stage 1 - Currently, Yuhisern Navaratnam, an Ethical Hacker that represents Elite Cybersecurity Specialist is performing the penetration testing and the results are phenomenal.
-
-Stage 2 - By February 2026 onwards other Cybersecurity Companies would conduct the penetration test and produce the review.
-
-Stage 3 - By May 2026 could start to obtain the required Licensing.
-
-Stage 4 - By August 2026 we could begin publishing Battle-Hardened AI Worldwide to reveal the overall Cybersecurity breakthroughs we have achieved. Approach investors, call the news agencies and social media marketing agencies related to AI and Cybersecurity.
-
-Stage 5 - By December 2026, discuss with Antivirus and Firewall Companies to partner with us, and other Organizations that would be interested.
-
----
 
 Battle-Hardened AI introduces a new category of security: a **first-layer autonomous execution-control system** that operates at the router and gateway boundary, making **pre-execution decisions with full context**—semantic, behavioral, and causal—before any downstream tool is engaged.
 
