@@ -23,13 +23,16 @@ Stage 5 - By December 2026, discuss with Antivirus and Firewall Companies to par
 - Works **without agents**, exporting neutral JSON that plugs into existing SIEM, SOAR, firewall, and XDR stacks.
 - Provides documented coverage for **43 MITRE ATT&CK techniques** via pre-execution denial and trust degradation.
 - Built for **enterprise, government, and national-security** defense use cases where autonomy, auditability, and privacy are mandatory.
+ - Optionally connects to a **central relay/VPS** where many Battle-Hardened AI nodes share only sanitized attack patterns and receive model/signature updates,
+    so global learning improves over time without any customer content or PII leaving local infrastructure.
 
 ### Executive Summary (Non-Technical)
 
 - **Stop breaches before they start:** Battle-Hardened AI sits at the gateway and decides what is allowed to execute, blocking malicious activity before it reaches servers, endpoints, or data.
 - **Reduce analyst load, not add to it:** It runs autonomously with explainable decisions and conservative defaults, cutting noise instead of generating more alerts.
 - **Integrate with what you already have:** Decisions are exported as simple JSON and enforced through existing firewalls, SIEM, SOAR, and EDR/XDR tools—no rip-and-replace.
-- **Protect privacy and sovereignty:** Detection happens on your infrastructure, sharing only anonymized patterns when the optional relay is enabled.
+- **Protect privacy and sovereignty:** Detection happens on your infrastructure, and when the optional relay to the central VPS is enabled, only anonymized
+   patterns and statistics are shared—no raw payloads, credentials, or customer data.
 
 
 Battle-Hardened AI introduces a new category of security: a **first-layer autonomous execution-control system** that operates at the router and gateway boundary, making **pre-execution decisions with full context**—semantic, behavioral, and causal—before any downstream tool is engaged.
@@ -253,8 +256,8 @@ Battle-Hardened AI is designed to sit in front of, and alongside, existing contr
 ```
 
 Implementation-wise, customer nodes:
-- Push sanitized threat summaries and extracted patterns to your own relay over WebSocket (typically `wss://<relay-host>:60001`) using a dedicated relay client; no raw payloads or customer data are sent.
-- Pull **only pre-trained models** and curated signature/reputation/intel bundles from an HTTPS training API (typically `https://<relay-host>:60002`); raw training datasets and history remain on the relay.
+- Push sanitized threat summaries and extracted patterns to a centrally-operated relay/VPS over WebSocket (typically `wss://<relay-host>:60001`) using a dedicated relay client; **no raw payloads, logs, or customer data are ever sent**.
+- Pull **only pre-trained models** and curated signature/reputation/intel bundles from an HTTPS training API (typically `https://<relay-host>:60002`); raw training datasets and history remain on the relay and never transit customer networks.
 - Load downloaded models from their local ML models directory (resolved by `AI.path_helper.get_ml_models_dir()`); nodes never read `relay/ai_training_materials/` directly.
 
 **This architecture creates a federated, privacy-preserving defense mesh where:**

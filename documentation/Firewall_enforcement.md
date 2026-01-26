@@ -134,9 +134,11 @@ The project includes a single ready-to-use script in both **source** and **insta
 
 In **enterprise environments**, baseline rules are usually created centrally via GPO/Intune or your EDR/endpoint firewall console. This script is provided as a **reference** and is suitable for labs, pilots, or controlled security appliances where local rule changes are permitted.
 
-### 2.3. Run Manually
+### 2.3. Run Manually (Baseline vs. Sync)
 
 From an elevated PowerShell prompt (Run as Administrator), after starting Battle-Hardened AI (for example `python server\server.py` from a clone, or `BattleHardenedAI.exe` from the install directory):
+
+**Source checkout (baseline + initial sync):**
 
 ```powershell
 cd C:\Users\YOURUSER\workspace\battle-hardened-ai\server
@@ -144,11 +146,21 @@ cd C:\Users\YOURUSER\workspace\battle-hardened-ai\server
 powershell.exe -ExecutionPolicy Bypass -File .\windows-firewall\configure_bh_windows_firewall.ps1
 ```
 
-This will:
+**Installed EXE (baseline + initial sync, excluding the relay VPS IP):**
 
-- Create or update inbound **allow** rules for the dashboard and honeypot ports (unless `-SkipBaselineRules` is used).
-- Optionally create an outbound **allow** rule for the relay ports 60001–60002 (unless `-SkipRelayOutbound` is used).
+```powershell
+cd "C:\Program Files\Battle-Hardened AI\windows-firewall"
+
+.\u005cconfigure_bh_windows_firewall.ps1 -ExcludeAddresses 165.22.108.8
+```
+
+This one-shot script is **idempotent** and is meant to be:
+
+- Run once (or rarely) to create/update inbound **allow** rules for the dashboard and honeypot ports (unless `-SkipBaselineRules` is used).
+- Optionally create/update an outbound **allow** rule for the relay ports 60001–60002 (unless `-SkipRelayOutbound` is used).
 - Read the current `blocked_ips.json` and create or update a **single inbound firewall rule** (by default named `Battle-Hardened AI Blocked IPs`) whose `RemoteAddress` list is populated with the blocked IPs (unless `-SkipBlockSync` is used).
+
+You do **not** run this manually after every block event. Instead, you either call it periodically (see Task Scheduler below) or integrate it into your automation.
 
 ### 2.4. Schedule Automatic Sync (Task Scheduler)
 
@@ -169,11 +181,11 @@ To keep the firewall in sync automatically:
      powershell.exe
      ```
 
-     - Add arguments:
+     - Add arguments (pointing to the **runtime** JSON path under `%LOCALAPPDATA%`):
 
-         ```text
-         -ExecutionPolicy Bypass -File "C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1" -SkipBaselineRules
-         ```
+       ```text
+       -ExecutionPolicy Bypass -File "C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1" -SkipBaselineRules -JsonPath "$env:LOCALAPPDATA\Battle-Hardened AI\server\json\blocked_ips.json"
+       ```
 
 5. Save the task.
 
