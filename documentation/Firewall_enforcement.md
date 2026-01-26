@@ -127,34 +127,12 @@ This keeps your firewall configuration simple and centralized.
 
 ### 2.2. Example PowerShell Script Locations
 
-The project includes two ready-to-use scripts in both **source** and **installed** layouts:
+The project includes a single ready-to-use script in both **source** and **installed** layouts that configures baseline allow rules **and** syncs blocked IPs into a Windows Defender block rule:
 
-- **Configure baseline allow rules (dashboard + honeypots + relay):**
-  - From a source clone: [server/windows-firewall/configure_bh_windows_firewall.ps1](server/windows-firewall/configure_bh_windows_firewall.ps1)
-  - From the Windows installer: `{app}\windows-firewall\configure_bh_windows_firewall.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1`)
+- From a source clone: [server/windows-firewall/configure_bh_windows_firewall.ps1](server/windows-firewall/configure_bh_windows_firewall.ps1)
+- From the Windows installer: `{app}\windows-firewall\configure_bh_windows_firewall.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1`)
 
-  In **enterprise environments**, these rules are usually created centrally via GPO/Intune or your EDR/endpoint firewall console. The script below is provided as a **reference** and is suitable for labs, pilots, or controlled security appliances where local rule changes are permitted.
-
-  Run once from an elevated PowerShell prompt on such a host:
-
-  ```powershell
-  powershell.exe -ExecutionPolicy Bypass -File "C:\\Program Files\\Battle-Hardened AI\\windows-firewall\\configure_bh_windows_firewall.ps1"
-  ```
-
-  This creates inbound allow rules for:
-
-  - Dashboard: TCP 60000
-  - Honeypots: TCP 2121, 2222, 2323, 3306, 8080, 2525, 3389
-
-  And (by default) an outbound allow rule for the optional relay ports:
-
-  - Relay WebSocket/API: TCP 60001–60002
-
-- **Sync blocked IPs into a block rule:**
-  - From a source clone: [server/windows-firewall/windows_defender_sync.ps1](server/windows-firewall/windows_defender_sync.ps1)
-  - From the Windows installer: `{app}\windows-firewall\windows_defender_sync.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\windows_defender_sync.ps1`)
-
-  By default, this script locates `blocked_ips.json` relative to its own directory (it expects a sibling `server\json\blocked_ips.json`), but you can override the `JsonPath` parameter if you have a custom layout.
+In **enterprise environments**, baseline rules are usually created centrally via GPO/Intune or your EDR/endpoint firewall console. This script is provided as a **reference** and is suitable for labs, pilots, or controlled security appliances where local rule changes are permitted.
 
 ### 2.3. Run Manually
 
@@ -163,14 +141,14 @@ From an elevated PowerShell prompt (Run as Administrator), after starting Battle
 ```powershell
 cd C:\Users\YOURUSER\workspace\battle-hardened-ai\server
 
-powershell.exe -ExecutionPolicy Bypass -File .\windows-firewall\windows_defender_sync.ps1
+powershell.exe -ExecutionPolicy Bypass -File .\windows-firewall\configure_bh_windows_firewall.ps1
 ```
 
 This will:
 
-- Read the current `blocked_ips.json`.
-- Create or update a **single inbound firewall rule** named `Battle-Hardened AI Blocked IPs`.
-- Populate `RemoteAddress` with the blocked IPs.
+- Create or update inbound **allow** rules for the dashboard and honeypot ports (unless `-SkipBaselineRules` is used).
+- Optionally create an outbound **allow** rule for the relay ports 60001–60002 (unless `-SkipRelayOutbound` is used).
+- Read the current `blocked_ips.json` and create or update a **single inbound firewall rule** (by default named `Battle-Hardened AI Blocked IPs`) whose `RemoteAddress` list is populated with the blocked IPs (unless `-SkipBlockSync` is used).
 
 ### 2.4. Schedule Automatic Sync (Task Scheduler)
 
@@ -194,7 +172,7 @@ To keep the firewall in sync automatically:
      - Add arguments:
 
          ```text
-         -ExecutionPolicy Bypass -File "C:\Program Files\Battle-Hardened AI\windows-firewall\windows_defender_sync.ps1"
+         -ExecutionPolicy Bypass -File "C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1" -SkipBaselineRules
          ```
 
 5. Save the task.

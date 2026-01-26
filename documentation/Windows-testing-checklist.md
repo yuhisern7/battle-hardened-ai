@@ -19,7 +19,7 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
   - `README.md`, `LICENSE`.
   - Full `documentation/*` and `policies/*` trees.
   - `server/.env.windows` → installed as `{app}/.env.windows` (primary configuration template).
-  - `server/windows-firewall/windows_defender_sync.ps1` → installed as `{app}/windows-firewall/windows_defender_sync.ps1`.
+  - `server/windows-firewall/configure_bh_windows_firewall.ps1` → installed as `{app}/windows-firewall/configure_bh_windows_firewall.ps1`.
 
 ---
 
@@ -34,7 +34,7 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
   - [ ] `README.md`, `LICENSE`.
   - [ ] `documentation/*` and `policies/*`.
   - [ ] `.env.windows` at the application root.
-  - [ ] `windows-firewall/windows_defender_sync.ps1`.
+  - [ ] `windows-firewall/configure_bh_windows_firewall.ps1`.
 
 ---
 
@@ -42,7 +42,7 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
 
 - [ ] Test VM: Windows 10/11 or Server x64, fully patched.
 - [ ] Local Administrator rights (required for install, logging directories, and firewall sync).
-- [ ] PowerShell execution policy allows running `windows_defender_sync.ps1` (for example, `RemoteSigned` or appropriate override for the test).
+- [ ] PowerShell execution policy allows running `configure_bh_windows_firewall.ps1` (for example, `RemoteSigned` or appropriate override for the test).
 - [ ] If testing network monitoring or device scanning:
   - [ ] Install Npcap (recommended for Scapy on Windows).
   - [ ] Run `BattleHardenedAI.exe` from an elevated console so Scapy can open raw sockets.
@@ -58,7 +58,7 @@ After installing `BattleHardenedAI-Setup.exe`:
 - [ ] Confirm the following are present under `{app}`:
   - [ ] `.env.windows`.
   - [ ] `documentation/...` and `policies/...`.
-  - [ ] `windows-firewall/windows_defender_sync.ps1`.
+  - [ ] `windows-firewall/configure_bh_windows_firewall.ps1`.
 - [ ] Edit `.env.windows` in-place to point to your test relay (or disable relay for free mode):
   - [ ] `RELAY_ENABLED=true/false` set to the desired mode.
   - [ ] `RELAY_URL` and `RELAY_API_URL` point at your test VPS (if Premium/relay is tested).
@@ -85,8 +85,8 @@ With `BattleHardenedAI.exe` running:
   - [ ] Confirm `threat_log.json` and `blocked_ips.json` are written under `%LOCALAPPDATA%/Battle-Hardened AI/server/json/` (paths resolved via `AI.path_helper.get_json_dir`).
 - [ ] **Windows firewall sync**
   - [ ] From an elevated PowerShell in `{app}/windows-firewall`, run:
-    - [ ] `./windows_defender_sync.ps1` (with or without explicit `-JsonPath`; default is `{app}/server/json/blocked_ips.json`).
-  - [ ] Confirm that a rule named "Battle-Hardened AI Blocked IPs" (or your custom `-RuleName`) appears in Windows Defender Firewall:
+    - [ ] `./configure_bh_windows_firewall.ps1 -SkipBaselineRules -ExcludeAddresses YOUR_RELAY_IP` (or just `./configure_bh_windows_firewall.ps1` for one-time baseline + sync).
+  - [ ] Confirm that a rule named "Battle-Hardened AI Blocked IPs" (or your custom `-BlockRuleName`) appears in Windows Defender Firewall:
     - Direction: Inbound.
     - Action: Block.
     - RemoteAddress: includes the IPs from `blocked_ips.json`.
