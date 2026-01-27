@@ -3,9 +3,9 @@
 ## ✅ BUILD STATUS (2026-01-24)
 
 **Last Build:** Completed 2026-01-24 (websockets included)  
-**PyInstaller Spec:** `server/BattleHardenedAI.spec` ✅ Updated  
+**PyInstaller Spec:** `packaging/windows/BattleHardenedAI.spec` ✅ Updated  
 **Icon:** `assets/BATTLE-HARDENED-AI.ico` (multi-size ICO: 16–256px) ✅ Included  
-**Environment Files:** `server/.env` (Linux/Docker) and `server/.env.windows` (Windows template copied to `packaging/windows/dist/.env.windows` for the EXE) ✅ Synchronized  
+**Environment Files:** `server/.env` (Linux/Docker) and `packaging/windows/.env.windows` (Windows template copied to `packaging/windows/dist/.env.windows` for the EXE) ✅ Synchronized  
 
 ### Recent Fixes Applied
 - ✅ Added `websockets` module (was missing - caused relay_client.py error)
@@ -143,7 +143,7 @@
 
 ### Environment Files
 - [ ] server/.env (Linux/Docker runtime configuration)
-- [ ] packaging/windows/dist/.env.windows (Windows EXE runtime configuration copied from `server/.env.windows` by the EXE build script)
+- [ ] packaging/windows/dist/.env.windows (Windows EXE runtime configuration copied from `packaging/windows/.env.windows` by the EXE build script)
 
 ### Runtime Directories (auto-create on startup; for Windows EXE these live under `%LOCALAPPDATA%/Battle-Hardened AI/server/`)
 - [ ] logs/
@@ -153,7 +153,7 @@
 ## ✅ WINDOWS-SPECIFIC
 
 ### Firewall Scripts
-- [ ] windows-firewall/ directory contents
+— [ ] packaging/windows/windows-firewall/ directory contents
 
 ### Installation Scripts
 - [ ] server/installation/ directory contents
@@ -166,7 +166,7 @@
 - [ ] server/json/ (all JSON configuration and state files)
 - [ ] server/crypto_keys/ (TLS and HMAC keys; build-time source, Windows EXE runtime uses per-user data dir)
 - [ ] server/installation/ (watchdog, Gunicorn configs, init_json_files.py)
-- [ ] server/windows-firewall/ (Windows firewall integration scripts)
+- [ ] packaging/windows/windows-firewall/ (Windows firewall integration scripts)
 - [ ] policies/step21/ (semantic gate policies)
 - [ ] packaging/windows/ (BattleHardenedAI.iss, build scripts, local dist/)
 

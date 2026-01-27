@@ -450,6 +450,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - `packaging/debian/` — Debian/Ubuntu package metadata and build scripts for .deb packaging.
 - `packaging/systemd/` — Systemd unit/service definitions for Linux deployments.
 - `packaging/windows/BattleHardenedAI.iss` — Inno Setup script for building the Windows installer from the local `packaging/windows/dist/` output.
+- `packaging/windows/BattleHardenedAI.spec` — PyInstaller spec used to build the Windows EXE from the repository root into `packaging/windows/dist/`.
 - `packaging/windows/build_windows_exe.ps1` — PowerShell script that builds `BattleHardenedAI.exe` via PyInstaller into `packaging/windows/dist/`.
 - `packaging/windows/build_windows_installer.ps1` — PowerShell script that invokes `build_windows_exe.ps1` (if needed) and `BattleHardenedAI.iss` to produce the Windows installer.
 
@@ -610,7 +611,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - server/.dockerignore — Excludes unneeded files from the server Docker build context.
 - server/.env — Main environment file for the server container (ports, relay URLs, feature flags, API keys, etc.).
 - server/.env.linux — Example/server env template tuned for Linux/host-network deployments.
-- server/.env.windows — Example/server env template tuned for Windows deployments (native/EXE or Docker).
+- packaging/windows/.env.windows — Canonical Windows environment template used by the EXE build and installer; copied into packaging/windows/dist/.env.windows and ultimately installed as .env.windows next to BattleHardenedAI.exe.
 - server/crypto_keys/ — Holds all cryptographic materials: HMAC keys (shared_secret.key, private_key.pem, public_key.pem) for relay authentication and SSL certificates (ssl_cert.pem, ssl_key.pem) for HTTPS dashboard.
 - server/debug_server.py — Development server for testing without Gunicorn (single-threaded Flask dev mode).
 - server/device_blocker.py — Implements ARP-based device blocking and unblocking, persisting blocked_devices.json.
@@ -659,7 +660,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - server/server.py — Flask dashboard/API server that renders inspector_ai_monitoring.html and exposes REST/JSON endpoints (traffic, DNS/TLS, explainability, audit, visualization, compliance), including logging dashboard/API failures as SYSTEM_ERROR events into comprehensive_audit.json.
 - server/test_system.py — System-level test harness for validating that core services and integrations are functioning.
  - server/logs/ — Runtime log directory (includes startup.log, error.log, and other rotating server logs).
- - server/windows-firewall/ — Windows Firewall helper scripts that apply the AI-managed block lists on Windows nodes.
+ - packaging/windows/windows-firewall/ — Windows Firewall helper scripts (source location) that are installed as `{app}/windows-firewall` to apply the AI-managed block lists on Windows nodes.
 
 ---
 

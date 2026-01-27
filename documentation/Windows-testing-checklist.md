@@ -18,8 +18,8 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
   - `BattleHardenedAI.exe` into `{pf}/Battle-Hardened AI`.
   - `README.md`, `LICENSE`.
   - Full `documentation/*` and `policies/*` trees.
-  - `server/.env.windows` → installed as `{app}/.env.windows` (primary configuration template).
-  - `server/windows-firewall/configure_bh_windows_firewall.ps1` → installed as `{app}/windows-firewall/configure_bh_windows_firewall.ps1`.
+  - `packaging/windows/.env.windows` → installed as `{app}/.env.windows` (primary configuration template).
+  - `packaging/windows/windows-firewall/configure_bh_windows_firewall.ps1` → installed as `{app}/windows-firewall/configure_bh_windows_firewall.ps1`.
 
 ---
 
@@ -27,7 +27,7 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
 
 - [ ] On the build machine, ensure the virtual environment has all of `server/requirements.txt` installed.
 - [ ] Run `packaging/windows/build_windows_installer.ps1` and confirm:
-  - [ ] `packaging/windows/dist/BattleHardenedAI.exe` is (re)built from `server/BattleHardenedAI.spec` with no errors.
+  - [ ] `packaging/windows/dist/BattleHardenedAI.exe` is (re)built from `packaging/windows/BattleHardenedAI.spec` with no errors.
   - [ ] `packaging/windows/BattleHardenedAI-Setup.exe` is produced successfully.
 - [ ] Verify the installer contents (via Inno Setup log or 7‑Zip) include:
   - [ ] `BattleHardenedAI.exe`.

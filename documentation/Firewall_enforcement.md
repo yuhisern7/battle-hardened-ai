@@ -129,7 +129,7 @@ This keeps your firewall configuration simple and centralized.
 
 The project includes a single ready-to-use script in both **source** and **installed** layouts that configures baseline allow rules **and** syncs blocked IPs into a Windows Defender block rule:
 
-- From a source clone: [server/windows-firewall/configure_bh_windows_firewall.ps1](server/windows-firewall/configure_bh_windows_firewall.ps1)
+- From a source clone: [packaging/windows/windows-firewall/configure_bh_windows_firewall.ps1](packaging/windows/windows-firewall/configure_bh_windows_firewall.ps1)
 - From the Windows installer: `{app}\windows-firewall\configure_bh_windows_firewall.ps1` (for example `C:\Program Files\Battle-Hardened AI\windows-firewall\configure_bh_windows_firewall.ps1`)
 
 In **enterprise environments**, baseline rules are usually created centrally via GPO/Intune or your EDR/endpoint firewall console. This script is provided as a **reference** and is suitable for labs, pilots, or controlled security appliances where local rule changes are permitted.
