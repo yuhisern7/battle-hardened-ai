@@ -2,20 +2,6 @@
 
 ---
 
-## We Are Now Approaching Stage 2
-
-Stage 1 - Currently, Yuhisern Navaratnam, an Ethical Hacker that represents Elite Cybersecurity Specialist is performing the penetration testing and the results are phenomenal.
-
-Stage 2 - By February 2026 onwards other Cybersecurity Companies would conduct the penetration test and produce the review.
-
-Stage 3 - By May 2026 could start to obtain the required Licensing.
-
-Stage 4 - By August 2026 we could begin publishing Battle-Hardened AI Worldwide to reveal the overall Cybersecurity breakthroughs we have achieved. Approach investors, call the news agencies and social media marketing agencies related to AI and Cybersecurity.
-
-Stage 5 - By December 2026, discuss with Antivirus and Firewall Companies to partner with us, and other Organizations that would be interested.
-
----
-
 ### 🔑 Summary Highlights
 
 - Blocks malicious actions **before execution** using a 21-layer AI ensemble and a final semantic execution-denial gate.
@@ -23,8 +9,8 @@ Stage 5 - By December 2026, discuss with Antivirus and Firewall Companies to par
 - Works **without agents**, exporting neutral JSON that plugs into existing SIEM, SOAR, firewall, and XDR stacks.
 - Provides documented coverage for **43 MITRE ATT&CK techniques** via pre-execution denial and trust degradation.
 - Built for **enterprise, government, and national-security** defense use cases where autonomy, auditability, and privacy are mandatory.
- - Optionally connects to a **central relay/VPS** where many Battle-Hardened AI nodes share only sanitized attack patterns and receive model/signature updates,
-    so global learning improves over time without any customer content or PII leaving local infrastructure.
+- Optionally connects to a **central relay/VPS** where many Battle-Hardened AI nodes share only sanitized attack patterns and receive model/signature updates,
+  so global learning improves over time without any customer content or PII leaving local infrastructure.
 
 ### Executive Summary (Non-Technical)
 
@@ -322,11 +308,26 @@ You never modify Battle-Hardened AI code—you wire your tools to the Battle-Har
 
 ### What Battle-Hardened AI Offers (Capabilities & Roadmap)
 
-These capabilities are **aspirational** unless explicitly marked as implemented. Use this single checklist to track which enterprise capabilities have been wired into code and which remain roadmap.
+These capabilities span **current, implemented features** and **roadmap items**. Use this checklist together with the implementation-status table below to understand what works today versus what is planned.
 
-#### Core Dashboard Sections (25)
+#### Current Capabilities (v1.0)
 
-***Each section has been tested and it works***
+- 21-layer detection and reasoning pipeline (20 signals + Step 21 semantic gate) wired into the main gateway request path.
+- Linux and Windows deployments with local firewall enforcement via iptables/ipset (Linux) and Windows Defender Firewall (Windows).
+- Real-time dashboard with 24 core sections, governance/killswitch controls, and decision explainability for autonomous blocks/allows.
+- Optional relay/VPS for federated, pattern-only threat sharing and model/signature distribution (no raw payloads or customer data).
+- JSON-based integration surfaces for SIEM/SOAR/firewalls (threat_log.json, blocked_ips.json, enterprise integration JSON, and relay feeds).
+
+#### Roadmap (Future Enhancements)
+
+- Additional cloud provider coverage and deeper cloud posture management.
+- Expanded enterprise integration presets and sample configurations for common SIEM/firewall platforms.
+- More formal external validation (third-party tests, red-team exercises, and production case studies).
+- Progressive UI and documentation improvements for operators (troubleshooting, runbooks, and deployment blueprints).
+
+#### Current Dashboard Sections (24 core sections)
+
+These 24 sections correspond to the main dashboard surfaces shipped in the current build. Some contain early-access or partially implemented capabilities; see "Implementation Status at a Glance" for subsystem details.
 
 | # | Section | Description |
 |---|---------|-------------|
@@ -354,9 +355,38 @@ These capabilities are **aspirational** unless explicitly marked as implemented.
 | 22 | Cryptocurrency Mining Detection | Specialized analytics for crypto‑mining behavior: detection of mining pools and protocols, anomalous resource usage and long‑lived connections, associated entities and campaigns, and enforcement outcomes so operators can quickly confirm that mining activity is being identified and constrained. Mining detections are strengthened by OSINT feeds and the persistent reputation tracker, which remember and escalate repeat abuse from the same entities. |
 | 23 | Governance & Emergency Controls | Command surface for high‑assurance governance: current kill‑switch mode and approval workflow, pending and historical decisions in the approval queue, policy governance and Step 21 policy bundle status, secure‑deployment/tamper health, and audit/log integrity so operators can safely move between observe, approval, and fully autonomous deny modes. |
 | 24 | Forensics Export for Offline Hunting | Read‑only export surface for JSON/HTML enterprise reports and curated PCAP‑based hunting material generated by the first‑layer engine, supporting offline analysis and compliance reporting without introducing new detection logic or network‑facing attack surface. |
-| 25 | Enterprise Security Integrations | Configuration and status view of outbound adapters that stream Battle‑Hardened AI first‑layer decisions into SIEM, SOAR, and IT‑operations platforms, ensuring centralized visibility and orchestration while all primary blocking remains on the local firewall enforcement plane. |
 
-Section 25 – Enterprise Security Integrations is configured via the Section 25 dashboard editor, which edits the enterprise_integration.json JSON surface used by the AI engine to wire outbound adapters on the enterprise integration plane (visibility and coordination only) while all first‑layer blocking remains on the local firewall enforcement plane.
+An additional **Enterprise Security Integrations** view provides configuration and status for outbound adapters that stream first‑layer decisions into SIEM, SOAR, and IT‑operations platforms. This integrations surface focuses on visibility and coordination only; primary blocking remains on the local firewall enforcement plane.
+
+##### Example: Minimal `enterprise_integration.json`
+
+Battle-Hardened AI resolves an `enterprise_integration.json` file from its JSON configuration directory (see `AI/path_helper.py` and `documentation/Dashboard.md` for directory details). A minimal, realistic example looks like this:
+
+```json
+{
+   "syslog_targets": [
+      {
+         "name": "primary-siem",
+         "host": "10.0.10.5",
+         "port": 514,
+         "protocol": "udp",
+         "format": "cef",
+         "enabled": true
+      }
+   ],
+   "webhook_targets": [
+      {
+         "name": "soar-playbook-ingest",
+         "url": "https://soar.example.com/hooks/bh-ai-events",
+         "method": "POST",
+         "verify_tls": true,
+         "enabled": true
+      }
+   ]
+}
+```
+
+In this configuration, first-layer decisions (blocks/allows plus reasons) are streamed as summarized events to the SIEM and SOAR endpoints. Raw packet payloads and full PCAPs remain local to the Battle-Hardened AI node; only structured metadata and verdicts are exported.
 
 #### Implementation Status at a Glance
 
@@ -371,6 +401,26 @@ This table summarizes major capability areas, where they live in the repository,
 | Cloud security & API ingestion | `AI/cloud_security.py` | Partial / roadmap | Initial support present; broader provider coverage and runbooks will expand over time. |
 | Step 21 semantic gate & policy governance | `AI/step21_semantic_gate.py`, `AI/policy_governance.py` | Implemented; refinement planned | Core semantic gate is active; additional policy bundles and hardening are listed under "Future Enhancements". |
 | Compliance reporting & governance | `AI/compliance_reporting.py`, `AI/policy_governance.py` | Partial / roadmap | Baseline evidence surfaces exist; deeper framework mappings will grow with customer usage. |
+
+#### Example: End-to-End Block Flow (Attack → Decision → Firewall)
+
+The typical flow for a network attack looks like this:
+
+1. **Packet observed** – Traffic hits the protected interface; kernel telemetry and packet capture modules record the flow.
+2. **21-layer evaluation** – `AI/pcs_ai.py` orchestrates the detection pipeline (20 signals + Step 21 semantic gate) and produces a `SecurityAssessment` with `should_block`, `threat_level`, and `threats`.
+3. **Decision export** – The assessment is written to JSON surfaces such as `threat_log.json` and `blocked_ips.json` in the configured JSON directory.
+4. **Firewall sync** – On Windows, the `server/windows-firewall/configure_bh_windows_firewall.ps1` script (typically invoked by Task Scheduler with `-SkipBaselineRules` and an explicit `-JsonPath`) reads `blocked_ips.json` and updates the "Battle-Hardened AI Blocked IPs" rule. On Linux, iptables/ipset are updated via the server’s enforcement layer.
+5. **Operator view** – The dashboard surfaces the same decision and context in Sections 5 (Security Overview), 7 (IP Management), 14 (Decision Explainability), and 23 (Governance & Emergency Controls).
+
+This model keeps enforcement local to the OS firewalls, with the AI engine responsible for making high-quality, explainable allow/block decisions and exporting them in a machine-consumable form.
+
+#### Troubleshooting & Operational Scenarios (Quick Reference)
+
+- **Step 21 seems too aggressive (false positives):** Use the Governance & Emergency Controls section (23) to move from fully autonomous deny into observe or approval modes, then adjust the Step 21 policy bundle under `policies/step21` (for example, HTTP method and trust-threshold settings) and reload. For detailed guidance, see `documentation/Architecture_compliance.md` and `documentation/Attack_handling_flow.md`.
+- **Relay/central training status is unhealthy:** Check Section 1 on the dashboard and the `/api/relay/status` endpoint for detailed error messages (DNS, TLS, authentication). Verify relay settings in the environment or `.env.windows` (for EXE deployments), and ensure outbound firewall rules permit the configured relay URL/port.
+- **Blocked IPs are not reflected in Windows Firewall:** Confirm that `blocked_ips.json` is being updated in the runtime JSON directory (for EXE builds this is under `%LOCALAPPDATA%/Battle-Hardened AI/server/json`), and that Task Scheduler is invoking `server/windows-firewall/configure_bh_windows_firewall.ps1` with `-SkipBaselineRules` and the correct `-JsonPath`. See `documentation/Firewall_enforcement.md` for examples.
+- **Dashboard shows data but enforcement appears inactive:** On Linux, verify iptables/ipset rules were created and are still present; on Windows, inspect the "Battle-Hardened AI Blocked IPs" rule and ensure no third-party software has overridden it. In both cases, check the watchdog/service status and the Security Overview (Section 5) for recent block events.
+- **General startup and health issues:** Follow the `documentation/Startup_guide.md` and `documentation/Installation.md` checklists, paying special attention to permissions, NIC binding, and JSON directory configuration. The System Health & Network Performance section (11) is the primary runtime surface for spotting resource and integrity problems.
 
 ### What Does Not Exist (Breakthrough)
 
@@ -517,7 +567,17 @@ Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
 - ❌ Agents on endpoints
 - ❌ Cloud connectivity for core detection
 
-### Platform & OS Support Summary
+### System Requirements & Platform Support
+
+Minimum suggested specs for lab/small deployments (per node):
+
+- Linux gateway/appliance: 4 CPU cores, 8–16 GB RAM, SSD/NVMe storage.
+- Windows host-only/appliance: 4 CPU cores, 8–16 GB RAM, SSD storage.
+- Network: 2 NICs for inline/gateway roles; 1 NIC for host-only or SPAN/TAP deployments.
+
+Actual requirements depend on traffic volume, retention, and enabled modules; see Installation and Windows checklists for details.
+
+#### Platform & OS Support Summary
 
 | Feature | Linux (Recommended) | Windows / macOS (Host-Only) |
 |---------|---------------------|-----------------------------|
@@ -530,7 +590,7 @@ Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
 | Packet capture & eBPF | ✅ | ⚠️ Requires administrator privileges |
 | Scalability | 10,000+ connections (scalable) | ~500 connections (OS limits) |
 
-See [documentation/Installation.md](documentation/Installation.md) and [Startup guide](documentation/Startup_guide.md) for setup instructions. For production firewall synchronization, see [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md).
+See [documentation/Installation.md](documentation/Installation.md), [Windows-testing-checklist.md](documentation/Windows-testing-checklist.md), and [Startup guide](documentation/Startup_guide.md) for detailed setup instructions. For production firewall synchronization, see [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md).
 
 ---
 
@@ -1582,7 +1642,7 @@ Battle-Hardened AI is designed to be operator-friendly: the dashboard focuses on
 - **Deployment Assumptions:** Battle-Hardened AI is placed where it has full visibility to relevant traffic (inline proxy, gateway, or SPAN/TAP). For encrypted traffic, visibility is limited to metadata (SNI, certificate, timing, sizes) unless deployed behind a TLS termination point.
 - **Trust Model:** The AI server itself is treated as a hardened, monitored asset; OS, Docker (when used), and surrounding infrastructure must follow standard security best practices.
 
-### Evaluation Methodology (Where the Numbers Come From)
+### Validation & Testing (Where the Numbers Come From)
 
 - **Signature Count (3,066+):** Derived from the active signature set used by the Signature Matching layer, built from curated public attack pattern sources and sanitized honeypot extractions. The count reflects unique, deduplicated patterns, not rule-line inflation.
 - **Accuracy Figures (~94% Recidivism / Byzantine Rejection):** Measured on held-out evaluation sets constructed from historical threat logs and simulated relay updates. Metrics are computed as standard classification accuracy on labeled events (attack vs benign or valid vs poisoned updates), with time windows and dataset sizes documented in internal test harness notebooks.
@@ -1591,7 +1651,7 @@ Battle-Hardened AI is designed to be operator-friendly: the dashboard focuses on
 
 #### Current Validation Status
 
-At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [AI instructions](documentation/Ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). As production pilots and third-party assessments are completed, this section will be updated with external metrics and case-study style results.
+At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [AI instructions](documentation/Ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). There is no independent third-party validation or production case study published yet; as pilots and reviews complete, this section will be updated with external metrics and deployment evidence.
 
 ### Known Limitations & Edge Cases
 
