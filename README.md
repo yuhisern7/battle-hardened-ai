@@ -180,7 +180,7 @@ Battle-Hardened AI is designed to sit in front of, and alongside, existing contr
     ├─ VPN/Tor Fingerprint (de-anonymization)
     ├─ Threat Intel (VirusTotal, AbuseIPDB, ExploitDB, etc.)
     ├─ False Positive Filter (5-gate consensus validation)
-    ├─ Historical Reputation (cross-session recidivism ~94%)
+   ├─ Historical Reputation (cross-session recidivism ~94%, internal lab evaluation; see "Validation & Testing" below)
     ├─ Explainability Engine (human-readable decisions)
     ├─ Predictive Modeling (24-48h threat forecasting)
     ├─ Byzantine Defense (poisoned update rejection)
@@ -236,7 +236,7 @@ Battle-Hardened AI is designed to sit in front of, and alongside, existing contr
     ├─ ML models retrained (weekly with labeled data)
    ├─ Reputation tracker updated (with decay, half-life 30 days)
     ├─ Drift baseline refreshed (monthly adaptation)
-   └─ Byzantine validation (94% malicious update rejection, measured on adversarial lab simulations)
+   └─ Byzantine validation (94% malicious update rejection, measured on adversarial lab simulations; see "Validation & Testing" below)
     ↓
 🔁 LOOP: Next packet processed with improved defenses
 ```
@@ -1625,7 +1625,7 @@ The system continuously improves through feedback:
 2. **ML Retraining:** Models retrained weekly with new labeled data
 3. **Drift Detection:** Baseline updated monthly to adapt to network changes
 4. **Reputation Decay:** Old attacks gradually fade (half-life: 30 days)
-5. **Byzantine Validation:** Malicious updates rejected (94% accuracy)
+5. **Byzantine Validation:** Malicious updates rejected (94% accuracy in internal lab testing)
 
 **Feedback Sources:**
 - **Honeypot Interactions:** 100% confirmed attacks (highest quality training data)
@@ -1639,7 +1639,7 @@ The system continuously improves through feedback:
 3. Customer nodes pull updates (every 6 hours) via `AI/training_sync_client.py`:
    - New signatures downloaded → merged into local signature database
    - New ML models downloaded → replace old models in the ML models directory returned by `AI/path_helper.get_ml_models_dir()` (AI/ml_models in development, /app/ml_models in Docker)
-   - `AI/byzantine_federated_learning.py` validates updates (94% malicious rejection rate)
+   - `AI/byzantine_federated_learning.py` validates updates (94% malicious rejection rate in internal evaluations)
 4. Updated models loaded by Stage 2 detection signals → **improved accuracy for next packet analysis in Stage 1**
 5. Cycle repeats: better detection → more accurate training data → better models → better detection...
 
