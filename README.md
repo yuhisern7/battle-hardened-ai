@@ -44,6 +44,8 @@ In its standard form, Battle-Hardened AI runs on a **Linux gateway or edge appli
 
 ### Semantic Enforcement Model
 
+*How Battle-Hardened AI decides which requests are allowed to execute or blocked before they reach downstream systems.*
+
 Unlike traditional tools that detect attacks **after** execution, Battle-Hardened AI enforces **semantic execution validity** using 21 independent detection and reasoning layers. These layers incorporate:
 
 - Kernel-level telemetry
@@ -275,6 +277,30 @@ The JSON format is **identical across Linux (Docker) and Windows**. Enforcement 
 - `ipset`/`iptables` (Linux)
 - PowerShell + Windows Defender Firewall (Windows)
 - JSON feeds consumed by SIEM/SOAR/NGFW/EDR integrations
+
+```text
+      ┌────────────────────────────┐
+      │   Battle-Hardened AI       │
+      │   (Decision Engine)        │
+      └────────────┬───────────────┘
+         │
+         │ JSON decisions
+         ▼
+      ┌────────────────────────────┐
+      │   OS Firewall / Gateway    │
+      │ (iptables/ipset or WDFW)   │
+      └────────────┬───────────────┘
+         │
+      Enforced traffic
+         │
+   ┌───────────────┴────────────────┐
+   │                                │
+   ▼                                ▼
+  SIEM / SOAR / NGFW                Optional Relay
+ (JSON feeds, syslog, APIs)   (patterns & model updates only)
+```
+
+This makes it explicit that Battle-Hardened AI is the decision authority, the OS firewall/gateway is the enforcement plane, and enterprise tools and the optional relay consume decisions rather than drive them.
 
 No vendor-specific code is baked into the core. Adapters or SOAR playbooks watch the JSON and translate it into:
 
