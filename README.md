@@ -424,7 +424,7 @@ This model keeps enforcement local to the OS firewalls, with the AI engine respo
 
 ### What Does Not Exist (Breakthrough)
 
-No documented unified implementation—commercial or open—covers all of the following as a single architecture:
+To the best of our knowledge from publicly available vendor and research materials, no documented unified implementation—commercial or open—covers all of the following as a single architecture:
 
 - Observe attacks end-to-end, across network, application, and behavioral layers
 - Learn continuously from real adversary behavior
@@ -437,7 +437,7 @@ No documented unified implementation—commercial or open—covers all of the fo
 
 This is not a feature gap — **it is a paradigm gap**.
 
-While isolated forms of semantic validation exist in narrow domains, no known NDR or XDR platform implements system-wide semantic execution denial integrated with learning, trust memory, and causal reasoning. Battle-Hardened AI closes that gap by design.
+While isolated forms of semantic validation exist in narrow domains, to our knowledge no NDR or XDR platform implements system-wide semantic execution denial integrated with learning, trust memory, and causal reasoning. Battle-Hardened AI closes that gap by design.
 
 ### Normative References (Source-of-Truth Documents)
 
@@ -799,9 +799,11 @@ Battle-Hardened AI is not another alerting layer—it is a **stateful, autonomou
 
 #### Interpretation Legend
 
-- **ND** = Not publicly documented
+- **ND** = Not publicly documented in vendor materials consulted
 - **Partial** = Present but undocumented or non-explainable
 - **Documented** = Explicit, transparent, and architecturally core
+
+This comparison emphasizes **architectural transparency**, not definitive absence of capabilities in third-party products. "ND" indicates that a property was not clearly described in public documentation at the time of writing, not that the feature is definitively missing.
 
 ### Core Detection & Reasoning Capabilities
 
@@ -847,7 +849,7 @@ Battle-Hardened AI is not another alerting layer—it is a **stateful, autonomou
 
 *Competitor capabilities are inferred from publicly available documentation and marketing materials. "ND" indicates aspects that are not clearly or explicitly documented and therefore cannot be independently verified.*
 
-See [Positioning Statement](#positioning-statement-critical) and [Why Evasion is Nearly Impossible](#why-evasion-is-nearly-impossible) for further architectural insights.
+See [Positioning Statement](#positioning-statement-critical) and [Why Evasion Is Extremely Hard in Practice](#why-evasion-is-extremely-hard-in-practice) for further architectural insights.
 
 ---
 
@@ -1133,7 +1135,7 @@ Planned updates include:
 
 These improvements will strengthen Step 21’s enforcement precision without introducing fragile allow-lists.
 
-## Why Evasion Is Nearly Impossible
+## Why Evasion Is Extremely Hard in Practice
 
 Battle-Hardened AI implements true **defense-in-depth** by combining:
 
@@ -1142,7 +1144,7 @@ Battle-Hardened AI implements true **defense-in-depth** by combining:
 - Persistent trust memory
 - Causal inference and anomaly modeling
 
-Evasion requires simultaneous bypass of all these mechanisms—a practically infeasible task for real-world adversaries.
+Evasion requires an attacker to consistently avoid, mislead, or neutralize these mechanisms **in combination**, across time and campaigns. This dramatically raises the cost of reliable evasion beyond what most real-world adversaries will invest against a single target, even though no system can claim absolute impossibility.
 
 ### Detection Redundancy Examples
 
@@ -1265,6 +1267,19 @@ The final semantic gate prevents unauthorized or unsafe execution even after ens
 
 If any dimension fails, execution is silently denied—no state changes occur, but full logs are retained for learning and audit.
 
+**Concrete example – HTTP request gate** (simplified, aligned with `policies/step21/policy.json`):
+
+- **Role:** `network_entity`
+- **Action:** `network_request`
+- **Allowed methods:** `GET`, `POST`
+- **Endpoint constraints:** Normalized path, length ≤ 200 characters, no control characters
+- **Minimum trust score:** 40.0
+
+Example outcomes:
+
+- `GET /api/status` from a client with trust score 72.5 → **Allowed** (well-formed, permitted method, high trust).
+- `DELETE /admin/users/42` from a client with trust score 35.0 → **Denied** (disallowed method and below trust threshold; Step 21 blocks execution even if earlier layers were undecided).
+
 #### Stage 3: Meta Decision Ensemble Engine
 
 All validated signals enter `meta_decision_engine.py` for weighted voting.
@@ -1384,6 +1399,8 @@ The base score of **57.2%** is **intentionally conservative**—a key differenti
 | CrowdStrike Falcon | ~5-10% | 3-4 signals (behavioral, threat intel, static analysis) |
 | Darktrace Enterprise | ~15-20% | 5-6 signals (anomaly detection, entity modeling) |
 | Traditional IDS | ~30-40% | 1 signal (signature matching) |
+
+These probabilities are illustrative, model-based estimates meant to compare architectural robustness, not empirically measured failure rates in production.
 
 Taken together, the layered ensemble, semantic gate, causal reasoning, and trust model make practical evasion **extremely difficult** for real attacks while maintaining operational effectiveness.
 
