@@ -1,4 +1,9 @@
 # Battle-Hardened AI
+### The Details Here Are ANTI-MARKETING 
+
+This document is written for people who understand first-layer enforcement, gateways, and control planes. It assumes familiarity with firewalls, routing, kernel telemetry, and pre-execution decision systems.
+
+Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21 layers, semantic execution-denial, trust graph, causal inference) corresponds to concrete modules, code paths, and enforcement points that can be inspected in this repository and its documentation. For a formal mapping from claims to code and runtime behavior, see [documentation/Filepurpose.md](documentation/Filepurpose.md) and [documentation/Architecture_compliance.md](documentation/Architecture_compliance.md).
 
 ---
 
