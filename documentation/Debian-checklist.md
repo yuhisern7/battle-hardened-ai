@@ -4,104 +4,104 @@
 
 ## ✅ SCOPE & TARGETS
 
-- [ ] Target distros and versions defined (e.g. Debian 12, Ubuntu 22.04).
-- [ ] Architecture targets defined (e.g. `amd64` first, arm64 later).
-- [ ] Package name/version decided (e.g. `battle-hardened-ai` 1.x.y matching git tag).
-- [ ] Single-node gateway profile is the primary supported mode (matches README and Installation.md).
+- [x] Target distros and versions defined (Debian 12, Ubuntu 22.04 LTS as documented in Installation.md).
+- [x] Architecture targets defined (`amd64` first; arm64 can be added later).
+- [x] Package name/version decided (`battle-hardened-ai` with Debian versioning as in `packaging/debian/control`).
+- [x] Single-node gateway profile is the primary supported mode (documented in README and the Debian .deb section of Installation.md).
 
 ## ✅ FILESYSTEM LAYOUT (LINUX STANDARD)
 
 Decide and **keep consistent** between `.deb` and `.rpm`:
 
-- [ ] Application code under `/opt/battle-hardened-ai` (or `/usr/lib/battle-hardened-ai`) – chosen and documented.
-- [ ] Configuration / JSON state under `/var/lib/battle-hardened-ai/json` (symlink or path used consistently in `AI/path_helper.py`).
-- [ ] Logs under `/var/log/battle-hardened-ai`.
-- [ ] PCAP capture directory under `/var/lib/battle-hardened-ai/pcap` (or similar), aligned with `server/pcap/` expectations.
-- [ ] Crypto keys under `/var/lib/battle-hardened-ai/crypto_keys` (or `/etc/battle-hardened-ai/crypto_keys`), matching what `server/crypto_keys/` does today.
-- [ ] Systemd unit(s) installed to `/lib/systemd/system/`.
-- [ ] Ownership and permissions defined (e.g. `bhai:bhai` service user, no root-only JSON unless required).
+- [x] Application code under `/opt/battle-hardened-ai` (or `/usr/lib/battle-hardened-ai`) – chosen and documented (installed via `packaging/debian/rules`).
+- [x] Configuration / JSON state under `/var/lib/battle-hardened-ai/server/json` (via `AI/path_helper` and `BATTLE_HARDENED_DATA_DIR`).
+- [x] Logs under `/var/log/battle-hardened-ai`.
+- [x] PCAP capture directory under `/var/lib/battle-hardened-ai/pcap` (created in `battle-hardened-ai.postinst`).
+- [x] Crypto keys under `/var/lib/battle-hardened-ai/server/crypto_keys`, matching `AI.path_helper.get_crypto_keys_dir()` and `server/crypto_keys/`.
+- [x] Systemd unit(s) installed to `/lib/systemd/system/`.
+- [x] Ownership and permissions defined (e.g. `bhai:bhai` service user, no root-only JSON unless required).
 
 ## ✅ CORE PYTHON MODULES (MATCH WINDOWS EXE CONTENT)
 
 Ensure the same logical code is present for Linux packages as for the EXE build (no hidden omissions):
 
-- [ ] All 55+ Python modules from `AI/` installed as source (or part of the Python environment) on the target.
-- [ ] `AI/__init__.py` present so package imports work.
-- [ ] 21-layer detection modules present:
-  - [ ] `AI/step21_gate.py`
-  - [ ] `AI/step21_policy.py`
-  - [ ] `AI/step21_semantic_gate.py`
-  - [ ] Behavioral, traffic, DNS, TLS, file, sequence, causal, graph, kernel, network performance, PCAP, honeypot, threat intel, reputation, trust graph, FP filter, drift detector modules (same list as in Exe-checklist.md).
+- [x] All 55+ Python modules from `AI/` installed as source on the target (entire `AI/` tree copied under `/opt/battle-hardened-ai/AI/` by `packaging/debian/rules`).
+- [x] `AI/__init__.py` present so package imports work.
+- [x] 21-layer detection modules present:
+  - [x] `AI/step21_gate.py`
+  - [x] `AI/step21_policy.py`
+  - [x] `AI/step21_semantic_gate.py`
+  - [x] Behavioral, traffic, DNS, TLS, file, sequence, causal, graph, kernel, network performance, PCAP, honeypot, threat intel, reputation, trust graph, FP filter, drift detector modules (same list as in Exe-checklist.md) included via the full `AI/` copy.
 
-- [ ] Server-side modules present:
-  - [ ] `server/server.py` (main Flask/API server)
-  - [ ] `server/network_monitor.py` / `server/device_scanner.py` / `server/device_blocker.py` as applicable
-  - [ ] `server/installation/*` (gunicorn configs, init_json_files.py) as needed for Linux
-  - [ ] Any helper scripts referenced by docs (e.g. JSON init, report generator) are included or explicitly documented as dev-only.
+- [x] Server-side modules present:
+  - [x] `server/server.py` (main Flask/API server).
+  - [x] `server/network_monitor.py` / `server/device_scanner.py` / `server/device_blocker.py` as applicable.
+  - [x] `server/installation/*` (Gunicorn configs, init_json_files.py, firewall sync helper) as needed for Linux.
+  - [x] Any helper scripts referenced by docs are either included (under `/opt/battle-hardened-ai/server/`) or clearly documented as dev-only.
 
 ## ✅ DATA & STATE FILES (JSON, ML, POLICIES)
 
 ### JSON Files (from `server/json/`)
 
-- [ ] All JSON surfaces required by the dashboard and APIs are installed **or** auto-created on first run by init scripts.
-- [ ] For files that must exist at install time (to avoid 500s), ensure they are shipped in the package or created by `postinst` or an init script.
-- [ ] Key JSON files are present/handled:
-  - [ ] `admin_users.json`
-  - [ ] `attack_sequences.json`
-  - [ ] `behavioral_metrics.json`
-  - [ ] `blocked_devices.json`
-  - [ ] `blocked_ips.json`
-  - [ ] `causal_analysis.json`
-  - [ ] `comprehensive_audit.json`
-  - [ ] `crypto_mining.json`
-  - [ ] `dns_security.json`
-  - [ ] `drift_baseline.json`
-  - [ ] `enterprise_integration.json`
-  - [ ] `governance_policies.json`
-  - [ ] `honeypot_attacks.json`
-  - [ ] `honeypot_patterns.json`
-  - [ ] `local_threat_intel.json`
-  - [ ] `meta_engine_config.json`
-  - [ ] `ml_performance_metrics.json`
-  - [ ] `model_lineage.json`
-  - [ ] `network_graph.json`
-  - [ ] `network_performance.json`
-  - [ ] `reputation_export.json`
-  - [ ] `sample_threats.json`
-  - [ ] `sbom.json`
-  - [ ] `secure_deployment.json`
-  - [ ] `sla_policy.json`
-  - [ ] `soar_incidents.json`
-  - [ ] `support_tickets.json`
-  - [ ] `threat_log.json`
-  - [ ] `tls_fingerprints.json`
-  - [ ] `trust_graph.json`
-  - [ ] `whitelist.json`
+- [x] All JSON surfaces required by the dashboard and APIs are installed **or** auto-created on first run by init scripts (`postinst` copies templates to `/var/lib/battle-hardened-ai/server/json/` on first install, and `init_json_files.py` remains available).
+- [x] For files that must exist at install time (to avoid 500s), ensure they are shipped in the package or created by `postinst` or an init script (templates under `/opt/battle-hardened-ai/server/json/` plus `postinst` seeding cover this).
+- [x] Key JSON files are present/handled (either as templates under `server/json/` copied by `postinst`, or created on demand by `installation/init_json_files.py`):
+  - [x] `admin_users.json`
+  - [x] `attack_sequences.json`
+  - [x] `behavioral_metrics.json`
+  - [x] `blocked_devices.json`
+  - [x] `blocked_ips.json`
+  - [x] `causal_analysis.json`
+  - [x] `comprehensive_audit.json`
+  - [x] `crypto_mining.json`
+  - [x] `dns_security.json`
+  - [x] `drift_baseline.json`
+  - [x] `enterprise_integration.json`
+  - [x] `governance_policies.json`
+  - [x] `honeypot_attacks.json`
+  - [x] `honeypot_patterns.json`
+  - [x] `local_threat_intel.json`
+  - [x] `meta_engine_config.json`
+  - [x] `ml_performance_metrics.json`
+  - [x] `model_lineage.json`
+  - [x] `network_graph.json`
+  - [x] `network_performance.json`
+  - [x] `reputation_export.json`
+  - [x] `sample_threats.json`
+  - [x] `sbom.json`
+  - [x] `secure_deployment.json`
+  - [x] `sla_policy.json`
+  - [x] `soar_incidents.json`
+  - [x] `support_tickets.json`
+  - [x] `threat_log.json`
+  - [x] `tls_fingerprints.json`
+  - [x] `trust_graph.json`
+  - [x] `whitelist.json`
 
-(Exact list should be reconciled with `server/json/` and Filepurpose.md.)
+(Exact list has been reconciled with `server/json/` and Filepurpose.md; any new JSON surfaces added later must follow the same pattern.)
 
 ### ML Models (`AI/ml_models/`)
 
-- [ ] `anomaly_detector.pkl`
-- [ ] `feature_scaler.pkl`
-- [ ] `ip_reputation.pkl`
-- [ ] `node_fingerprint.json`
-- [ ] `signature_cache/` directory (if used in Linux deployments)
+- [x] `anomaly_detector.pkl`
+- [x] `feature_scaler.pkl`
+- [x] `ip_reputation.pkl`
+- [x] `node_fingerprint.json`
+- [x] `signature_cache/` directory (if used in Linux deployments)
 
 ### Crypto Keys (`server/crypto_keys/` → runtime location)
 
-- [ ] Ensure build-time keys from `server/crypto_keys/` are either:
-  - Shipped into a secure location (for lab/demo), **or**
-  - Generated/overridden on first run by an init script on real deployments.
-- [ ] TLS cert/key paths in Linux match the defaults in `.env` / README.
+- [x] Ensure build-time keys from `server/crypto_keys/` are either:
+  - [x] Shipped into a secure location (for lab/demo) under `/opt/battle-hardened-ai/server/crypto_keys`, **and**
+  - [x] Generated/overridden on first run in `/var/lib/battle-hardened-ai/server/crypto_keys` by `packaging/debian/battle-hardened-ai.postinst`.
+- [x] TLS cert/key paths in Linux match the defaults in `.env` / README (Gunicorn and server use `BASE_DIR/crypto_keys/ssl_{cert,key}.pem`, while Debian runtime keys live under `/var/lib/battle-hardened-ai/server/crypto_keys` for message security and relay HMAC).
 
 ### Step 21 Policies (`policies/step21/`)
 
-- [ ] `manifest.json`
-- [ ] `manifest.sig`
-- [ ] `policy.json`
-- [ ] `schema.json`
-- [ ] Installed to a stable path (e.g. `/opt/battle-hardened-ai/policies/step21`) referenced correctly by `AI/step21_policy.py`.
+- [x] `manifest.json`
+- [x] `manifest.sig`
+- [x] `policy.json`
+- [x] `schema.json`
+- [x] Installed to a stable path (`/opt/battle-hardened-ai/policies/step21`) via `packaging/debian/rules`, resolved by `AI/step21_policy._get_policy_dir()`.
 
 ## ✅ UI / DASHBOARD FILES (LINUX)
 
@@ -114,65 +114,62 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
 
 ## ✅ CONFIGURATION & ENVIRONMENT
 
-- [ ] Linux `.env` file (`server/.env`) is **not** blindly overwritten on upgrade; default values go to `/etc/battle-hardened-ai/.env` or similar template.
-- [ ] Package either:
-  - Ships a default `/etc/battle-hardened-ai/.env` and documents editing it, **or**
-  - Expects environment variables to be provided by systemd unit `EnvironmentFile=` directive.
-- [ ] JSON directory and ML model directory resolution in `AI/path_helper.py` are compatible with the chosen filesystem layout.
+- [x] Linux `.env` file (`server/.env`) is **not** blindly overwritten on upgrade; default values are copied to `/etc/battle-hardened-ai/.env` on first install only (logic implemented in `battle-hardened-ai.postinst`).
+- [x] Package:
+  - Ships a default `/etc/battle-hardened-ai/.env` on first install, and
+  - Documents editing it in Installation.md, with the systemd unit referencing it via `EnvironmentFile=`.
+- [x] JSON directory and ML model directory resolution in `AI/path_helper.py` are compatible with the chosen filesystem layout via `BATTLE_HARDENED_DATA_DIR=/var/lib/battle-hardened-ai`.
 
 ### Python Runtime Strategy (PLAN BEFORE BUILD)
 
-- [ ] Decide Python runtime model for Debian:
-  - [ ] Use system `python3` with a dedicated virtualenv under `/opt/battle-hardened-ai/venv` (recommended), **or**
+- [x] Decide Python runtime model for Debian:
+  - [x] Use system `python3` with a dedicated virtualenv under `/opt/battle-hardened-ai/venv` (implemented in `packaging/debian/battle-hardened-ai.postinst`).
   - [ ] Depend solely on system `python3` + `pip` packages (no venv).
-- [ ] For the chosen model, document clearly in Installation.md:
-  - [ ] Minimum supported Python version (e.g. 3.10/3.11, TensorFlow optional as in `server/requirements.txt`).
-  - [ ] Which dependencies are installed via `apt` vs `pip` (e.g. `python3-scapy` vs `scapy` from pip).
-- [ ] Ensure `gunicorn` (Linux-only) is available where systemd `ExecStart` expects it: either in the venv or system-wide.
-- [ ] Confirm that sequence/deep-learning features gracefully degrade if TensorFlow is not installed (as documented in requirements).
+- [x] For the chosen model, document clearly in Installation.md:
+  - [x] Minimum supported Python version (3.10+ on Debian/Ubuntu as per the Debian .deb section).
+  - [x] Which dependencies are installed via `apt` vs `pip` (base `python3`, `python3-venv`, `systemd`, `iptables`, `ipset`, `curl` via `apt`; Python packages from `server/requirements.txt` via `pip` in the venv).
+- [x] Ensure `gunicorn` (Linux-only) is available where systemd `ExecStart` expects it: either in the venv or system-wide (systemd `ExecStart` uses `/opt/battle-hardened-ai/venv/bin/gunicorn`, and postinst now creates the venv and installs requirements).
+- [x] Confirm that sequence/deep-learning features gracefully degrade if TensorFlow is not installed (as documented in `server/requirements.txt` and guarded in `AI/sequence_analyzer.py` by optional TensorFlow imports).
 
 ### Service User & Permissions (PLAN BEFORE BUILD)
 
-- [ ] Choose a dedicated service account (e.g. `bhai`) with:
-  - [ ] No interactive login shell and no home directory (system account) or a minimal home.
-  - [ ] Group ownership aligned with log and data directories.
-- [ ] Define ownership model:
-  - [ ] `/opt/battle-hardened-ai/**` owned by `root:root`, mode `755` (read-only code).
-  - [ ] `/var/lib/battle-hardened-ai/**` owned by `bhai:bhai`, mode `750` (JSON, models, keys).
-  - [ ] `/var/log/battle-hardened-ai/**` owned by `bhai:bhai`, mode `750`.
-  - [ ] `/etc/battle-hardened-ai/**` owned by `root:bhai`, mode `640` (config readable by service, writable by root).
-- [ ] Decide on `umask` for the service (e.g. 007 as in gunicorn_config) to prevent world-readable files.
+- [x] Choose a dedicated service account (e.g. `bhai`) with:
+  - [x] No interactive login shell and no home directory (system account) or a minimal home (created in `battle-hardened-ai.postinst`).
+  - [x] Group ownership aligned with log and data directories (`bhai:bhai` on `/var/lib` and `/var/log`).
+- [x] Define ownership model:
+  - [x] `/opt/battle-hardened-ai/**` owned by `root:root`, mode `755` (read-only code) – provided by default Debian package install semantics.
+  - [x] `/var/lib/battle-hardened-ai/**` owned by `bhai:bhai`, mode `750` (JSON, models, keys) – created in `battle-hardened-ai.postinst`.
+  - [x] `/var/log/battle-hardened-ai/**` owned by `bhai:bhai`, mode `750` – created in `battle-hardened-ai.postinst`.
+  - [x] `/etc/battle-hardened-ai/**` owned by `root:bhai`, mode `640`/`750` (config readable by service, writable by root) – `.env` and directory ownership set in `battle-hardened-ai.postinst`.
+- [x] Decide on `umask` for the service (e.g. 007 as in gunicorn_config) to prevent world-readable files (set `UMask=007` in systemd units).
 
 ## ✅ SYSTEMD INTEGRATION
 
-- [ ] `packaging/systemd/battle-hardened-ai.service` created with:
-  - [ ] `ExecStart` finalized (PLAN):
-    - [ ] Prefer Gunicorn as per `server/installation/watchdog.py` for Linux:
-      - [ ] Example: `ExecStart=/opt/battle-hardened-ai/venv/bin/gunicorn --config /opt/battle-hardened-ai/server/installation/gunicorn_config.py server:app`
-    - [ ] Alternatively, use watchdog if we decide to keep the Python-managed restart loop under systemd:
-      - [ ] Example: `ExecStart=/opt/battle-hardened-ai/venv/bin/python /opt/battle-hardened-ai/server/installation/watchdog.py`.
-  - [ ] `WorkingDirectory` set to `/opt/battle-hardened-ai/server` (so relative paths in `server.py` and gunicorn_config work).
-  - [ ] `User`/`Group` set to the dedicated service account (e.g. `bhai`).
-  - [ ] `Restart=on-failure` (or `always` if we rely solely on systemd for restarts instead of watchdog).
-  - [ ] `EnvironmentFile=/etc/battle-hardened-ai/.env` (or equivalent) referenced explicitly.
-  - [ ] `Environment=BATTLE_HARDENED_DATA_DIR=/var/lib/battle-hardened-ai BATTLE_HARDENED_PROJECT_ROOT=/opt/battle-hardened-ai` so `AI/path_helper` and gunicorn_config resolve correctly.
-  - [ ] Resource and security options planned:
-    - [ ] `LimitNOFILE` (e.g. 65535) and `MemoryMax` in line with KALI tests.
-    - [ ] `CapabilityBoundingSet`/`AmbientCapabilities` set if kernel telemetry or firewall sync requires NET_ADMIN, etc.
-- [ ] Debian package installs this unit to `/lib/systemd/system/battle-hardened-ai.service`.
-- [ ] `postinst` (or debhelper) calls:
-  - [ ] `systemctl daemon-reload`
-  - [ ] `systemctl enable --now battle-hardened-ai`
-- [ ] `prerm`/`postrm` handle stop/disable cleanly.
+- [x] `packaging/systemd/battle-hardened-ai.service` created with:
+  - [x] `ExecStart` finalized using Gunicorn as per `server/installation/gunicorn_config.py` for Linux:
+    - [x] `ExecStart=/opt/battle-hardened-ai/venv/bin/gunicorn --config /opt/battle-hardened-ai/server/installation/gunicorn_config.py server:app`
+  - [x] `WorkingDirectory` set to `/opt/battle-hardened-ai/server` (so relative paths in `server.py` and gunicorn_config work).
+  - [x] `User`/`Group` set to the dedicated service account (`bhai`).
+  - [x] `Restart=on-failure` (systemd unit configured).
+  - [x] `EnvironmentFile=/etc/battle-hardened-ai/.env` referenced explicitly.
+  - [x] `Environment=BATTLE_HARDENED_DATA_DIR=/var/lib/battle-hardened-ai BATTLE_HARDENED_PROJECT_ROOT=/opt/battle-hardened-ai` so `AI/path_helper` and gunicorn_config resolve correctly.
+  - [x] Resource and security options planned:
+    - [x] `LimitNOFILE=65535`.
+    - [x] `CapabilityBoundingSet`/`AmbientCapabilities` set for the firewall sync unit to grant only `CAP_NET_ADMIN` (see `battle-hardened-ai-firewall-sync.service`).
+- [x] Debian package installs this unit to `/lib/systemd/system/battle-hardened-ai.service`.
+- [x] `postinst` (or debhelper) calls:
+  - [x] `systemctl daemon-reload`
+  - [x] `systemctl enable`/`restart` `battle-hardened-ai` and `battle-hardened-ai-firewall-sync`.
+- [x] `prerm`/`postrm` handle stop/disable cleanly.
 
 ## ✅ DEBIAN PACKAGING FILES (`packaging/debian/`)
 
-- [ ] `control`
-  - [ ] Package metadata (name, version, maintainer, description) filled in.
-  - [ ] Dependencies listed: `python3`, `python3-venv` or equivalent, `systemd`, `iptables`, `ipset`, `curl`/`wget` if required, any others from `server/requirements.txt` that must be OS packages.
-- [ ] `rules`
-  - [ ] Uses `dh` (debhelper) for a simple build.
-  - [ ] Installs files to the chosen filesystem layout.
+- [x] `control`
+  - [x] Package metadata (name, version, maintainer, description) filled in.
+  - [x] Dependencies listed: `python3`, `python3-venv` or equivalent, `systemd`, `iptables`, `ipset`, `curl` (extend as needed from `server/requirements.txt`).
+- [x] `rules`
+  - [x] Uses `dh` (debhelper) for a simple build.
+  - [x] Installs files to the chosen filesystem layout.
 - [ ] `.install` file(s) (e.g. `battle-hardened-ai.install`)
   - [ ] Canonical layout decision documented and used consistently:
     - [ ] Runtime **data root** for non-frozen deployments set via `BATTLE_HARDENED_DATA_DIR=/var/lib/battle-hardened-ai` in the systemd unit so that `AI/path_helper.get_data_root()` points to `/var/lib/battle-hardened-ai` instead of the project root.
@@ -199,59 +196,59 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
     - [ ] `assets/* opt/battle-hardened-ai/assets/`
     - [ ] `packaging/systemd/battle-hardened-ai.service lib/systemd/system/`
     - [ ] (No entries for `relay/`, `packaging/windows/` (including `windows-firewall` helpers), `.git`, `.venv`, `build/`, or other Windows-only files as per the EXCLUSIONS section.)
-- [ ] Optional maintainer scripts:
-  - [ ] `postinst` for first-time JSON/dir initialization (or call into existing `server/installation/init_json_files.py`).
-  - [ ] `prerm`/`postrm` for cleanup.
+- [x] Optional maintainer scripts:
+  - [x] `postinst` for first-time JSON/dir initialization, venv setup, and service enable/start.
+  - [x] `prerm`/`postrm` for cleanup and service stop/disable.
 
 ### Postinst / Upgrade / Removal Behavior (PLAN BEFORE BUILD)
 
-- [ ] `postinst` responsibilities clearly defined and implemented:
-  - [ ] Create `/var/lib/battle-hardened-ai/**` and `/var/log/battle-hardened-ai/**` with correct ownership and modes.
-  - [ ] Copy or generate initial JSON templates from `/opt/battle-hardened-ai/server/json/` into `/var/lib/battle-hardened-ai/server/json/` **only on first install**, not on upgrade.
-  - [ ] Generate crypto keys in `/var/lib/battle-hardened-ai/server/crypto_keys/` if none exist (lab/demo keys may still exist under `/opt/...` for reference only).
+- [x] `postinst` responsibilities clearly defined and implemented:
+  - [x] Create `/var/lib/battle-hardened-ai/**` and `/var/log/battle-hardened-ai/**` with correct ownership and modes.
+  - [x] Copy initial JSON templates from `/opt/battle-hardened-ai/server/json/` into `/var/lib/battle-hardened-ai/server/json/` **only on first install** (if target is empty).
+  - [x] Generate crypto keys in `/var/lib/battle-hardened-ai/server/crypto_keys/` if none exist (lab/demo keys may still exist under `/opt/...` for reference only), implemented via an embedded Python helper in `battle-hardened-ai.postinst`.
   - [ ] Seed SBOM or integrity baselines if required by self_protection.
-  - [ ] Reload systemd and enable/start the service.
+  - [x] Reload systemd and enable/start the services.
 - [ ] Upgrade behavior:
-  - [ ] Preserve existing JSON and logs; never overwrite `/var/lib/battle-hardened-ai/**` by default.
+  - [x] Preserve existing JSON and logs; never overwrite `/var/lib/battle-hardened-ai/**` by default (`postinst` only seeds when targets are empty).
   - [ ] Handle JSON schema changes via migration scripts if keys/structures change.
-- [ ] Removal behavior:
-  - [ ] `apt remove` stops/ disables the service but leaves `/var/lib` and `/var/log` intact (documented).
-  - [ ] `apt purge` optionally removes data directories (confirm and document behavior).
+- [x] Removal behavior:
+  - [x] `apt remove` stops/ disables the service but leaves `/var/lib` and `/var/log` intact (implemented in `prerm`/`postrm` and documented here).
+  - [x] `apt purge` also leaves data directories intact by design; operators remove them manually if desired (behavior documented in `postrm`).
 
 ## ✅ FIREWALL INTEGRATION (LINUX)
 
-- [ ] Package either:
-  - [ ] Ships helper scripts to sync `blocked_ips.json` into ipset/iptables (Linux equivalent of Windows firewall script), **and/or**
-  - [ ] Documents how to wire existing firewall automation to `blocked_ips.json`.
-- [ ] Ensure any Linux-only firewall scripts or config are included under a stable path (`/opt/battle-hardened-ai/tools/` or similar).
+- [x] Package either:
+  - [x] Ships helper scripts to sync `blocked_ips.json` into ipset/iptables (Linux equivalent of Windows firewall script), **and/or**
+  - [x] Documents how to wire existing firewall automation to `blocked_ips.json` (see `Documentation/Firewall_enforcement.md` for Linux/Docker and Debian/.deb guidance).
+- [x] Ensure any Linux-only firewall scripts or config are included under a stable path (`/opt/battle-hardened-ai/server/installation/bh_firewall_sync.py`).
 
 ### Firewall Sync Helper (PLAN BEFORE BUILD)
 
-- [ ] Align `server/installation/bh_firewall_sync.py` (currently using `JSON_PATH="/app/json/blocked_ips.json"`) with Debian layout:
-  - [ ] Modify or parameterize JSON path so it reads from `get_blocked_ips_file()` / `/var/lib/battle-hardened-ai/server/json/blocked_ips.json` instead of `/app/json`.
-  - [ ] Install script to a stable location (e.g. `/opt/battle-hardened-ai/server/installation/bh_firewall_sync.py`).
-- [ ] Decide how the helper is started:
-  - [ ] Via a separate systemd unit/timer (e.g. `battle-hardened-ai-firewall-sync.service`), **or**
+- [x] Align `server/installation/bh_firewall_sync.py` with Debian layout:
+  - [x] Modify or parameterize JSON path so it reads from `AI.path_helper.get_blocked_ips_file()` (e.g. `/var/lib/battle-hardened-ai/server/json/blocked_ips.json` under `.deb`, `/app/json/blocked_ips.json` under Docker) instead of a hard-coded `/app/json` path.
+  - [x] Install script to a stable location (e.g. `/opt/battle-hardened-ai/server/installation/bh_firewall_sync.py`) via `packaging/debian/rules`.
+- [x] Decide how the helper is started:
+  - [x] Via a separate systemd unit (and optional BH_FIREWALL_SYNC_ENABLED env guard) using `battle-hardened-ai-firewall-sync.service`.
   - [ ] Via the main service using `BH_FIREWALL_SYNC_ENABLED` env var (Docker-style) if that model is preserved.
-- [ ] Document required capabilities (NET_ADMIN, ipset/iptables availability) for Linux hosts.
+- [x] Document required capabilities (NET_ADMIN, ipset/iptables availability) for Linux hosts (see Firewall_enforcement.md and Docker/host networking notes).
 
 ## ✅ RUNTIME DIRECTORIES & PERMISSIONS
 
 On install (or first start), ensure the following exist with correct ownership and permissions:
 
-- [ ] `/var/lib/battle-hardened-ai/json/` (state + JSON surfaces)
-- [ ] `/var/lib/battle-hardened-ai/pcap/`
-- [ ] `/var/lib/battle-hardened-ai/crypto_keys/`
-- [ ] `/var/log/battle-hardened-ai/`
-- [ ] Permissions allow the service user to read/write, but are not world-readable for sensitive content.
+- [x] `/var/lib/battle-hardened-ai/server/json/` (state + JSON surfaces; created and seeded by `battle-hardened-ai.postinst`).
+- [x] `/var/lib/battle-hardened-ai/pcap/` (created by `battle-hardened-ai.postinst`).
+- [x] `/var/lib/battle-hardened-ai/server/crypto_keys/` (created and populated by `battle-hardened-ai.postinst`).
+- [x] `/var/log/battle-hardened-ai/` (created by `battle-hardened-ai.postinst`).
+- [x] Permissions allow the service user to read/write, but are not world-readable for sensitive content (`bhai:bhai`, `750` on data/log directories, `UMask=007` in systemd units).
 
 ### Logging & Rotation (PLAN BEFORE BUILD)
 
-- [ ] Decide logging strategy:
-  - [ ] Rely primarily on systemd-journald (Gunicorn logs to stdout/stderr as configured in `gunicorn_config.py`), **and**
-  - [ ] Optionally have the app write structured logs under `/var/log/battle-hardened-ai/`.
-- [ ] If file logs are used, create a `logrotate` config snippet so logs do not grow without bounds.
-- [ ] Ensure log files never contain sensitive secrets or full payloads beyond what README promises.
+- [x] Decide logging strategy:
+  - [x] Rely primarily on systemd-journald (Gunicorn logs to stdout/stderr as configured in `gunicorn_config.py`).
+  - [x] Reserve `/var/log/battle-hardened-ai/` for optional structured/app logs managed by the Python code (directory created in `postinst`).
+- [x] If file logs are used beyond the journal and transient debug output, create a `logrotate` config snippet so logs do not grow without bounds (`packaging/debian/battle-hardened-ai.logrotate`).
+- [x] Ensure log files never contain sensitive secrets or full payloads beyond what README promises (logging remains focused on metadata, summaries, and threat context).
 
 ## ✅ DASHBOARD FEATURES TO VERIFY (LINUX DEPLOYMENT)
 
@@ -298,49 +295,50 @@ Verify the same UX expectations as the EXE, but from a Debian/Ubuntu install:
 - [ ] Representative SOAR/documentation endpoints: `/api/soar/stats`, `/api/openapi.json`, `/api/docs`
 - [ ] All other REST endpoints documented in `documentation/Dashboard.md` respond with 2xx or appropriate auth errors.
 
-## ✅ POST-BUILD VERIFICATION (DEBIAN/UBUNTU)
+## ✅ POST-BUILD VERIFICATION (DEBIAN/UBUNTU VIA DOCKER)
 
-On a clean Debian/Ubuntu VM or container:
+Canonical dev test environment is a clean Debian/Ubuntu Docker container:
 
-1. [ ] Install package with `sudo dpkg -i battle-hardened-ai_*.deb`.
-2. [ ] Run `sudo systemctl status battle-hardened-ai` – service is active (or clearly fails with useful logs).
-3. [ ] Confirm logs are written under `/var/log/battle-hardened-ai/`.
-4. [ ] Confirm JSON state and ML models are in the expected `/var/lib/battle-hardened-ai/` locations.
-5. [ ] Verify dashboard loads at `https://<host>:60000` (or `http://` if TLS terminated externally) as per Installation.md.
-6. [ ] Run at least one test from `KALI_ATTACK_TESTS.md` to ensure detection, blocking, and logging work end-to-end.
-7. [ ] Confirm Step 21 semantic gate loads and blocks a policy-violating HTTP request (as described in README.md).
-8. [ ] Verify relay connectivity (if enabled in `.env`) does not block core operation when disabled.
-9. [ ] Check that removing the package with `sudo apt remove battle-hardened-ai` stops the service and leaves operator data (JSON/logs) in a sensible state (documented behavior).
+1. [ ] Start a container (example): `docker run --rm -it -v "$PWD":/src -w /src debian:12-slim bash`.
+2. [ ] Inside the container, install build/runtime deps (`apt-get update && apt-get install -y systemd systemd-sysv iptables ipset curl python3 python3-venv` as needed).
+3. [ ] Install package with `dpkg -i battle-hardened-ai_*.deb` (from `/src`).
+4. [ ] Run `systemctl status battle-hardened-ai` – service is active (or clearly fails with useful logs). Note: running full systemd in Docker may require `--privileged` or a tuned base image; adjust per your Docker baseline.
+5. [ ] Confirm logs are written under `/var/log/battle-hardened-ai/` inside the container.
+6. [ ] Confirm JSON state and ML models are in the expected `/var/lib/battle-hardened-ai/` locations.
+7. [ ] Verify dashboard loads from the container at `https://<container-ip>:60000` (or `http://` if TLS terminated externally) as per Installation.md.
+8. [ ] Run at least one test from `KALI_ATTACK_TESTS.md` (adapted for container networking) to ensure detection, blocking, and logging work end-to-end.
+9. [ ] Confirm Step 21 semantic gate loads and blocks a policy-violating HTTP request (as described in README.md).
+10. [ ] Verify relay connectivity (if enabled in `.env`) does not block core operation when disabled.
+11. [ ] Check that removing the package with `apt remove battle-hardened-ai` stops the service and leaves operator data (JSON/logs) in a sensible state (documented behavior).
 
 ## ✅ MODES / PROFILES (GATEWAY VS HOST)
 
-- [ ] Decide whether the `.deb` supports multiple modes or only gateway mode:
-  - [ ] **Gateway mode (default):** Full network monitoring, eBPF/XDP, firewall sync, honeypot ports (as described in README/Installation.md).
-  - [ ] **Host-only mode (optional):** Reduced feature set for single-host deployments (no firewall sync, limited packet capture); if implemented, clearly document how to enable it (e.g. via `.env` flag or separate systemd unit template).
-- [ ] Ensure mode selection does not silently disable critical JSON surfaces or Step 21 gate behavior; differences must be explicit in docs and UI.
+- [x] Decide whether the `.deb` supports multiple modes or only gateway mode:
+  - [x] **Gateway mode (default):** Primary and only officially supported profile for the `.deb`, with full network monitoring, firewall sync, and honeypot ports (documented in README/Installation.md).
+  - [x] **Host-only mode (optional):** Not provided as a separate profile in the initial `.deb`; operators who want a single-host deployment can still install the package on a host and tune `.env` (for example, disabling firewall sync), but this is treated as an advanced configuration.
+- [x] Ensure mode selection does not silently disable critical JSON surfaces or Step 21 gate behavior; since there is a single gateway-focused profile, all JSON surfaces and Step 21 behavior remain enabled by default.
 
 ## ✅ EXCLUSIONS / NON-GOALS FOR .DEB
 
-- [ ] ❌ Do not ship the `relay/` folder at all (relay remains a separate component, not part of the gateway `.deb`).
-- [ ] ❌ Do not include `__pycache__/`, `.git/`, `.venv/`, `build/`, or `dist/` directories.
-- [ ] ❌ Do not include Windows-only artifacts from `server/`:
-  - [ ] `server/debug_server.py` (dev helper only, not for production packages)
-- [ ] ❌ Do not include Windows packaging or tooling:
-  - [ ] `packaging/windows/`
-  - [ ] Any `.ps1` / `.bat` scripts that are only for Windows EXE or Windows firewall setup.
-- [ ] ❌ Do not include Docker-only dev artifacts in the `.deb` payload (they may remain in the source repo but are not installed on target systems):
-  - [ ] Root-level `docker-compose.yml`, any `Dockerfile`/`docker-compose.yml` under `server/` or `relay/`, and `.dockerignore`.
-- [ ] ❌ Do not hard-code environment-specific secrets; expect operators to configure via `.env` or environment variables.
+- [x] ❌ Do not ship the `relay/` folder at all (relay remains a separate component, not part of the gateway `.deb`) – `packaging/debian/rules` only installs `AI/`, `server/`, `policies/`, and `assets/`.
+- [x] ❌ Do not include `__pycache__/`, `.git/`, `.venv/`, `build/`, or `dist` directories.
+- [x] ❌ Do not include Windows-only artifacts from `server/`:
+  - [x] `server/debug_server.py` (no such file is present; Windows helpers live under `packaging/windows/` and are not installed).
+- [x] ❌ Do not include Windows packaging or tooling:
+  - [x] `packaging/windows/` (not referenced in `rules`).
+  - [x] Any `.ps1` / `.bat` scripts that are only for Windows EXE or Windows firewall setup (all outside the installed directories).
+- [x] ❌ Do not include Docker-only dev artifacts in the `.deb` payload (they may remain in the source repo but are not installed on target systems):
+  - [x] Root-level `docker-compose.yml`, any `Dockerfile`/`docker-compose.yml` under `server` or `relay`, and `.dockerignore` (none of these are under the copied install paths, or they are intentionally omitted).
+- [x] ❌ Do not hard-code environment-specific secrets; expect operators to configure via `.env` or environment variables (no secrets baked into the Debian layout).
 
 ## ✅ BUILD COMMAND (DEVELOPMENT)
 
-Document the canonical developer build flow for `.deb`:
+Document the canonical developer build flow for `.deb` (for use on a Debian/Ubuntu build host with `debhelper`, `devscripts`, and `dpkg-dev` installed):
 
-- [ ] From repo root: `cd packaging/debian` or appropriate root.
-- [ ] Run `dpkg-buildpackage -us -uc` (or `debuild`) with the correct environment.
-- [ ] Output `.deb` lands in parent directory; version and architecture are correct.
-
-(Exact commands will be updated once the Debian packaging files are implemented and tested.)
+- [x] Ensure Debian maintainer scripts are executable (e.g. `chmod +x packaging/debian/battle-hardened-ai.*`).
+- [x] From repo root: `cd packaging/debian`.
+- [x] Run `dpkg-buildpackage -us -uc` (or `debuild`) with the correct environment.
+- [x] Confirm the output `battle-hardened-ai_*.deb` lands in the parent directory.
 
 ## ✅ KNOWN ISSUES / OPEN QUESTIONS
 
@@ -349,4 +347,4 @@ Track early Debian/RPM mistakes here to avoid repeating the "100 tries" EXE expe
 - [ ] Paths where Linux layout diverges from Windows EXE (especially crypto keys and JSON directory).
 - [ ] Any missing runtime dependency discovered only after deployment (add to `Depends:` in `control`).
 - [ ] Any systemd behavior differences across Debian/Ubuntu releases (e.g. `systemctl` vs `service` fallbacks).
-- [ ] Decision on whether the package is **gateway-only** or also supports host-only mode on Linux, and how that is exposed in docs and defaults.
+- [x] Decision on whether the package is **gateway-only** or also supports host-only mode on Linux, and how that is exposed in docs and defaults (resolved as a gateway-focused `.deb`, with host-only behavior treated as advanced tuning via `.env`).

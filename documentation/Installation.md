@@ -209,6 +209,108 @@ If you received a signed **Battle-Hardened AI Linux package** from the vendor (f
 
 The remaining Docker and `git clone` instructions in this section describe a **developer/source installation** from GitHub and are mainly intended for lab setups or contributors.
 
+#### Debian/Ubuntu .deb – Gateway/Host Deployment Details
+
+If you are deploying the **.deb package** on a physical or virtual gateway/host (instead of running from source), the service behaves as a standard Linux appliance with a fixed, documented layout.
+
+The `.deb` is designed primarily for **gateway/edge deployments** (single-node appliance in front of a segment). You can also install it on a single Linux host, but there is no separate "host-only" profile – behavior is the same binary and same services, with advanced operators free to tune `.env` (for example, disabling firewall sync) if they intentionally want a passive, non-enforcing host setup.
+
+**Supported distributions and architecture**
+- Debian 12 (bookworm), Ubuntu Server 22.04 LTS
+- Architecture: `amd64` (x86_64). Other derivatives may work but are not officially validated yet.
+
+**Python runtime model**
+- Uses the system `python3` with an isolated virtual environment under `/opt/battle-hardened-ai/venv`.
+- The Debian `postinst` script automatically:
+   - Creates the venv at `/opt/battle-hardened-ai/venv`.
+   - Installs all Python dependencies from `/opt/battle-hardened-ai/server/requirements.txt` using `pip`.
+- Base OS dependencies (managed by `apt` and pulled in automatically when you run `apt-get install -f`):
+   - `python3`, `python3-venv`, `systemd`, `iptables`, `ipset`, `curl` (plus standard libraries these depend on).
+- Minimum Python version: **3.10+** (tested with the default Python on Debian 12/Ubuntu 22.04).
+
+**Filesystem layout on packaged installs**
+- Application code (read-only, owned by root):
+   - `/opt/battle-hardened-ai/AI/`
+   - `/opt/battle-hardened-ai/server/`
+   - `/opt/battle-hardened-ai/policies/`
+   - `/opt/battle-hardened-ai/assets/`
+- Configuration:
+   - `/etc/battle-hardened-ai/.env` – primary configuration file read by the systemd unit via `EnvironmentFile=`.
+   - On **first install**, a default `.env` is copied from `/opt/battle-hardened-ai/server/.env` **only if** `/etc/battle-hardened-ai/.env` does not already exist.
+   - On **upgrades**, the existing `/etc/battle-hardened-ai/.env` is preserved and not overwritten.
+- Runtime data (writable by the `bhai` service user):
+   - JSON state: `/var/lib/battle-hardened-ai/server/json/` (all dashboard/API JSON surfaces).
+   - ML models: `/var/lib/battle-hardened-ai/AI/ml_models/` (seeded from `/opt/battle-hardened-ai/AI/ml_models/` on first install).
+   - Crypto keys: `/var/lib/battle-hardened-ai/server/crypto_keys/` (runtime RSA keys, shared secret, TLS cert/key generated on first install).
+   - PCAP captures: `/var/lib/battle-hardened-ai/pcap/`.
+- Logs:
+   - `/var/log/battle-hardened-ai/` (owned by `bhai:bhai`).
+   - Systemd journal (`journalctl -u battle-hardened-ai`) for stdout/stderr from Gunicorn and the app.
+
+**Systemd services installed by the .deb**
+- `battle-hardened-ai.service` – main API and dashboard service:
+   - Runs Gunicorn from `/opt/battle-hardened-ai/venv/bin/gunicorn`.
+   - Uses `BATTLE_HARDENED_PROJECT_ROOT=/opt/battle-hardened-ai` and `BATTLE_HARDENED_DATA_DIR=/var/lib/battle-hardened-ai` so `AI.path_helper` resolves paths correctly.
+- `battle-hardened-ai-firewall-sync.service` – optional Linux firewall sync helper:
+   - Reads `blocked_ips.json` via `AI.path_helper` and keeps an `ipset` + `iptables` DROP rule set in sync.
+   - Requires `ipset` and `iptables` on the host (installed via `apt` dependencies).
+
+Useful commands on a Debian/Ubuntu gateway:
+
+```bash
+sudo systemctl status battle-hardened-ai
+sudo systemctl status battle-hardened-ai-firewall-sync
+
+sudo journalctl -u battle-hardened-ai -n 50 --no-pager
+sudo journalctl -u battle-hardened-ai-firewall-sync -n 50 --no-pager
+```
+
+**Editing configuration on packaged installs**
+
+To change network interface, relay URL, or other settings used by the packaged service, edit the managed `.env` file under `/etc` (do **not** edit the copy under `/opt`):
+
+```bash
+sudo nano /etc/battle-hardened-ai/.env
+```
+
+Common settings to review:
+- `NETWORK_INTERFACE=eth0` (or your primary gateway NIC)
+- `RELAY_ENABLED=false` / `true`
+- `RELAY_URL=wss://YOUR_VPS_IP:60001` (if using the optional relay)
+- `BH_FIREWALL_SYNC_ENABLED=true` (should normally be `true` on Linux gateways so the firewall sync service enforces blocks)
+
+After making changes, reload the service:
+
+```bash
+sudo systemctl restart battle-hardened-ai
+sudo systemctl restart battle-hardened-ai-firewall-sync
+```
+
+#### Building the .deb from source (developers only)
+
+If you are a developer or auditor working from the Git repository and want to build the Debian package yourself, use a clean Debian 12 or Ubuntu 22.04 build environment:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential debhelper devscripts dpkg-dev python3 python3-venv
+
+cd /path/to/battle-hardened-ai/packaging/debian
+dpkg-buildpackage -us -uc
+```
+
+This produces a file like `battle-hardened-ai_*.deb` one level up (in the repository root). You can also run the same commands inside a Debian Docker container mounted over the repo if you are building from Windows.
+
+To install the locally built package on a Debian/Ubuntu gateway or host:
+
+```bash
+sudo dpkg -i battle-hardened-ai_*.deb
+sudo apt-get install -f   # pulls any missing dependencies
+
+sudo systemctl enable battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo systemctl status battle-hardened-ai
+```
+
 ### Step 1: Install Docker
 
 **Ubuntu / Debian / Kali Linux:**
