@@ -170,13 +170,13 @@ docker logs security-relay-server --tail 100 | grep "Saved SANITIZED attack"
 
 **File:** `server/json/whitelist.json`
 
-**Example Enterprise Configuration:**
+**Example Enterprise Configuration (explicit, operator-managed):**
 ```json
 [
   "10.0.0.1",          // Enterprise gateway
   "192.168.0.116",     // Security appliance (self)
-  "172.18.0.1",        // Docker bridge (Windows)
-  "172.17.0.1",        // Docker bridge (Linux)
+  "172.18.0.1",        // Docker bridge (Windows) - only if this host truly must never be blocked
+  "172.17.0.1",        // Docker bridge (Linux) - only if this host truly must never be blocked
   "10.0.1.10",         // SOC workstation
   "10.0.1.11",         // SIEM collector
   "10.0.2.5",          // Active Directory DC
@@ -195,8 +195,7 @@ docker logs security-relay-server --tail 100 | grep "Saved SANITIZED attack"
 - **Default gateway exemption:** Only `.1` addresses (not entire VLAN)
 
 **Testing/Development Note:**
-- Pentesting IP `192.168.0.119` was **REMOVED** from whitelist ✅
-- Will now be blocked on attack attempts (as designed)
+- Pentesting IP `192.168.0.119` is **not** in the whitelist by default and will be blocked on attack attempts unless you explicitly add it for a specific lab scenario.
 
 ---
 
@@ -308,6 +307,6 @@ This separation ensures:
 4. **Relay to relay server** (global sharing)
 5. **Relay server storage** (global_attacks.json)
 
-**NO WHITELISTING** for attack sources (except localhost/Docker/GitHub)
+**NO HIDDEN WHITELISTING** for attack sources (beyond localhost defaults, dynamic GitHub ranges, and any explicit entries you put into `whitelist.json`)
 **NO DELAYS** in blocking (instant on detection)
 **NO EXCEPTIONS** for any attack type

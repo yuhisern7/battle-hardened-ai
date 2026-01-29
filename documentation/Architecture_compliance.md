@@ -407,7 +407,7 @@ cat server/json/honeypot_attacks.json
 **Blocking Function:**
 - File: `AI/pcs_ai.py`
 - Function: `_block_ip()` (line 3045-3065)
-- Whitelist check: Skips localhost, Docker, GitHub IPs
+- Whitelist check: Skips built-in localhost defaults plus any entries from `whitelist.json`; dynamic GitHub ranges are handled separately by the GitHub protection helper (no other infrastructure IPs are hardcoded)
 - Persists to: `server/json/blocked_ips.json`
 
 ---

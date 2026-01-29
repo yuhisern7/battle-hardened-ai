@@ -616,7 +616,7 @@ show_json("/api/sandbox/stats")
 # import requests; requests.post(BASE_URL+"/api/sandbox/detonate", files={"file": open("sample.bin","rb")})
 ```
 
-## Section 21 – Email/SMS Alerts (Critical Only)
+## Section 21 – Email/SMS Alerts (Critical Events)
 
 Backed by: `/api/alerts/stats` and `AI/alert_system.py`.
 
@@ -658,7 +658,7 @@ Clustered deployments also rely on two non-dashboard endpoints for governance an
 - `/cluster/config/snapshot` – active-node-only snapshot of selected JSON config surfaces listed in `config_sync_paths` inside the same `cluster_config.json`, used by passive nodes for safe config synchronization.
 ```
 
-## Section 25 – Enterprise Security Integrations
+## Section 24 – Enterprise Security Integrations (Outbound)
 
 **Plane:** Enterprise Integration (visibility & coordination only)
 

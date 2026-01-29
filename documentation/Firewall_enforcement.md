@@ -4,12 +4,12 @@ Battle-Hardened AI already makes **first-layer decisions** about which IPs are m
 
 This guide shows how to **turn those decisions into real firewall blocks** on:
 
-- Linux gateway / edge boxes (Docker deployment, host networking)
+- Linux gateway / edge boxes (packaged systemd service or Docker deployment)
 - Windows hosts (packaged EXE or native Python deployment)
 
 It is written for **enterprise and regulated environments** with change control, GPO/MDM, and third‑party EDR/endpoint firewalls. Treat the concrete scripts here as **reference implementations** of the required ports and rules, not as a replacement for your existing policy tooling.
 
-> **Distribution note:** Customer deployments normally use Linux packages (`.deb`/`.rpm`) or the Windows EXE installer; you do **not** need a Git clone of the repository. Where this guide references paths like `server/docker-compose.yml` or `server/.env.linux`, treat those as **developer/source examples** – packaged appliances run the same Docker image and entrypoint under a managed service as described in INSTALLATION.
+> **Distribution note:** Customer deployments normally use Linux packages (`.deb`/`.rpm`) or the Windows EXE installer; you do **not** need a Git clone of the repository. Where this guide references paths like `server/docker-compose.yml` or `server/.env.linux`, treat those as **developer/source examples** – packaged Linux appliances run a native Gunicorn + systemd service (see INSTALLATION), while source-based labs may use the Docker stack instead.
 
 > Battle-Hardened AI remains a **first-layer decision node**. These integrations simply push its `blocked_ips` into the OS firewall so port scans and attacks from those IPs are dropped at the network boundary.
 
@@ -32,29 +32,21 @@ In tightly controlled environments, these ports are normally opened on **securit
 
 ---
 
-## 1. Linux (Docker, Host Networking) — Automatic Mode
+## 1. Linux (Packaged & Docker) — Automatic Mode
 
-On Linux, Battle-Hardened AI runs in a Docker container with:
+On Linux there are two common runtime profiles, both of which can automatically sync Battle-Hardened AI's `blocked_ips.json` into the host firewall when enabled:
 
-- `network_mode: host`
-- `NET_ADMIN` and related capabilities
+- **Packaged Linux appliance (.deb/.rpm, recommended for customers):** Native Gunicorn + systemd services (`battle-hardened-ai.service` and `battle-hardened-ai-firewall-sync.service`) using `AI.path_helper` to resolve `/var/lib/battle-hardened-ai/server/json/blocked_ips.json` and maintain an `ipset`/`iptables` DROP set on the host.
+- **From source (developers/labs):** Docker Compose stack from the `server` directory using `network_mode: host` and `NET_ADMIN`, where the container entrypoint runs the same firewall sync helper inside the container and applies rules to the host because of host networking.
 
-The container includes a small daemon that **automatically syncs** Battle-Hardened AI's `blocked_ips.json` into the host firewall when enabled.
+In both cases, the Linux box should be a **gateway/router** or **edge device** for the traffic you care about.
 
-### 1.1. Prerequisites
-
-- **Packaged Linux appliance (recommended for customers):** Battle-Hardened AI is installed from a vendor-signed `.deb`/`.rpm` and managed via a systemd service (for example `battle-hardened-ai`). The package internally runs the same Docker Compose stack on the host with `network_mode: host` and `NET_ADMIN`.
-- **From source (developers/labs):** You are running from the `server` directory using Docker Compose: `docker compose up -d` and [server/docker-compose.yml](server/docker-compose.yml) is unmodified with respect to:
-  - `network_mode: host`
-  - `cap_add` including `NET_ADMIN`.
-- The Linux box is a **gateway/router** or **edge device** for the traffic you care about.
-
-### 1.2. Enable Automatic Firewall Sync
+### 1.1. Enable Automatic Firewall Sync
 
 1. In your Linux environment configuration, enable firewall sync.
 
-  - **Packaged appliance:** Follow the Linux section in INSTALLATION to set `BH_FIREWALL_SYNC_ENABLED=true` in the service’s environment (for example via `/etc/default/battle-hardened-ai` or the package’s `.env` file).
-  - **From source:** In [server/.env.linux](server/.env.linux) (or your `.env` on Linux), set:
+  - **Packaged appliance:** Follow the Linux section in INSTALLATION to set `BH_FIREWALL_SYNC_ENABLED=true` in `/etc/battle-hardened-ai/.env`. The Debian package installs and wires `battle-hardened-ai-firewall-sync.service` to read this setting.
+  - **From source (Docker Compose):** In [server/.env.linux](server/.env.linux) (or your `.env` on Linux), set:
 
     ```env
     BH_FIREWALL_SYNC_ENABLED=true
@@ -66,6 +58,7 @@ The container includes a small daemon that **automatically syncs** Battle-Harden
 
       ```bash
       sudo systemctl restart battle-hardened-ai
+      sudo systemctl restart battle-hardened-ai-firewall-sync
       ```
 
     - **From source (Docker Compose):**
@@ -76,22 +69,22 @@ The container includes a small daemon that **automatically syncs** Battle-Harden
       docker compose up -d
       ```
 
-3. Inside the Docker image (for both packaged and source-based deployments), the entrypoint script [server/entrypoint.sh](server/entrypoint.sh):
+3. For Docker-based labs, the entrypoint script [server/entrypoint.sh](server/entrypoint.sh):
     - Detects `BH_FIREWALL_SYNC_ENABLED=true`.
-    - Starts `/app/installation/bh_firewall_sync.py` in the background.
+    - Starts `/app/installation/bh_firewall_sync.py` in the background, which reads `/app/json/blocked_ips.json` (the container view of the JSON directory resolved by AI/path_helper) and applies `ipset`/`iptables` rules on the host.
 
 From this point onward:
 
 - You **do not need to run any extra scripts** on Linux.
-- Clicking **Unblock** in the dashboard (Section 7) updates `blocked_ips.json`.
-- The sync daemon:
-  - Reads `/app/json/blocked_ips.json` (the host-side JSON directory as resolved by AI/path_helper; in a source checkout this is [server/json/blocked_ips.json](server/json/blocked_ips.json)).
+- Clicking **Unblock** in the dashboard (Section 7) updates `blocked_ips.json` in the JSON directory.
+- The sync helper (systemd service on packaged installs, background helper in the Docker image for labs):
+  - Reads `blocked_ips.json` via `AI.path_helper`.
   - Rebuilds an `ipset` named `bh_blocked` on the host.
   - Ensures `iptables` rules on `INPUT` and `FORWARD` drop traffic from that set.
 
 Unblocking or whitelisting in Section 7 **automatically** removes the IP from `blocked_ips.json`, and the next sync removes it from the Linux firewall as well.
 
-### 1.3. Verify Host Firewall Rules
+### 1.2. Verify Host Firewall Rules
 
 On the Linux host (not in another container):
 
@@ -101,7 +94,7 @@ sudo iptables -L INPUT -n | grep bh_blocked || echo "no INPUT rule yet"
 sudo iptables -L FORWARD -n | grep bh_blocked || echo "no FORWARD rule yet"
 ```
 
-If `BH_FIREWALL_SYNC_ENABLED=true` and the container is running, you should see:
+If `BH_FIREWALL_SYNC_ENABLED=true` and the service/stack is running, you should see:
 
 - A set `bh_blocked` populated with IPs from `blocked_ips.json`.
 - DROP rules on INPUT/FORWARD referencing that set.
@@ -198,7 +191,7 @@ Now Windows Defender Firewall will be updated periodically from Battle-Hardened 
 - Battle-Hardened AI remains a **first-layer decision engine**. These integrations only control how those decisions are enforced at the OS/network level.
 - For **Linux**:
   - The host must be placed as a **gateway/router or edge device** to protect more than itself.
-  - ipset/iptables rules configured by the container affect the host because of `network_mode: host` and granted capabilities.
+  - ipset/iptables rules configured by the firewall sync helper affect the host directly (native systemd service on packaged installs, or via host networking + capabilities in Docker-based labs).
 - For **Windows**:
   - The firewall integration primarily protects the **Windows host itself** and any services directly exposed on that host.
   - It does not automatically protect other devices on the LAN unless Windows is acting as a router.
