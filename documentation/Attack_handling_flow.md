@@ -28,10 +28,9 @@ When a request matches any configured or learned attack pattern in scope of the 
 _block_ip(ip_address)
 print(f"[IP BLOCKING] 🚫 Blocked {ip_address} for {threat_type}")
 ```
-- **Whitelist Check:** Skips whitelisting for hardcoded infrastructure and managed whitelist entries
-- **GitHub IP Check:** Skips GitHub IPs (for automated security updates)
-- **Docker Bridge Check:** Skips Docker bridge interfaces
-- **BLOCKS EVERYONE ELSE** - Added to `_blocked_ips` set
+- **Whitelist Check:** Respects built-in localhost defaults (`127.0.0.1`, `localhost`, `::1`) plus entries from `whitelist.json`
+- **GitHub Protection:** Dynamically unblocks any IPs that fall inside GitHub's published IP ranges (for automated security updates), using ranges fetched from the `https://api.github.com/meta` endpoint
+- **BLOCKS EVERYONE ELSE** – Added to `_blocked_ips` set and persisted unless explicitly whitelisted
 - **Persisted:** Saved to `server/json/blocked_ips.json` (Line 3104)
 
 **Result:** Attacker CANNOT make any more requests (403 Forbidden)

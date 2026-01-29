@@ -339,28 +339,32 @@ While this document focuses on the upload path, the **download path is also full
 
 ### IP Blocking Whitelist
 
-**Never Blocked (Hardcoded):**
-- `127.0.0.1`, `localhost`, `::1` - Localhost (internal services)
-- `172.17.0.1` - Docker bridge (default container network)
-- `172.18.0.1` - Docker bridge (Windows containers)
-- `172.19.0.1`, `172.16.0.1` - Docker bridge variants
-- `10.0.0.1` - Enterprise gateway (common enterprise network gateway)
-- `192.168.0.1` - Network gateway (SOHO/branch office environments)
-- GitHub IP ranges - For automated security updates
-- Explicitly whitelisted IPs in `server/json/whitelist.json` (IT-managed whitelist)
+This section reflects the **current implemented behavior** in `AI/pcs_ai.py` and the JSON surfaces resolved via `AI/path_helper`.
+
+**Built-in defaults (never blocked by the core engine):**
+- `127.0.0.1`, `localhost`, `::1` – Localhost and loopback variants used for internal services and health checks.
+
+There are **no other hardcoded infrastructure IPs** (such as Docker bridges, gateways, or RFC1918 ranges) baked into the engine. Any additional addresses that should never be blocked must be managed through the runtime whitelist.
+
+**Configurable whitelist (JSON + dashboard/API):**
+- Backing file: `server/json/whitelist.json` (resolved at runtime via the path helper; packages and EXE builds use the corresponding JSON directory on disk).
+- On startup, the engine loads this file and merges entries into the in-memory whitelist alongside the localhost defaults.
+- The dashboard and APIs expose add/remove operations (for example, "Add to whitelist" from Section 7 in the dashboard), which update the in-memory set and persist back to `whitelist.json`.
+
+Recommended use of the configurable whitelist:
+- Add **specific** corporate gateways, proxy servers, and management servers.
+- Add SOC workstations, SIEM collectors, and automation endpoints that must remain reachable during active attacks.
+- Avoid whitelisting entire private ranges (for example, `192.168.0.0/16` or `10.0.0.0/8`); keep the whitelist as small and intentional as possible.
+
+**Dynamic GitHub protection (for automated updates):**
+- On startup, `AI/pcs_ai.py` fetches GitHub's current IP ranges from the official `https://api.github.com/meta` endpoint and caches them as CIDR networks (with documented fallback ranges if the API is unreachable).
+- A helper routine then scans the current blocked IP set and **unblocks any IPs that fall inside those GitHub ranges**, ensuring that automated security and dependency updates are not permanently blocked by mistake.
+- This mechanism is **dynamic and data-driven**, not a fixed list of GitHub IP literals in the code.
 
 **Enterprise Network Considerations:**
-- Only specific gateway IPs are whitelisted, **NOT entire subnets**
-- Add your corporate gateway, proxy servers, and management servers to `server/json/whitelist.json`
-- Security monitoring stations, SIEM collectors, and SOC workstations should be whitelisted
-- Do NOT whitelist entire VLANs or subnets (e.g., `192.168.0.0/16` or `10.0.0.0/8`)
-- Example: Pentesting workstation `192.168.0.119` WILL be blocked unless explicitly whitelisted
-
-**Recommended Enterprise Whitelisting:**
-1. **Network Infrastructure:** Gateway IPs, DNS servers, NTP servers
-2. **Security Operations:** SOC workstations, SIEM collectors, vulnerability scanners (when not testing)
-3. **Management Systems:** Active Directory DCs, patch management servers, monitoring tools
-4. **DevOps:** CI/CD servers, deployment automation, container registries
+- Only localhost is whitelisted by default; **all other infrastructure must be explicitly whitelisted** if you require immunity from blocking.
+- Pentest hosts, red-team jump boxes, and test harnesses will be blocked like any other attacker unless they are explicitly added to the whitelist.
+- For highly critical infrastructure (for example, AD DCs, core routers, or monitoring systems), prefer explicit, well-documented whitelist entries over blanket subnets.
 
 ### Testing Commands
 
@@ -435,6 +439,6 @@ cat server/json/honeypot_attacks.json
 
 ---
 
-**Last Verified:** January 13, 2026  
+**Last Verified:** January 29, 2026  
 **Status:** ✅ ARCHITECTURE COMPLIANT  
-**Recent Updates:** Consolidated whitelist documentation, fixed crypto_keys path reference
+**Recent Updates:** Consolidated whitelist documentation (removed outdated hardcoded infrastructure IP list), clarified dynamic GitHub range handling, fixed crypto_keys path reference
