@@ -1,6 +1,6 @@
 # Battle-Hardened AI - Complete Installation Guide
 
-**Complete installation instructions for Linux, Windows, macOS, and optional Relay Server setup.**
+**Complete installation instructions for Linux (.deb/.rpm), Windows (EXE installer), and optional Relay Server setup.**
 
 ---
 
@@ -82,537 +82,73 @@ Place the `shared_secret.key` file in:
 
 If you are running the **packaged Linux or Windows builds**, you normally do **not** interact with the full Git source tree; treat the developer/auditor docs as optional deep-dive references rather than required install steps.
 
-### 🖥️ Client Installation (Choose One)
+## Troubleshooting
 
-#### Linux (Recommended - Full Features)
-- ✅ **Docker**: Network-wide monitoring + full eBPF support
-- ✅ **21/21 Detection Layers** at maximum capability (20 detection signals + Step 21 semantic gate)
-- ✅ **Easiest Setup**: Single command `docker compose up -d`
-- ✅ **Production Ready**: Host mode networking for entire network protection
+### Common Issues (Packaged Installs)
 
-#### Windows (Native Python Required)
-- ⚠️ **Docker Limitation**: Cannot monitor network-wide traffic
-- ✅ **Native Python**: Required for network-wide protection
-- ✅ **21/21 Detection Layers** (~99% capability - Signal #1 uses Scapy instead of eBPF; Step 21 semantic gate still active)
-- ✅ **Requirements**: Python 3.10+, Npcap driver, Administrator privileges
-- ✅ **Real Honeypot**: 7 services (SSH, FTP, Telnet, MySQL, HTTP, SMTP, RDP)
-
-#### macOS (Native Python Required)
-- ⚠️ **Docker Limitation**: Same as Windows
-- ✅ **Native Python**: Required for network-wide protection
-- ⚠️ **Not Recommended**: Best for testing/development only
-
-### 🌐 Optional: Relay Server (VPS)
-- ✅ **Centralized AI Training** - All customers share same threat intelligence
-- ✅ **ExploitDB Integration** - 43,971 exploits automatically loaded
-- ✅ **Global Threat Sharing** - P2P encrypted threat distribution
-- ✅ **One-Time Setup** - Deploy once, all customers benefit
-- 📖 **Setup Guide:** See [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)
-
-**Platform Decision Guide:**
-- **Linux users** → Use Docker (easiest, full features)
-- **Windows/macOS users** → Use native Python for network-wide protection
-- **Testing only** → Docker works on any platform (limited to container traffic)
-- **Multiple customers** → Deploy relay server on VPS (optional)
-
----
-
-## 📋 Table of Contents
-
-### Client Installation
-- [Linux Installation (Docker)](#linux-installation-docker)
-- [Windows Installation (Native Python)](#windows-installation-native-python)
-- [macOS Installation (Native Python)](#macos-installation-native-python)
-- [Detection Capability Comparison](#detection-capability-comparison)
-
-### Relay Server (Optional)
-- [Relay Server Setup](#relay-server-setup-optional)
-- [Client-Relay Configuration](#client-relay-configuration)
-
-### Post-Installation
-- [Verification & Testing](#post-installation)
-- [Training & Synchronization](#training--synchronization)
-- [Troubleshooting](#troubleshooting)
-- [Updating](#updating)
-- [Uninstallation](#uninstallation)
-
----
-
-## Linux Installation (Docker)
-
-### ✅ What You Get
-- **21/21 detection layers** at full capability (20 signals + Step 21 semantic gate)
-- **7 honeypot services** (SSH, FTP, Telnet, MySQL, HTTP, SMTP, RDP) for network-wide attack detection
-- **Kernel-level eBPF** monitoring (Signal #1)
-- **Network-wide protection** via Docker host mode
-- **Auto-updating ML models** with synthetic training data
-- **HTTPS dashboard** on port 60000
-- **Optional VPS relay** for global threat sharing
-
-### System Requirements
-- Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+, Fedora 36+, or Kali Linux
-- 2 GB RAM (4 GB recommended)
-- 2 GB free disk space
-- Ports 60000 (Dashboard), 60001 (Relay/P2P - optional)
-
-**Linux Firewall Checklist (Host OS):**
-- If you run a host firewall (ufw, firewalld, iptables, cloud security groups), ensure:
-   - **Inbound allowed:**
-      - TCP 60000 from your admins/SOC (dashboard/API)
-      - TCP 2121, 2222, 2323, 3306, 8080, 2525, 3389 from the segments you want the real honeypot to see
-   - **Outbound allowed:**
-      - TCP 60001 and 60002 from the Battle-Hardened AI node to your relay VPS (WebSocket + HTTPS API), if you use the optional relay.
-
-Example with `ufw` on the Linux gateway/host:
-
-```bash
-sudo ufw allow 60000/tcp comment 'Battle-Hardened AI Dashboard'
-sudo ufw allow 2121,2222,2323,3306,8080,2525,3389/tcp comment 'Battle-Hardened AI Honeypot'
-sudo ufw allow out 60001,60002/tcp comment 'Battle-Hardened AI Relay'
-```
-
-### Linux Package Installation (.deb/.rpm – Recommended for customers)
-
-If you received a signed **Battle-Hardened AI Linux package** from the vendor (for example `battle-hardened-ai_*.deb` or `battle-hardened-ai-*.rpm`), use this high-level flow:
-
-1. **Install Docker and Docker Compose** on the gateway/host if they are not already present (follow the commands in **Step 1: Install Docker** below).
-2. **Install the package** for your distribution:
-
-   **Debian/Ubuntu/Kali (.deb):**
-
-   ```bash
-   sudo dpkg -i battle-hardened-ai_*.deb
-   sudo apt-get install -f   # pulls any missing dependencies
-   ```
-
-   **RHEL/CentOS/Fedora (.rpm):**
-
-   ```bash
-   sudo rpm -ivh battle-hardened-ai-*.rpm
-   # or (recommended on newer distros):
-   sudo dnf install ./battle-hardened-ai-*.rpm
-   ```
-
-3. **Enable and start the service** (the package sets up a systemd unit named `battle-hardened-ai`):
-
-   ```bash
-   sudo systemctl enable battle-hardened-ai
-   sudo systemctl start battle-hardened-ai
-   sudo systemctl status battle-hardened-ai
-   ```
-
-4. Once the service reports **active (running)** and the firewall checklist above is satisfied, access the dashboard from an admin/SOC workstation:
-
-   ```text
-   https://YOUR_GATEWAY_IP:60000
-   ```
-
-The remaining Docker and `git clone` instructions in this section describe a **developer/source installation** from GitHub and are mainly intended for lab setups or contributors.
-
-#### Debian/Ubuntu .deb – Gateway/Host Deployment Details
-
-If you are deploying the **.deb package** on a physical or virtual gateway/host (instead of running from source), the service behaves as a standard Linux appliance with a fixed, documented layout.
-
-The `.deb` is designed primarily for **gateway/edge deployments** (single-node appliance in front of a segment). You can also install it on a single Linux host, but there is no separate "host-only" profile – behavior is the same binary and same services, with advanced operators free to tune `.env` (for example, disabling firewall sync) if they intentionally want a passive, non-enforcing host setup.
-
-**Supported distributions and architecture**
-- Debian 12 (bookworm), Ubuntu Server 22.04 LTS
-- Architecture: `amd64` (x86_64). Other derivatives may work but are not officially validated yet.
-
-**Python runtime model**
-- Uses the system `python3` with an isolated virtual environment under `/opt/battle-hardened-ai/venv`.
-- The Debian `postinst` script automatically:
-   - Creates the venv at `/opt/battle-hardened-ai/venv`.
-   - Installs all Python dependencies from `/opt/battle-hardened-ai/server/requirements.txt` using `pip`.
-- Base OS dependencies (managed by `apt` and pulled in automatically when you run `apt-get install -f`):
-   - `python3`, `python3-venv`, `systemd`, `iptables`, `ipset`, `curl` (plus standard libraries these depend on).
-- Minimum Python version: **3.10+** (tested with the default Python on Debian 12/Ubuntu 22.04).
-
-**Filesystem layout on packaged installs**
-- Application code (read-only, owned by root):
-   - `/opt/battle-hardened-ai/AI/`
-   - `/opt/battle-hardened-ai/server/`
-   - `/opt/battle-hardened-ai/policies/`
-   - `/opt/battle-hardened-ai/assets/`
-- Configuration:
-   - `/etc/battle-hardened-ai/.env` – primary configuration file read by the systemd unit via `EnvironmentFile=`.
-   - On **first install**, a default `.env` is copied from `/opt/battle-hardened-ai/server/.env` **only if** `/etc/battle-hardened-ai/.env` does not already exist.
-   - On **upgrades**, the existing `/etc/battle-hardened-ai/.env` is preserved and not overwritten.
-- Runtime data (writable by the `bhai` service user):
-   - JSON state: `/var/lib/battle-hardened-ai/server/json/` (all dashboard/API JSON surfaces).
-   - ML models: `/var/lib/battle-hardened-ai/AI/ml_models/` (seeded from `/opt/battle-hardened-ai/AI/ml_models/` on first install).
-   - Crypto keys: `/var/lib/battle-hardened-ai/server/crypto_keys/` (runtime RSA keys, shared secret, TLS cert/key generated on first install).
-   - PCAP captures: `/var/lib/battle-hardened-ai/pcap/`.
-- Logs:
-   - `/var/log/battle-hardened-ai/` (owned by `bhai:bhai`).
-   - Systemd journal (`journalctl -u battle-hardened-ai`) for stdout/stderr from Gunicorn and the app.
-
-**Systemd services installed by the .deb**
-- `battle-hardened-ai.service` – main API and dashboard service:
-   - Runs Gunicorn from `/opt/battle-hardened-ai/venv/bin/gunicorn`.
-   - Uses `BATTLE_HARDENED_PROJECT_ROOT=/opt/battle-hardened-ai` and `BATTLE_HARDENED_DATA_DIR=/var/lib/battle-hardened-ai` so `AI.path_helper` resolves paths correctly.
-- `battle-hardened-ai-firewall-sync.service` – optional Linux firewall sync helper:
-   - Reads `blocked_ips.json` via `AI.path_helper` and keeps an `ipset` + `iptables` DROP rule set in sync.
-   - Requires `ipset` and `iptables` on the host (installed via `apt` dependencies).
-
-Useful commands on a Debian/Ubuntu gateway:
+#### 1. Linux: Service fails to start
 
 ```bash
 sudo systemctl status battle-hardened-ai
-sudo systemctl status battle-hardened-ai-firewall-sync
-
-sudo journalctl -u battle-hardened-ai -n 50 --no-pager
-sudo journalctl -u battle-hardened-ai-firewall-sync -n 50 --no-pager
+sudo journalctl -u battle-hardened-ai -n 100 --no-pager
 ```
 
-**Editing configuration on packaged installs**
+Common causes:
+- Missing dependencies – run `sudo apt-get install -f` after `dpkg -i`.
+- Misconfigured `/etc/battle-hardened-ai/.env` – revert recent edits and restart.
+- Permission issues on `/var/lib/battle-hardened-ai` or `/var/log/battle-hardened-ai` – ensure they are owned by the `bhai` user.
 
-To change network interface, relay URL, or other settings used by the packaged service, edit the managed `.env` file under `/etc` (do **not** edit the copy under `/opt`):
+#### 2. Linux: Dashboard not reachable on 60000
 
 ```bash
-sudo nano /etc/battle-hardened-ai/.env
+# From the gateway
+sudo ss -ltnp | grep 60000 || sudo netstat -ltnp | grep 60000
+
+# Check host firewall (ufw example)
+sudo ufw status
 ```
 
-Common settings to review:
-- `NETWORK_INTERFACE=eth0` (or your primary gateway NIC)
-- `RELAY_ENABLED=false` / `true`
-- `RELAY_URL=wss://YOUR_VPS_IP:60001` (if using the optional relay)
-- `BH_FIREWALL_SYNC_ENABLED=true` (should normally be `true` on Linux gateways so the firewall sync service enforces blocks)
+Ensure:
+- `battle-hardened-ai.service` is running.
+- Host firewall allows inbound TCP 60000 from your admin network.
 
-After making changes, reload the service:
+#### 3. Windows: Telnet shows "Trying..." forever
 
-```bash
-sudo systemctl restart battle-hardened-ai
-sudo systemctl restart battle-hardened-ai-firewall-sync
-```
-
-#### Building the .deb from source (developers only)
-
-If you are a developer or auditor working from the Git repository and want to build the Debian package yourself, use a clean Debian 12 or Ubuntu 22.04 build environment:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y build-essential debhelper devscripts dpkg-dev python3 python3-venv
-
-cd /path/to/battle-hardened-ai/packaging/debian
-dpkg-buildpackage -us -uc
-```
-
-This produces a file like `battle-hardened-ai_*.deb` one level up (in the repository root). You can also run the same commands inside a Debian Docker container mounted over the repo if you are building from Windows.
-
-To install the locally built package on a Debian/Ubuntu gateway or host:
-
-```bash
-sudo dpkg -i battle-hardened-ai_*.deb
-sudo apt-get install -f   # pulls any missing dependencies
-
-sudo systemctl enable battle-hardened-ai battle-hardened-ai-firewall-sync
-sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync
-sudo systemctl status battle-hardened-ai
-```
-
-### Step 1: Install Docker
-
-**Ubuntu / Debian / Kali Linux:**
-
-```bash
-# Update system
-sudo apt-get update
-
-# Install prerequisites
-sudo apt-get install -y ca-certificates curl gnupg
-
-# Add Docker's official GPG key
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-# Add Docker repository
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# Install Docker
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# Start Docker service
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Add your user to docker group (avoid needing sudo)
-sudo usermod -aG docker $USER
-
-# Apply group changes (logout/login or run this)
-newgrp docker
-
-# Verify Docker works
-docker --version
-docker compose version
-docker ps
-```
-
-**RHEL / CentOS / Fedora:**
-
-```bash
-# Install Docker
-sudo dnf -y install dnf-plugins-core
-sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# Start Docker
-sudo systemctl start docker
-sudo systemctl enable docker
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-newgrp docker
-
-# Verify
-docker --version
-docker compose version
-docker ps
-```
-
-### Step 2: Install Battle-Hardened AI (Developer / from GitHub source)
-
-```bash
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
-cd battle-hardened-ai/server
-
-# Create configuration (optional - for VPS relay)
-cat > .env << 'EOF'
-TZ=Asia/Kuala_Lumpur
-NETWORK_INTERFACE=eth0
-RELAY_ENABLED=false
-# RELAY_URL=wss://YOUR_VPS_IP:60001
-RELAY_CRYPTO_ENABLED=true
-EOF
-
-# Build and start (takes 3-5 minutes first time)
-docker compose up -d --build
-
-# Wait for startup
-sleep 15
-
-# Check status
-docker ps
-# Expected: battle-hardened-ai Up (healthy) 0.0.0.0:60000-60001
-
-# Verify training completed
-docker logs battle-hardened-ai --tail 30
-# Look for:
-# [AI] ✅ Anomaly Detector trained on synthetic data
-# [AI] ✅ Threat Classifier trained: 10 classes
-# [RELAY] WebSocket relay client loaded
-```
-
-### Step 3: Access Dashboard
-
-Open browser: **https://localhost:60000**
-
-Accept SSL certificate warning (self-signed certificate).
-
-**✅ Installation Complete!** Dashboard should show 0 threats and 20 green detection signals.
-
----
-
-## Windows Installation (Native Python)
-
-> **Important:** Production customers normally use the **signed Windows installer** (`BattleHardenedAI-Setup.exe`) distributed by the vendor and **do not need to install Python or clone from GitHub**. The `Native Python` steps below are primarily for **development, labs, and advanced operators**. For packaged installs, skip to **Windows .exe Installer – Post-Install Configuration** and follow those instructions instead.
-
-### ✅ What You Get
-- **20/20 detection signals** (Signal #1 uses Scapy = ~99% vs Linux 100%)
-- **Network-wide protection** via promiscuous mode
-- **Real honeypot** with 7 services (SSH, FTP, Telnet, MySQL, HTTP, SMTP, RDP)
-- **HTTPS dashboard** with auto-generated SSL certificates
-- **Local attack logging** + optional relay server integration
-
-### System Requirements
-
-**Minimum (Testing/Home Network):**
-- **CPU**: 4 cores (auto-creates 9 workers = ~250-500 connections)
-- **RAM**: 8 GB
-- **Storage**: 20 GB free
-- **Network**: 100 Mbps
-- **OS**: Windows 10 (build 19041+) or Windows 11
-- **Python**: 3.10 or higher
-- **Privileges**: Administrator (required for network monitoring + firewall)
-
-**Recommended (Small Business/Production):**
-- **CPU**: 8 cores (auto-creates 17 workers = ~500-1,000 connections)
-- **RAM**: 16 GB
-- **Storage**: 50 GB free
-- **Network**: 1 Gbps
-- **OS**: Windows Server 2019+ or Windows 11 Pro
-- **Python**: 3.11+
-- **Privileges**: Administrator
-
-**Enterprise (Large Networks):**
-- **CPU**: 16+ cores (auto-creates 33+ workers = ~1,000-2,000 connections)
-- **RAM**: 32+ GB
-- **Storage**: 100+ GB SSD
-- **Network**: 10 Gbps
-- **OS**: Windows Server 2022
-- **Python**: 3.11+
-- **Privileges**: Administrator
-
-**🔧 How Auto-Scaling Works:**
-
-The system **automatically detects your CPU cores** and calculates optimal workers:
-
-**Formula**: `(CPU cores × 2 + 1) workers × 4 threads × ~250 connections/thread`
-
-**Real Examples - What "Concurrent Connections" Means:**
-
-**Concurrent Connections = Number of attackers hitting you AT THE SAME TIME**
-
-| Your CPU | Auto Workers | Threads | **Max SIMULTANEOUS Attacks** | Real-World Example |
-|----------|-------------|---------|------------------------------|-------------------|
-| 4 cores | 9 workers | 36 threads | **~250-500** | 500 Nmap scans at once, or 250 honeypot connections simultaneously |
-| 8 cores | 17 workers | 68 threads | **~500-1,000** | Small DDoS (1,000 bots), or 500 different IPs attacking at exact same moment |
-| 16 cores | 33 workers | 132 threads | **~1,000-2,000** | Medium DDoS, or entire corporate network (1,000+ devices) under attack |
-| 32 cores | 65 workers | 260 threads | **~2,000-4,000** | Large DDoS, or national-scale attack (thousands of bots) |
-
-**Windows OS Limit**: ~10,000 max connections (TCP/IP stack limitation)
-
-**Real Attack Scenarios:**
-
-1. **Single Attacker (Low Load)**
-   - 1 Kali machine running Nmap = ~10-50 concurrent connections
-   - ✅ Any CPU can handle this easily
-
-2. **Multiple Attackers (Medium Load)**
-   - 10 attackers each running 50 scans = 500 concurrent connections
-   - ✅ 8-core CPU handles this comfortably
-
-3. **Small DDoS Attack (High Load)**
-   - 1,000 botnet IPs each making 1 connection = 1,000 concurrent connections
-   - ✅ 8-16 core CPU required
-
-4. **Large DDoS Attack (Extreme Load)**
-   - 10,000 botnet IPs flooding = 10,000 concurrent connections
-   - ⚠️ Windows limit reached (need Linux + extreme config for this scale)
-
-**Important:** "Concurrent" means **at the exact same moment** - not total attacks per day/hour.
-
-Example: Your 8-core system can handle:
-- ✅ **1,000 concurrent connections** = 1,000 attackers RIGHT NOW
-- ✅ **1,000,000 total attacks per day** = logged over 24 hours (no problem)
-
-**You don't configure anything** - the Windows production launcher (either the native `installation/watchdog.py` script during development, or the packaged `BattleHardenedAI.exe` in production installs) automatically:
-1. Detects your CPU cores using Python's `multiprocessing.cpu_count()` logic baked into the server
-2. Calculates optimal worker count
-3. Spawns workers with crash protection
-4. Auto-restarts failed workers
-5. Prevents memory leaks (workers recycle after 1,000 requests)
-
-### Step 1: Install Python
-
-1. Download Python 3.10+ from: https://www.python.org/downloads/
-2. Run installer:
-   - ✅ Check **"Add Python to PATH"**
-   - Click **"Install Now"**
-3. Verify in PowerShell:
-```powershell
-python --version
-# Should show: Python 3.10.x or higher
-```
-
-### Step 2: Install Npcap Driver
-
-**Required for network packet capture (enables Scapy)**
-
-1. Download: https://npcap.com/#download (~5 MB)
-2. Run installer (Administrator required):
-   - ✅ Check **"Install Npcap in WinPcap API-compatible Mode"**
-   - ✅ Check **"Support loopback traffic"** (recommended)
-   - Click **Install**
-3. **Restart computer** after installation
-
-**What Npcap provides:**
-- Raw socket access for packet capture
-- Promiscuous mode (network-wide monitoring)
-- 802.11 wireless monitoring support
-
-### Step 3: Clone Repository and Install Dependencies
-
-Open **PowerShell** (regular user):
+Most often this is Windows Firewall blocking inbound honeypot ports.
 
 ```powershell
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
-cd battle-hardened-ai
+# Run as Administrator
+Get-NetFirewallRule -DisplayName "*Battle-Hardened*"
 
-# Create virtual environment (recommended)
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+# If not found, add rules (example)
+New-NetFirewallRule -DisplayName "Battle-Hardened AI Honeypot" `
+   -Direction Inbound `
+   -Protocol TCP `
+   -LocalPort 2121,2222,2323,3306,8080,2525,3389 `
+   -Action Allow `
+   -Profile Any
 
-# Install Python dependencies
-cd server
-pip install -r requirements.txt
-
-# Initialize JSON data files (CRITICAL - creates all required files)
-python installation\init_json_files.py
-
-# Verify Scapy works with Npcap
-python -c "from scapy.all import sniff; print('✅ Scapy working')"
+New-NetFirewallRule -DisplayName "Battle-Hardened AI Dashboard" `
+   -Direction Inbound `
+   -Protocol TCP `
+   -LocalPort 60000 `
+   -Action Allow `
+   -Profile Any
 ```
 
-#### Understanding JSON Initialization
+Also check router AP/client isolation settings if testing from another device.
 
-**What `init_json_files.py` does:**
-- Creates `server/json/` directory with **35+ required JSON files**
-- Initializes honeypot_attacks.json, threat_log.json, blocked_ips.json, and more
-- Works on any installation location (Windows/Linux/macOS) using absolute paths
-- Safe to run multiple times (won't overwrite existing files)
-- **Auto-runs on Docker startup** (via entrypoint.sh)
-- **Auto-runs on server startup** (via server.py)
+#### 4. Port 60000 already in use
 
-**Files Created (Organized by Pipeline Stage):**
+```bash
+# Linux: Find process using port 60000
+sudo lsof -i :60000 || sudo ss -ltnp | grep 60000
 
-1. **Stage 1 - Network Discovery** (3 files)
-   - connected_devices.json, device_history.json, network_monitor_state.json
+# Windows: Find process
+netstat -ano | Select-String "60000"
+```
 
-2. **Stage 2 - Threat Detection** (15 files)
-   - threat_log.json, honeypot_attacks.json, dns_security.json
-   - behavioral_metrics.json, file_analysis.json, tls_fingerprints.json
-   - crypto_mining.json, tracked_users.json, network_performance.json
-   - network_graph.json, trust_graph.json, tracking_data.json
-   - lateral_movement_alerts.json, attack_sequences.json, integrity_violations.json
-
-3. **Stage 3 - AI Decision Making** (4 files)
-   - decision_history.json, meta_engine_config.json
-   - fp_filter_config.json, causal_analysis.json
-
-4. **Stage 4 - Response & Audit** (6 files)
-   - blocked_ips.json, blocked_devices.json, blocked_peers.json
-   - whitelist.json, comprehensive_audit.json, approval_requests.json
-
-5. **Stage 5 - Learning & Refinement** (3 files)
-   - honeypot_patterns.json, local_threat_intel.json, reputation_export.json
-
-6. **Stage 6 - P2P Sharing** (1 file)
-   - peer_threats.json
-
-7. **Stage 7 - Continuous Learning** (5 files)
-   - ml_training_data.json, ml_performance_metrics.json
-   - model_lineage.json, drift_baseline.json, drift_reports.json
-
-8. **Enterprise Extensions (Auxiliary / Optional)** (4 files)
-   - backup_status.json, soar_incidents.json, cloud_findings.json, sbom.json
-
-9. **Subdirectories**
-   - forensic_reports/, compliance_reports/, audit_archive/
-
-**GitHub Clone Behavior:**
-- GitHub excludes `*.json` files via `.gitignore` (prevents runtime data in repo)
-- On fresh clone, `server/json/` is empty
-- **Without initialization**, honeypot/threat logging will fail
-- `init_json_files.py` solves this by auto-creating all files
-
+Stop or reconfigure any conflicting service before starting Battle-Hardened AI.
 **Integration Points:**
 - **Docker:** Automatically runs via `entrypoint.sh`
 - **Native:** Automatically runs on `server.py` startup
@@ -963,83 +499,6 @@ telnet 192.168.68.111 2222
 
 ---
 
-## macOS Installation (Native Python)
-
-> **Note:** macOS support is primarily for **development and testing** and assumes access to the GitHub source repository. It is **not part of the standard packaged customer distribution** (Linux packages + Windows installer). Treat this section as a developer-only path.
-
-### ✅ What You Get
-- Same as Windows (20/20 signals, ~99% capability)
-- Network-wide protection via promiscuous mode
-- Real honeypot + HTTPS dashboard
-
-### System Requirements
-- macOS 11 (Big Sur) or higher
-- Python 3.10+
-- 2 GB RAM, 2 GB disk
-- Administrator access
-
-### Step 1: Install Homebrew
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-### Step 2: Install Python
-
-```bash
-brew install python@3.11
-python3 --version  # Should show 3.10+
-```
-
-### Step 3: Clone Repository and Install Dependencies
-
-```bash
-git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
-cd battle-hardened-ai
-
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-cd server
-pip install -r requirements.txt
-
-# Initialize JSON files
-python installation/init_json_files.py
-```
-
-### Step 4: Run Battle-Hardened AI
-
-**⚠️ Requires sudo for promiscuous mode:**
-
-```bash
-sudo python3 server.py
-```
-
-**Expected output:**
-```
-[SSL] ✅ SSL certificates generated
-[CRYPTO] ✅ Lineage signing key generated
-[HONEYPOT] Starting 7 honeypot services...
-[HONEYPOT] ✅ SSH honeypot listening on port 2222
-[NETWORK] Starting promiscuous mode monitoring
-[AI] ✅ All 20 detection signals initialized
-[DASHBOARD] HTTPS server running on https://0.0.0.0:60000
-```
-
-### Step 5: Access Dashboard
-
-Browser: **https://localhost:60000**
-
-**⚠️ Firewall Note:** macOS requires manual firewall configuration:
-- System Preferences → Security & Privacy → Firewall → Firewall Options
-- Allow incoming connections for Python
-
-**✅ Installation Complete!**
-
----
-
 ## Relay Server Setup (Optional)
 
 ### Why Use a Relay Server?
@@ -1286,82 +745,18 @@ docker compose down && docker compose up -d
   # Repeat 10-20 times to build training data
   ```
 
----
-
-## Post-Installation
-
-### ✅ What You Get
-- Same as Windows (20/20 signals, ~99% capability)
-- Network-wide protection via promiscuous mode
-- Real honeypot + HTTPS dashboard
-
-### System Requirements
-- macOS 11 (Big Sur) or higher
-- Python 3.10+
-- 2 GB RAM, 2 GB disk
-- Administrator access
-
-### Step 1: Install Homebrew
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-### Step 2: Install Python
-
-```bash
-brew install python@3.11
-python3 --version  # Should show 3.10+
-```
-
-### Step 3: Clone Repository and Install Dependencies
-
-```bash
-git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
-cd battle-hardened-ai
-
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-cd server
-pip install -r requirements.txt
-```
-
-### Step 4: Run Battle-Hardened AI
-
-**⚠️ Requires sudo for promiscuous mode:**
-
-```bash
-sudo python3 server.py
-```
-
-### Step 5: Access Dashboard
-
-Browser: **https://localhost:60000**
-
-**⚠️ Firewall Note:** macOS requires manual firewall configuration:
-- System Preferences → Security & Privacy → Firewall → Firewall Options
-- Allow incoming connections for Python
-
-**✅ Installation Complete!**
-
----
-
 ## Detection Capability Comparison
 
 ### Platform Capabilities Summary
 
 | Platform | Signal #1 (Kernel) | Signals #2-20 | Total Capability | Network-Wide | Deployment Method |
 |----------|-------------------|---------------|------------------|--------------|-------------------|
-| **Linux** | ✅ eBPF (100%) | ✅ Full (100%) | **100%** | ✅ Yes | Docker (recommended) |
-| **Windows** | ⚠️ Scapy (98%) | ✅ Full (100%) | **~99%** | ✅ Yes | Native Python |
-| **macOS** | ⚠️ Scapy (98%) | ✅ Full (100%) | **~99%** | ✅ Yes | Native Python |
+| **Linux** | ✅ eBPF (100%) | ✅ Full (100%) | **100%** | ✅ Yes | .deb/.rpm package (gateway/appliance) |
+| **Windows** | ⚠️ Scapy (98%) | ✅ Full (100%) | **~99%** | ✅ Yes | Windows EXE installer |
 
 ### Signal #1 Differences: Linux eBPF vs Windows/macOS Scapy
 
-| Capability | Linux (eBPF) | Windows/macOS (Scapy) |
+| Capability | Linux (eBPF) | Windows (Scapy) |
 |------------|-------------|----------------------|
 | **Packet capture** | ✅ Kernel-level | ✅ Userland (Npcap/libpcap) |
 | **Syscall correlation** | ✅ Process→network mapping | ❌ Limited |
@@ -1478,34 +873,51 @@ newgrp docker
 # Reinstall Npcap from: https://npcap.com/#download
 # Ensure "WinPcap API-compatible mode" is checked
 
-# Verify installation
-python -c "from scapy.all import sniff; print('OK')"
+## Post-Installation
+
+### Verify Everything Works
+
+**Linux (.deb/.rpm appliance):**
+```bash
+# Check systemd service status
+sudo systemctl status battle-hardened-ai
+sudo systemctl status battle-hardened-ai-firewall-sync
+
+# Check recent logs for the main service
+sudo journalctl -u battle-hardened-ai -n 50 --no-pager
+
+# From an admin workstation, verify dashboard is reachable
+curl -k https://YOUR_GATEWAY_IP:60000 || echo "curl failed"
 ```
 
-#### 3. Windows: Telnet shows "Trying..." forever
-
-**Cause:** Windows Firewall blocking inbound connections
-
-**Solution:**
+**Windows (EXE installer):**
 ```powershell
-# Run as Administrator
-Get-NetFirewallRule -DisplayName "*Battle-Hardened*"
+# Verify the Battle-Hardened AI Windows service is running
+Get-Service | Where-Object { $_.DisplayName -like "*Battle-Hardened AI*" }
 
-# If not found, add rules:
-New-NetFirewallRule -DisplayName "Battle-Hardened AI Honeypot" `
-    -Direction Inbound `
-    -Protocol TCP `
-    -LocalPort 2121,2222,2323,3306,8080,2525,3389 `
-    -Action Allow
+# From the Windows host, verify dashboard is reachable
+curl.exe -k https://localhost:60000
 ```
 
-**Also check:**
-- Router AP Isolation (blocks device-to-device communication)
-- Windows network profile (Public networks are more restrictive)
+### Service Control and Shutdown (Linux appliances)
 
-#### 4. Port already in use
+To safely stop Battle-Hardened AI on a Debian/Ubuntu gateway:
 
 ```bash
+sudo systemctl stop battle-hardened-ai battle-hardened-ai-firewall-sync
+```
+
+To prevent automatic start on boot:
+
+```bash
+sudo systemctl disable battle-hardened-ai battle-hardened-ai-firewall-sync
+```
+
+To fully shut down the Linux gateway after stopping services:
+
+```bash
+sudo shutdown now    # or: sudo poweroff
+```
 # Linux: Find process using port 60000
 sudo lsof -i :60000
 sudo kill -9 <PID>
@@ -1545,190 +957,109 @@ server/crypto_keys/ssl_key.pem
 
 ## Updating
 
-> **Package-based installs:** If you installed Battle-Hardened AI using a vendor-provided **.deb/.rpm package** on Linux or the **Windows installer (.exe)**, prefer updating via your **OS package manager** or the latest installer from the vendor. The commands below assume a **source-based deployment** where you cloned the GitHub repository directly.
+For production customers, updates should follow your normal package/installer process.
 
-### Update Process
+### Linux (.deb/.rpm)
 
-**Linux (Docker):**
+- Obtain the new signed package from the vendor.
+- On Debian/Ubuntu:
+
 ```bash
-cd battle-hardened-ai/server
-
-# Pull latest code
-git pull
-
-# Rebuild and restart
-docker compose down
-docker compose up -d --build
-
-# Verify
-docker logs battle-hardened-ai --tail 50
+sudo dpkg -i battle-hardened-ai_*.deb
+sudo apt-get install -f
 ```
 
-**Windows/macOS (Native Python):**
-```powershell
-cd battle-hardened-ai
+- On RHEL/CentOS/Rocky/Alma:
 
-# Pull latest code
-git pull
-
-# Update dependencies
-cd server
-pip install -r requirements.txt --upgrade
-
-# Restart server (Production Mode)
-# (Stop current process with Ctrl+C, then restart)
-python installation\watchdog.py
-```
-
-### Backup Before Update
-
-**Linux (Docker):**
 ```bash
-# Backup threat logs and ML models
-docker cp battle-hardened-ai:/app/ml_models ./backup_ml_models
-docker cp battle-hardened-ai:/app/json ./backup_json
-
-# After update, restore if needed
-docker cp ./backup_ml_models/. battle-hardened-ai:/app/ml_models/
-docker cp ./backup_json/. battle-hardened-ai:/app/json/
+sudo dnf install ./battle-hardened-ai-*.rpm
 ```
 
-**Windows/macOS:**
-```powershell
-# Backup directories
-Copy-Item -Recurse server/ml_models ./backup_ml_models
-Copy-Item -Recurse server/json ./backup_json
+Runtime data under `/var/lib/battle-hardened-ai` and configuration under `/etc/battle-hardened-ai/.env` are preserved across upgrades.
 
-# After update, restore if needed
-Copy-Item -Recurse ./backup_ml_models/* server/ml_models/
-Copy-Item -Recurse ./backup_json/* server/json/
-```
+### Windows (EXE installer)
+
+- Download the latest `BattleHardenedAI-Setup.exe` from the vendor.
+- Run the installer on the target host; it will upgrade the existing installation in-place.
+- Verify that your `.env.windows` and `shared_secret.key` are still present in the install directory; re-apply only if the vendor release notes indicate format changes.
 
 ---
 
 ## Uninstallation
 
-> **Package-based installs:** For Linux deployments installed via **.deb/.rpm**, remove Battle-Hardened AI using your distribution's package manager (for example `sudo apt-get remove battle-hardened-ai` or `sudo dnf remove battle-hardened-ai`) and stop/disable the `battle-hardened-ai` systemd service. The commands in this section focus on cleaning up **source-based installs** created from a GitHub clone.
+### Linux (.deb/.rpm)
 
-### Complete Removal
-
-**Linux (Docker):**
 ```bash
-# Stop and remove container
-cd battle-hardened-ai/server
-docker compose down
-
-# Remove images
-docker rmi battle-hardened-ai:latest
-
-# Remove repository
-cd ../..
-rm -rf battle-hardened-ai
-
-# Clean Docker system (optional - removes unused images)
-docker system prune -a
+sudo systemctl stop battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo apt-get remove battle-hardened-ai        # Debian/Ubuntu
+# or
+sudo dnf remove battle-hardened-ai            # RHEL-family
 ```
 
-**Windows (Native Python):**
-```powershell
-# Remove firewall rules
-Remove-NetFirewallRule -DisplayName "Battle-Hardened AI Honeypot"
-Remove-NetFirewallRule -DisplayName "Battle-Hardened AI Dashboard"
+Optionally remove residual data and logs:
 
-# Remove repository
-Remove-Item -Recurse -Force battle-hardened-ai
-
-# Uninstall Npcap (optional)
-# Control Panel → Programs → Uninstall Npcap
-```
-
-**macOS:**
 ```bash
-# Remove repository
-rm -rf battle-hardened-ai
-
-# Uninstall Python packages (if using system Python)
-pip uninstall -y -r server/requirements.txt
+sudo rm -rf /var/lib/battle-hardened-ai /var/log/battle-hardened-ai /etc/battle-hardened-ai
 ```
+
+### Windows (EXE installer)
+
+- Use **Apps & Features** / **Programs and Features** in Windows to uninstall "Battle-Hardened AI".
+- This removes the installed binaries and Windows service. If you created any additional firewall rules or data directories, clean them up according to your local policy.
 
 ---
 
+docker compose up -d
+docker compose down
+docker compose restart
+docker logs -f battle-hardened-ai
+git pull && docker compose up -d --build
+docker exec -it battle-hardened-ai bash
+git pull
 ## Support & Resources
 
 ### Documentation
-- **[README.md](README.md)** - Features, architecture, MITRE ATT&CK coverage
-- **[relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)** - VPS relay server setup (detailed guide)
-- **[testconnection.md](testconnection.md)** - Client relay troubleshooting
-- **[Dashboard](Dashboard.md)** - Dashboard features and usage
-- **[ai-abilities.md](ai-abilities.md)** - AI capabilities and detection logic
+- [README.md](README.md) - Features, architecture, MITRE ATT&CK coverage
+- [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md) - VPS relay server setup (detailed guide)
+- [testconnection.md](testconnection.md) - Client relay troubleshooting
+- [Dashboard.md](Dashboard.md) - Dashboard features and usage
+- [Ai-instructions.md](documentation/Ai-instructions.md) - AI capabilities and detection logic
 
-### Quick Commands Reference
+### Quick Commands Reference (Packaged Installs)
 
-**Linux (Docker):**
+**Linux (.deb/.rpm):**
 ```bash
-# Start
-docker compose up -d
+# Start / stop services
+sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo systemctl stop battle-hardened-ai battle-hardened-ai-firewall-sync
 
-# Stop
-docker compose down
-
-# Restart
-docker compose restart
-
-# Logs
-docker logs -f battle-hardened-ai
-
-# Update
-git pull && docker compose up -d --build
-
-# Enter container
-docker exec -it battle-hardened-ai bash
+# Check status and logs
+sudo systemctl status battle-hardened-ai
+sudo journalctl -u battle-hardened-ai -n 50 --no-pager
 ```
 
-**Windows/macOS (Native):**
+**Windows (EXE installer):**
 ```powershell
-# Start (Administrator PowerShell - Production Mode)
-python installation\watchdog.py
+# Check Windows service
+Get-Service | Where-Object { $_.DisplayName -like "*Battle-Hardened AI*" }
 
-# Start (Development Mode - Testing Only)
-python server.py
-
-# Stop
-Ctrl+C
-
-# Update
-git pull
-pip install -r server/requirements.txt --upgrade
-
-# Check status
-Get-Process python  # Windows
-ps aux | grep python  # macOS
+# Start/stop via Services MMC or:
+Start-Service -Name "BattleHardenedAI" -ErrorAction SilentlyContinue
+Stop-Service -Name "BattleHardenedAI" -ErrorAction SilentlyContinue
 ```
 
 ### Getting Help
 
 **Before asking for help, collect this information:**
 
-1. **Platform:** Linux/Windows/macOS
-2. **Deployment:** Docker or Native Python
+1. **Platform:** Linux (.deb/.rpm) or Windows (EXE)
+2. **Package/installer version:** As reported by the vendor or OS package manager
 3. **Logs:**
    ```bash
-   # Linux Docker
-   docker logs battle-hardened-ai --tail 100 > logs.txt
-   
-   # Windows/macOS Native
-   # Copy terminal output where server is running
+   # Linux packaged service
+   sudo journalctl -u battle-hardened-ai -n 200 --no-pager > bhai-linux-logs.txt
    ```
-4. **Versions:**
-   ```bash
-   # Linux
-   docker --version
-   docker compose version
-   
-   # Windows/macOS
-   python --version
-   pip list | grep -E "scapy|tensorflow|scikit-learn"
-   ```
+   On Windows, capture relevant Windows Event Viewer entries and any application logs referenced by support.
 
 **Submit Issues:**
 - GitHub Repository: https://github.com/yuhisern7/battle-hardened-ai
