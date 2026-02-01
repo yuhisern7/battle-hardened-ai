@@ -10,6 +10,9 @@
 ### Recent Fixes Applied
 - ✅ Added `websockets` module (was missing - caused relay_client.py error)
 - ✅ Added `websockets.client` and `asyncio` for async support
+- ✅ Added `Flask-CORS==4.0.0` to server/requirements.txt (was missing - caused API CORS errors)
+- ✅ Added server/network_monitor.py to .spec datas section (was missing - caused Section 17/22 failures)
+- ✅ Added cross-platform network detection to device_scanner.py (Windows: ipconfig, Linux: ip route, fallback: socket trick)
 - ✅ Updated `.env.windows` to match `.env` relay server values
 - ✅ Fixed Documentation file capitalization for GitHub
 - ✅ Included all 52 JSON files, ML models, crypto keys, policies
@@ -21,6 +24,10 @@
 ### AI Detection Modules (55 files)
 - [ ] All 55 .py files from AI/ directory as Python source
 - [ ] AI/__init__.py for package imports
+
+### Server Modules (Critical - Bundled via .spec)
+- [ ] server/device_scanner.py (cross-platform network detection: Linux via ip route/addr, Windows via ipconfig parsing, fallback via socket trick)
+- [ ] server/network_monitor.py (live traffic analysis, feeds all detection signals)
 
 ### 21-Layer Detection System
 1. [ ] step21_gate.py
@@ -163,6 +170,7 @@
 
 ### Required Source Folders for EXE Build
 - [ ] AI/ (all detection modules and AI/ml_models/)
+- [ ] server/device_scanner.py and server/network_monitor.py (bundled via BattleHardenedAI.spec datas section)
 - [ ] server/json/ (all JSON configuration and state files)
 - [ ] server/crypto_keys/ (TLS and HMAC keys; build-time source, Windows EXE runtime uses per-user data dir)
 - [ ] server/installation/ (watchdog, Gunicorn configs, init_json_files.py)
@@ -230,8 +238,9 @@
 
 1. [ ] EXE has BATTLE-HARDENED-AI.ico icon
 2. [ ] EXE size is reasonable (check for bloat)
-3. [ ] Run EXE and verify NO import errors (especially `websockets`)
+3. [ ] Run EXE and verify NO import errors (especially `websockets`, `flask_cors`)
 4. [ ] Check all 21 AI layers load without errors
+5. [ ] Verify server/device_scanner.py and server/network_monitor.py are bundled and accessible
 5. [ ] Verify dashboard loads at https://localhost:60000 (self-signed by default; or http://localhost:60000 if TLS is terminated by an external proxy)
 6. [ ] Test relay connection works (if RELAY_ENABLED=true in .env.windows)
 7. [ ] Verify JSON files are accessible and readable

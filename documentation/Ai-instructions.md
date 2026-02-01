@@ -177,11 +177,11 @@
 **README:** "📥 PACKET ARRIVES → 📊 Pre-processing (metadata extraction, normalization)"
 
 **Implementation:**
-- **Packet Capture:** `server/network_monitor.py` (eBPF/XDP or scapy-based)
+- **Packet Capture:** `server/network_monitor.py` (eBPF/XDP or scapy-based; bundled in Windows EXE builds)
 - **Kernel Telemetry:** `AI/kernel_telemetry.py` (syscall correlation, Linux only)
 - **System Logs:** `AI/system_log_collector.py` (auth logs, application logs)
 - **Cloud APIs:** `AI/cloud_security.py` (AWS CloudTrail, Azure Activity, GCP Audit)
-- **Device Discovery:** `server/device_scanner.py` (asset inventory)
+- **Device Discovery:** `server/device_scanner.py` (cross-platform network detection: Linux via ip route/addr, Windows via ipconfig parsing, fallback via socket trick)
 
 **Data Flow:**
 ```

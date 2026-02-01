@@ -154,6 +154,8 @@ Stop or reconfigure any conflicting service before starting Battle-Hardened AI.
 - **Native:** Automatically runs on `server.py` startup
 - **Manual:** Run `python installation/init_json_files.py` anytime
 
+**Note:** All Python dependencies (including Flask, Flask-CORS, scikit-learn, numpy, cryptography, websockets, etc.) are listed in `server/requirements.txt` and must be installed before starting the server.
+
 ### Step 4: Configure Windows Firewall
 
 **⚠️ CRITICAL - Run PowerShell as Administrator (Required)**

@@ -53,8 +53,8 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 **Purpose:** Capture packets, extract metadata, normalize events
 
 **Server Files:**
-- `server/network_monitor.py` — Live packet capture (Scapy/eBPF), feeds all detection signals
-- `server/device_scanner.py` — Network device discovery and asset enumeration
+- `server/network_monitor.py` — Live packet capture (Scapy/eBPF), feeds all detection signals; bundled in Windows EXE builds
+- `server/device_scanner.py` — Network device discovery and asset enumeration; cross-platform network detection (Linux: ip route/addr, Windows: ipconfig parsing, fallback: socket trick)
 - `server/json/connected_devices.json` — Active device inventory
 - `server/json/device_history.json` — 7-day device connection history
 - `server/json/network_monitor_state.json` — Packet capture state and counters
@@ -450,7 +450,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - `packaging/debian/` — Debian/Ubuntu package metadata and build scripts for .deb packaging.
 - `packaging/systemd/` — Systemd unit/service definitions for Linux deployments.
 - `packaging/windows/BattleHardenedAI.iss` — Inno Setup script for building the Windows installer from the local `packaging/windows/dist/` output.
-- `packaging/windows/BattleHardenedAI.spec` — PyInstaller spec used to build the Windows EXE from the repository root into `packaging/windows/dist/`.
+- `packaging/windows/BattleHardenedAI.spec` — PyInstaller spec used to build the Windows EXE from the repository root into `packaging/windows/dist/`; bundles all AI/*.py modules and critical server modules (device_scanner.py, network_monitor.py).
 - `packaging/windows/build_windows_exe.ps1` — PowerShell script that builds `BattleHardenedAI.exe` via PyInstaller into `packaging/windows/dist/`.
 - `packaging/windows/build_windows_installer.ps1` — PowerShell script that invokes `build_windows_exe.ps1` (if needed) and `BattleHardenedAI.iss` to produce the Windows installer.
 
@@ -611,12 +611,12 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - server/.dockerignore — Excludes unneeded files from the server Docker build context.
 - server/.env — Main environment file for the server container (ports, relay URLs, feature flags, API keys, etc.).
 - server/.env.linux — Example/server env template tuned for Linux/host-network deployments.
-- packaging/windows/.env.windows — Canonical Windows environment template used by the EXE build and installer; copied into packaging/windows/dist/.env.windows and ultimately installed as .env.windows next to BattleHardenedAI.exe.
-- server/crypto_keys/ — Holds all cryptographic materials: HMAC keys (shared_secret.key, private_key.pem, public_key.pem) for relay authentication and SSL certificates (ssl_cert.pem, ssl_key.pem) for HTTPS dashboard.
-- server/debug_server.py — Development server for testing without Gunicorn (single-threaded Flask dev mode).
-- server/device_blocker.py — Implements ARP-based device blocking and unblocking, persisting blocked_devices.json.
-- server/device_scanner.py — Scans the local network for devices, classifies them by vendor/type, and populates connected_devices.json and device_history.json.
-- server/docker-compose.yml — Docker Compose definition for the Linux/host-network server deployment with required capabilities.
+- `packaging/windows/.env.windows` — Canonical Windows environment template used by the EXE build and installer; copied into packaging/windows/dist/.env.windows and ultimately installed as .env.windows next to BattleHardenedAI.exe.
+- `server/crypto_keys/` — Holds all cryptographic materials: HMAC keys (shared_secret.key, private_key.pem, public_key.pem) for relay authentication and SSL certificates (ssl_cert.pem, ssl_key.pem) for HTTPS dashboard.
+- `server/debug_server.py` — Development server for testing without Gunicorn (single-threaded Flask dev mode).
+- `server/device_blocker.py` — Implements ARP-based device blocking and unblocking, persisting blocked_devices.json.
+- `server/device_scanner.py` — Scans the local network for devices using ARP discovery via Scapy, with cross-platform network detection (Linux: ip route/addr, Windows: ipconfig parsing, fallback: socket.connect() to detect local IP), classifies them by vendor/type, and populates connected_devices.json and device_history.json.
+- `server/docker-compose.yml` — Docker Compose definition for the Linux/host-network server deployment with required capabilities.
 	- Windows runs natively via `server/installation/watchdog.py` during development; production Windows deployments typically use the packaged `BattleHardenedAI.exe` installer. Docker deployment is Linux-only via `server/docker-compose.yml`.
 - server/Dockerfile — Builds the server container image, installing dependencies, copying AI code, and wiring HTTPS/gunicorn.
 - server/entrypoint.sh — Container entrypoint that launches server.py and gunicorn with TLS certificates from crypto_keys/ directory.
@@ -654,9 +654,9 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
  - server/json/support_tickets.json — Local support portal ticket store backing the /support UI and `/api/support/tickets` JSON APIs.
 - server/json/threat_log.json — Main threat log of detections and actions generated by AI and network monitor.
 - server/json/tracked_users.json — Storage for tracked user accounts and related behavioral data.
-- server/network_monitor.py — Scapy-based live network sniffer that detects scans, floods, ARP spoofing, and now feeds behavioral heuristics, graph intelligence, DNS analyzer, TLS fingerprinting, and pcs_ai.
-- server/report_generator.py — Standalone HTML/JSON report generator for enterprise-style security reports that stitches together threat statistics, explainability data, and compliance summaries.
-- server/requirements.txt — Python dependency list for building the server image.
+- `server/network_monitor.py` — Scapy-based live network sniffer that detects scans, floods, ARP spoofing, and now feeds behavioral heuristics, graph intelligence, DNS analyzer, TLS fingerprinting, and pcs_ai; bundled in Windows EXE builds via BattleHardenedAI.spec.
+- `server/report_generator.py` — Standalone HTML/JSON report generator for enterprise-style security reports that stitches together threat statistics, explainability data, and compliance summaries.
+- `server/requirements.txt` — Python dependency list for building the server image (includes Flask-CORS==4.0.0 for cross-origin API requests).
 - server/server.py — Flask dashboard/API server that renders inspector_ai_monitoring.html and exposes REST/JSON endpoints (traffic, DNS/TLS, explainability, audit, visualization, compliance), including logging dashboard/API failures as SYSTEM_ERROR events into comprehensive_audit.json.
 - server/test_system.py — System-level test harness for validating that core services and integrations are functioning.
  - server/logs/ — Runtime log directory (includes startup.log, error.log, and other rotating server logs).

@@ -163,7 +163,7 @@ show_json("/api/p2p/threats")   # Shared threat intelligence
 - `/api/visualization/topology` — Network topology graph
 
 **Backend Modules:**
-- `server/device_scanner.py` — Device discovery (Stage 1)
+- `server/device_scanner.py` — Device discovery with cross-platform network detection (Linux: ip route/addr, Windows: ipconfig parsing, fallback: socket trick)
 - `AI/asset_inventory.py` — Asset management
 - `AI/advanced_visualization.py` — Topology visualization
 

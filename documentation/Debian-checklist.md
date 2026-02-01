@@ -35,7 +35,9 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
 
 - [x] Server-side modules present:
   - [x] `server/server.py` (main Flask/API server).
-  - [x] `server/network_monitor.py` / `server/device_scanner.py` / `server/device_blocker.py` as applicable.
+  - [x] `server/network_monitor.py` (live traffic analysis, feeds all detection signals).
+  - [x] `server/device_scanner.py` (cross-platform network detection: Linux via ip route/addr, Windows via ipconfig parsing, fallback via socket trick).
+  - [x] `server/device_blocker.py` (firewall enforcement).
   - [x] `server/installation/*` (Gunicorn configs, init_json_files.py, firewall sync helper) as needed for Linux.
   - [x] Any helper scripts referenced by docs are either included (under `/opt/battle-hardened-ai/server/`) or clearly documented as dev-only.
 
@@ -127,7 +129,7 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
   - [ ] Depend solely on system `python3` + `pip` packages (no venv).
 - [x] For the chosen model, document clearly in Installation.md:
   - [x] Minimum supported Python version (3.10+ on Debian/Ubuntu as per the Debian .deb section).
-  - [x] Which dependencies are installed via `apt` vs `pip` (base `python3`, `python3-venv`, `systemd`, `iptables`, `ipset`, `curl` via `apt`; Python packages from `server/requirements.txt` via `pip` in the venv).
+  - [x] Which dependencies are installed via `apt` vs `pip` (base `python3`, `python3-venv`, `systemd`, `iptables`, `ipset`, `curl` via `apt`; Python packages from `server/requirements.txt` including Flask-CORS==4.0.0 via `pip` in the venv).
 - [x] Ensure `gunicorn` (Linux-only) is available where systemd `ExecStart` expects it: either in the venv or system-wide (systemd `ExecStart` uses `/opt/battle-hardened-ai/venv/bin/gunicorn`, and postinst now creates the venv and installs requirements).
 - [x] Confirm that sequence/deep-learning features gracefully degrade if TensorFlow is not installed (as documented in `server/requirements.txt` and guarded in `AI/sequence_analyzer.py` by optional TensorFlow imports).
 

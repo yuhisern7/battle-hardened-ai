@@ -8,8 +8,9 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
 
 - **BattleHardenedAI.exe** (PyInstaller one-file EXE)
   - Entrypoint: `server/server.py`.
-  - Bundles: all Python dependencies reachable from `server.py` (Flask, scikit-learn, numpy, cryptography, requests, websockets, ldap3, python-jose, pyotp, python-dotenv, scapy, etc., as listed in `server/requirements.txt`).
-  - Bundles core AI code under `AI/` plus these templates (explicit in the PyInstaller spec):
+  - Bundles: all Python dependencies reachable from `server.py` (Flask, Flask-CORS, scikit-learn, numpy, cryptography, requests, websockets, ldap3, python-jose, pyotp, python-dotenv, scapy, etc., as listed in `server/requirements.txt`).
+  - Bundles core AI code under `AI/` plus critical server modules (`server/device_scanner.py` with cross-platform network detection, `server/network_monitor.py` for traffic analysis) as specified in `BattleHardenedAI.spec` datas section.
+  - Bundles these templates (explicit in the PyInstaller spec):
     - `AI/inspector_ai_monitoring.html`
     - `AI/docs_portal.html`
     - `AI/docs_viewer.html`
@@ -25,9 +26,10 @@ This checklist validates the Battle-Hardened AI Windows EXE and installer on a c
 
 ## A. Build and payload sanity
 
-- [ ] On the build machine, ensure the virtual environment has all of `server/requirements.txt` installed.
+- [ ] On the build machine, ensure the virtual environment has all of `server/requirements.txt` installed (including Flask-CORS==4.0.0).
 - [ ] Run `packaging/windows/build_windows_installer.ps1` and confirm:
   - [ ] `packaging/windows/dist/BattleHardenedAI.exe` is (re)built from `packaging/windows/BattleHardenedAI.spec` with no errors.
+  - [ ] PyInstaller output confirms bundling of `server/device_scanner.py` and `server/network_monitor.py` from datas section.
   - [ ] `packaging/windows/BattleHardenedAI-Setup.exe` is produced successfully.
 - [ ] Verify the installer contents (via Inno Setup log or 7‑Zip) include:
   - [ ] `BattleHardenedAI.exe`.

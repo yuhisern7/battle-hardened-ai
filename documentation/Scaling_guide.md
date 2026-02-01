@@ -131,7 +131,7 @@ docker compose up -d
 ```
 - ✅ Auto-restart built-in (Docker restart policy)
 - ✅ No watchdog.py needed
-- ✅ Isolated environment
+- ✅ Isolated environment with all dependencies (Flask-CORS, Scapy, ML libraries, etc.)
 - ✅ **Capacity**: ~4,250 connections (8-core), ~8,250 connections (16-core)
 - ✅ Dynamic worker scaling based on CPU cores
 

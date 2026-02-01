@@ -17,7 +17,7 @@ cd battle-hardened-ai
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 cd server
-pip install -r requirements.txt
+pip install -r requirements.txt  # Installs Flask, Flask-CORS, Scapy, ML libraries, etc.
 python installation/watchdog.py
 ```
 Access: https://localhost:60000 (HTTPS)
