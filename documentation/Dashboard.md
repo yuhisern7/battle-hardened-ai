@@ -5,7 +5,7 @@ This document provides a comprehensive guide to the core dashboard sections, map
 > **Distribution note:** In production, customers typically access the dashboard via a **Linux appliance installed from a .deb/.rpm package** or a **Windows host/appliance installed from the signed EXE**, and do **not** work with the Git source tree. The API examples and helper scripts in this file assume a **development or lab environment** where you have the repository checked out and can run Python scripts from the project root. For packaged deployments, you can still hit the same HTTPS endpoints (for example from Postman or your own tools); just ignore any instructions that mention the repo layout.
 
 **Installation & Setup:**
-- For installation instructions, see [Installation](Installation.md)
+- For installation instructions, see [Installation](installation/Installation.md)
 - For relay server setup, see [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)
 - For attack testing, see [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)
 
@@ -588,14 +588,45 @@ show_json("/api/pcap/stats")        # PCAP capture statistics
 
 ## Section 18 – DNS & Geo Security
 
-Backed by: `/api/dns/stats`, `/api/traffic/crypto-mining` (for DNS‑based C2), and geolocation enrichment in the core threat pipeline.
+Backed by: `/api/dns/stats`, `/api/visualization/geographic` and `AI/dns_analyzer.py`, `AI/advanced_visualization.py`.
+
+**Dashboard Metrics:**
+- **DNS Queries Analyzed** — Total DNS queries observed and scored (from dns_security.json per-source metrics)
+- **Geographic Attack Table** — Countries attacking the network with attack counts, threat levels, and block status
+
+**What this section does:**
+Two-panel observability surface combining **DNS behavior analytics** (tunneling/DGA detection) with **geographic attack mapping**. This is a **telemetry and decision-support surface**, not an inline DNS firewall or geo-blocking engine.
+
+**Left Panel: DNS Security (dns_analyzer.py)**
+- DNS tunneling / exfiltration heuristics (entropy analysis, label length, base64-like patterns)
+- DGA-like domain detection (high-entropy, algorithmically-generated C&C domains)
+- Large TXT/NULL payload anomalies (uncommon for normal DNS)
+- Per-source IP query tracking and suspicious query counter
+- **No built-in blocklist or DNSSEC validator** — those capabilities live in external DNS resolvers
+
+**Right Panel: Geo-IP View (advanced_visualization.py)**
+- Table showing countries, attack counts, threat levels (Low/Medium/High/Critical), and block status
+- Data sourced from threat_log.json geolocation enrichment (7-day window)
+- **Enforcement is external** — use this data to drive rules in perimeter firewalls/WAF/VPN, not inline blocking
 
 ```python
 # Show DNS statistics, tunneling/DGA detections, and geo‑risk hints
 from helper import show_json
 
-show_json("/api/dns/stats")  # same JSON used for DNS/TLD charts
+show_json("/api/dns/stats")                    # DNS query counts, suspicious query counter
+show_json("/api/visualization/geographic")     # Country-level attack statistics
 ```
+
+**Detection Methods (DNS):**
+1. **Subdomain Length Analysis** — Very long labels flag tunneling candidates
+2. **Shannon Entropy** — High-entropy labels (random-looking) indicate DGA or exfil encoding
+3. **Deep Subdomain Chains** — Many labels in single name (6+) common for tunneling frameworks
+4. **Base64-Like Patterns** — Labels matching base64 character distribution suggest data encoding
+5. **Large TXT/NULL Payloads** — Uncommon record types with large payloads (>400 bytes) flag exfil attempts
+
+**Why Section 18 might show zeros:**
+- `dns-queries = 0` → No DNS queries captured yet in dns_security.json (normal for new installs)
+- `geo-data-tbody empty` → No attacks logged in threat_log.json with geolocation data (good security posture)
 
 ## Section 19 – User & Identity Trust Signals
 
@@ -627,7 +658,7 @@ show_json("/api/sandbox/stats")
 
 ## Section 21 – Email/SMS Alerts (Critical System Events)
 
-Backed by: `/api/alert/status`, `/api/alert/config` and `AI/alert_system.py`.
+Backed by: `/api/alerts/stats` and `AI/alert_system.py`.
 
 **Dashboard Metrics:**
 - **Alerts Sent (24h)** — Total notifications sent in last 24 hours (email + SMS combined)
@@ -636,12 +667,14 @@ Backed by: `/api/alert/status`, `/api/alert/config` and `AI/alert_system.py`.
 **What this section does:**
 Email/SMS alerting for **critical SYSTEM events only**: system failure, kill-switch changes, integrity breaches. Does NOT send general threat alerts (those go to SIEM). Uses SMTP for email and Twilio/AWS SNS/Nexmo for SMS.
 
+**Dashboard Loaders:**
+- `loadAlertStats()` — Updates alerts sent count and active subscribers count
+
 ```python
-# Show alert system configuration and status
+# Show alert system statistics
 from helper import show_json
 
-show_json("/api/alert/status")  # Alerts sent (24h), active subscribers, recent alerts
-show_json("/api/alert/config")  # SMTP/SMS configuration, trigger conditions
+show_json("/api/alerts/stats")  # Returns {email_sent, sms_sent, subscribers}
 ```
 
 **Configuration:**
@@ -662,11 +695,14 @@ Backed by: `/api/traffic/crypto-mining` and `AI/crypto_security.py`.
 **What this section does:**
 Detects unauthorized cryptomining malware (cryptojacking) through multiple signals: network traffic to mining pools, high CPU patterns, known mining software signatures, and Stratum protocol detection. Identifies Bitcoin/Monero/Ethereum mining activity.
 
+**Dashboard Loaders:**
+- `loadCryptoMiningDetection()` — Updates all 4 crypto mining metrics and detected mining activity list
+
 ```python
 # Show cryptocurrency mining detection metrics
 from helper import show_json
 
-show_json("/api/traffic/crypto-mining")  # Returns {miners_detected, high_cpu_processes, mining_connections, risk_level, top_processes, pool_connections}
+show_json("/api/traffic/crypto-mining")  # Returns {miner_processes, cpu_spikes, mining_connections, risk_level, detected_miners[], high_cpu_processes[], mining_traffic[]}
 ```
 
 **Detection Methods:**
@@ -720,11 +756,15 @@ show_json("/api/backup/status")  # Returns DISABLED with zero counts
 - `AI/central_sync.py` — Central sync coordination
 
 **Dashboard Loaders:**
-- `loadKillswitchStatus()` — Updates kill-switch mode, changes count, last changed by
-- `loadGovernanceStats()` — Updates approval queue metrics and pending requests
-- `loadSystemLogs(osType)` — Updates Linux/Windows/macOS system log metrics
-- `loadSelfProtectionStats()` — Updates integrity status and violation counts
-- `loadSecureDeployment()` — Updates secure deployment and tamper controls
+- `loadGovernanceControls()` — Single unified loader that updates:
+  - Kill-switch mode, changes count, last changed by
+  - Approval queue metrics (pending, approved, rejected, auto-approved, auto-approval rate)
+  - Pending approval requests list
+  - Audit log statistics and critical events
+  - Self-protection integrity status and violation counts
+  - Secure deployment metrics (air-gap, DIL, MAC, tamper manifest)
+- `loadSystemLogs(osType)` — Updates Linux/Windows/macOS system log metrics (called separately with tab switching)
+- Individual helper loaders also available: `loadKillswitchStatus()`, `loadGovernanceStats()`, `loadSelfProtectionStats()`, `loadSecureDeployment()`
 
 **Metrics Displayed:**
 
@@ -761,12 +801,11 @@ show_json("/api/backup/status")  # Returns DISABLED with zero counts
 # Governance, kill‑switch, approval‑queue, system logs, and secure deployment
 from helper import show_json
 
-show_json("/api/killswitch/status")        # emergency kill‑switch state
-show_json("/api/governance/stats")         # governance/approval metrics
-show_json("/api/system-logs/linux")        # Linux system logs
-show_json("/api/self-protection/stats")    # integrity/self‑protection
-show_json("/api/secure-deployment/stats")  # secure deployment controls
-show_json("/api/audit-log/stats")          # audit‑log health
+show_json("/api/killswitch/status")        # Returns {current_mode, mode_changes, disabled_by, timestamp}
+show_json("/api/governance/stats")         # Returns {pending_requests, approved_requests, rejected_requests, auto_approved_requests, auto_approval_rate, pending_requests[]}
+show_json("/api/audit-log/stats")          # Returns {compliance_report_7d: {total_events, critical_events_count, events_by_type, critical_events[]}}
+show_json("/api/self-protection/stats")    # Returns {violations_24h, monitored_components, telemetry_sources}
+show_json("/api/secure-deployment/stats")  # Returns secure deployment metrics
 show_json("/api/ai/abilities")             # 18 AI abilities on/off flags
 show_json("/api/central-sync/status")      # central sync controller status
 show_json("/api/system-status")            # underlying node health

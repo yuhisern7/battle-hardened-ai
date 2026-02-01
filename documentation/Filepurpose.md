@@ -5,7 +5,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 > **Audience & distribution note:** This is a **developer/auditor reference** tied to the Git repository layout. It assumes you have the full source tree checked out (AI/, server/, relay/) so you can inspect modules and JSON surfaces directly. **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE normally do not see this folder structure**; they operate the packaged services using README and INSTALLATION. Use this file when you need to understand or verify how the runtime behavior maps back to individual source files.
 
 **Documentation Index:**
-- **[Installation](Installation.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
+- **[Installation](installation/Installation.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
 - **[README.md](README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture
 - **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** — Attack simulation test procedures
 - **[Dashboard](Dashboard.md)** — Core first-layer dashboard API reference

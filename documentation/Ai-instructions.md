@@ -6,7 +6,7 @@
 
 **Related Documentation:**
 - **[README.md](README.md)** - Main documentation with architecture overview
-- **[Installation](Installation.md)** - Complete installation guide
+- **[Installation](installation/Installation.md)** - Complete installation guide
 - **[relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)** - Relay server deployment
 - **[Dashboard](Dashboard.md)** - Core first-layer dashboard API reference
 - **[Filepurpose](Filepurpose.md)** - File organization by pipeline stage
