@@ -65,7 +65,7 @@
     ├─ Rate limiting (if 50-74% confidence)
     ├─ Local logging → threat_log.json (rotates at 100MB) + 10+ audit surfaces
     ├─ Dashboard update (real-time WebSocket push)
-   └─ Alerts (critical-event email/SMS + SIEM integration)
+   └─ Alerts (SIEM integration; email/SMS only for critical SYSTEM events like kill-switch/integrity violations)
     ↓
 🧬 TRAINING MATERIAL EXTRACTION (privacy-preserving, customer-side)
    ├─ Extract to local staging: honeypot_patterns.json under the JSON directory returned by AI.path_helper.get_json_dir()

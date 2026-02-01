@@ -566,16 +566,25 @@ show_json("/api/signatures/stats")         # Signature statistics
 
 ## Section 17 – Traffic Analysis & Inspection
 
-Backed by: `/api/traffic/analysis`, `/api/traffic/crypto-mining`, `/api/pcap/stats` plus `AI/traffic_analyzer.py`, `AI/kernel_telemetry.py`, `AI/pcap_capture.py`.
+Backed by: `/api/traffic/analysis`, `/api/pcap/stats` plus `AI/traffic_analyzer.py`, `AI/kernel_telemetry.py`, `AI/pcap_capture.py`.
+
+**Dashboard Metrics:**
+- **Deep Packet Inspection (DPI)** — Total packets analyzed from active network interfaces
+- **Application Blocks** — Count of blocked applications (Tor, BitTorrent) detected via traffic analysis
+- **Encrypted Traffic %** — Percentage of connections using TLS/SSL (port 443)
 
 ```python
-# Reveal live traffic analysis and crypto‑mining detection
+# Reveal live traffic analysis (DPI, app blocking, encrypted traffic)
 from helper import show_json
 
-show_json("/api/traffic/analysis")       # protocol/app breakdown, anomalies
-show_json("/api/traffic/crypto-mining")  # crypto‑mining indicators
-show_json("/api/pcap/stats")             # PCAP capture statistics
+show_json("/api/traffic/analysis")  # Returns {total_packets, protocols, encrypted_percent, blocked_apps, total_connections}
+show_json("/api/pcap/stats")        # PCAP capture statistics
 ```
+
+**Why Section 17 might show zeros:**
+- `total_packets = 0` → No network interface traffic captured yet (normal for new installs)
+- `blocked_apps = {}` → No Tor/BitTorrent detected (good security posture)
+- `encrypted_percent = 0%` → No active connections on port 443 (normal if no HTTPS traffic)
 
 ## Section 18 – DNS & Geo Security
 
@@ -616,46 +625,155 @@ show_json("/api/sandbox/stats")
 # import requests; requests.post(BASE_URL+"/api/sandbox/detonate", files={"file": open("sample.bin","rb")})
 ```
 
-## Section 21 – Email/SMS Alerts (Critical Events)
+## Section 21 – Email/SMS Alerts (Critical System Events)
 
-Backed by: `/api/alerts/stats` and `AI/alert_system.py`.
+Backed by: `/api/alert/status`, `/api/alert/config` and `AI/alert_system.py`.
+
+**Dashboard Metrics:**
+- **Alerts Sent (24h)** — Total notifications sent in last 24 hours (email + SMS combined)
+- **Active Subscribers** — Number of configured recipients (email addresses + phone numbers)
+
+**What this section does:**
+Email/SMS alerting for **critical SYSTEM events only**: system failure, kill-switch changes, integrity breaches. Does NOT send general threat alerts (those go to SIEM). Uses SMTP for email and Twilio/AWS SNS/Nexmo for SMS.
 
 ```python
-# Critical alert metrics (system failure, kill‑switch, integrity breach)
+# Show alert system configuration and status
 from helper import show_json
 
-show_json("/api/alerts/stats")  # counts/routes of critical alerts sent
+show_json("/api/alert/status")  # Alerts sent (24h), active subscribers, recent alerts
+show_json("/api/alert/config")  # SMTP/SMS configuration, trigger conditions
 ```
+
+**Configuration:**
+- **Email:** Requires SMTP server, port (587/TLS recommended), encryption, recipients list
+- **SMS:** Requires provider (Twilio/AWS SNS/Nexmo), phone numbers in international format (+1, +44, etc.)
+- **Triggers:** Critical threats, new device detected, malware, insider threat (configurable checkboxes)
 
 ## Section 22 – Cryptocurrency Mining Detection
 
-Backed by: `/api/traffic/crypto-mining` and `AI/crypto_security.py`, `AI/traffic_analyzer.py`.
+Backed by: `/api/traffic/crypto-mining` and `AI/crypto_security.py`.
+
+**Dashboard Metrics:**
+- **Miners Detected** — Total confirmed cryptocurrency mining processes/connections
+- **High CPU Processes** — Processes using >80% CPU sustained (potential mining)
+- **Mining Connections** — Active connections to known mining pools (Stratum protocol)
+- **Risk Level** — Overall mining threat assessment (Low/Medium/High/Critical)
+
+**What this section does:**
+Detects unauthorized cryptomining malware (cryptojacking) through multiple signals: network traffic to mining pools, high CPU patterns, known mining software signatures, and Stratum protocol detection. Identifies Bitcoin/Monero/Ethereum mining activity.
 
 ```python
-# Crypto‑mining detection statistics
+# Show cryptocurrency mining detection metrics
 from helper import show_json
 
-show_json("/api/traffic/crypto-mining")
+show_json("/api/traffic/crypto-mining")  # Returns {miners_detected, high_cpu_processes, mining_connections, risk_level, top_processes, pool_connections}
+```
+
+**Detection Methods:**
+1. Mining pool connection detection (500+ known pools)
+2. Stratum protocol analysis (JSON-RPC mining protocol)
+3. CPU usage pattern analysis (>80% sustained on all cores)
+4. Process name/hash signatures (XMRig, CGMiner, BFGMiner, etc.)
+5. DNS queries for mining domains
+6. GPU usage anomalies
+7. Memory access patterns typical of mining algorithms
+from helper import show_json
+
+show_json("/api/zero-trust/dlp")  # Returns DISABLED with zero counts
+```
+
+### 22.5 – Backup & Recovery Status
+
+**APIs:**
+- `/api/backup/status` — Backup monitoring and ransomware resilience metrics
+
+**Dashboard Loaders:**
+- `loadBackupRecoveryStatus()` — Updates backup locations, success rates, resilience scores, RTO
+
+```python
+from helper import show_json
+
+show_json("/api/backup/status")  # Returns DISABLED with zero counts
 ```
 
 ## Section 23 – Governance & Emergency Controls
 
-Backed by: `/api/governance/stats`, `/api/killswitch/status`, `/api/audit-log/stats`, `/api/ai/abilities`, `/api/central-sync/status`, `/api/system-status` and modules like `AI/policy_governance.py`, `AI/emergency_killswitch.py`, `AI/central_sync.py`.
+**Purpose:** Command surface for high-assurance governance with kill-switch, approval workflows, audit logging, and secure deployment controls.
+
+**APIs:**
+- `/api/killswitch/status` — Emergency kill-switch mode and state changes
+- `/api/governance/stats` — Approval queue metrics and pending requests
+- `/api/system-logs/{os}` — System logs for Linux/Windows/macOS
+- `/api/self-protection/stats` — Integrity monitoring and self-protection status
+- `/api/secure-deployment/stats` — Secure deployment and tamper control metrics
+- `/api/audit-log/stats` — Audit log health and statistics
+- `/api/ai/abilities` — 18 AI abilities on/off flags
+- `/api/central-sync/status` — Central sync controller status
+- `/api/system-status` — Underlying node health
+
+**Backend Modules:**
+- `AI/emergency_killswitch.py` — Kill-switch mode control (ACTIVE/MONITORING_ONLY/SAFE_MODE/DISABLED)
+- `AI/policy_governance.py` — Approval workflows and policy enforcement
+- `AI/system_log_collector.py` — Multi-OS system log collection
+- `AI/self_protection.py` — Integrity monitoring and tampering detection
+- `AI/secure_deployment.py` — Secure deployment controls (air-gap, DIL, MAC, zeroize)
+- `AI/central_sync.py` — Central sync coordination
+
+**Dashboard Loaders:**
+- `loadKillswitchStatus()` — Updates kill-switch mode, changes count, last changed by
+- `loadGovernanceStats()` — Updates approval queue metrics and pending requests
+- `loadSystemLogs(osType)` — Updates Linux/Windows/macOS system log metrics
+- `loadSelfProtectionStats()` — Updates integrity status and violation counts
+- `loadSecureDeployment()` — Updates secure deployment and tamper controls
+
+**Metrics Displayed:**
+
+**Kill-Switch:**
+- Current mode (ACTIVE/MONITORING_ONLY/SAFE_MODE/DISABLED)
+- Total mode changes count
+- Last changed by user/timestamp
+
+**Approval Queue:**
+- Pending approvals awaiting human review
+- Total approved/rejected requests
+- Auto-approved requests and auto-approval rate
+- Pending approval requests list
+
+**System Logs (3 OS tabs):**
+- Crashes, auth failures, service errors, total events per OS
+- Recent event logs for Linux/Windows/macOS
+
+**Self-Protection:**
+- Integrity status (INTACT/COMPROMISED)
+- Violations count (24 hours)
+- Monitored components count
+- Active telemetry sources
+
+**Secure Deployment:**
+- Air-gap mode status
+- DIL/store-and-forward mode
+- MAC policies (SELinux/AppArmor)
+- Security domain label
+- Key provider (software/HSM)
+- Tamper manifest status
 
 ```python
-# Governance, kill‑switch, approval‑queue, and global sync surfaces
+# Governance, kill‑switch, approval‑queue, system logs, and secure deployment
 from helper import show_json
 
-show_json("/api/governance/stats")      # governance/approval metrics
-show_json("/api/killswitch/status")     # emergency kill‑switch state
-show_json("/api/audit-log/stats")       # audit‑log health
-show_json("/api/ai/abilities")          # 18 AI abilities on/off flags
-show_json("/api/central-sync/status")   # central sync controller status
-show_json("/api/system-status")         # underlying node health
+show_json("/api/killswitch/status")        # emergency kill‑switch state
+show_json("/api/governance/stats")         # governance/approval metrics
+show_json("/api/system-logs/linux")        # Linux system logs
+show_json("/api/self-protection/stats")    # integrity/self‑protection
+show_json("/api/secure-deployment/stats")  # secure deployment controls
+show_json("/api/audit-log/stats")          # audit‑log health
+show_json("/api/ai/abilities")             # 18 AI abilities on/off flags
+show_json("/api/central-sync/status")      # central sync controller status
+show_json("/api/system-status")            # underlying node health
 
-Clustered deployments also rely on two non-dashboard endpoints for governance and failover:
-- `/health` – lightweight node/cluster health used by external load balancers and passive nodes (driven by `cluster_config.json` in the JSON directory resolved by AI/path_helper).
-- `/cluster/config/snapshot` – active-node-only snapshot of selected JSON config surfaces listed in `config_sync_paths` inside the same `cluster_config.json`, used by passive nodes for safe config synchronization.
+# Clustered deployments also rely on two non-dashboard endpoints for governance and failover:
+# - /health – lightweight node/cluster health used by external load balancers and passive nodes
+# - /cluster/config/snapshot – active-node-only snapshot for config synchronization
 ```
 
 ## Section 24 – Enterprise Security Integrations (Outbound)
@@ -665,14 +783,30 @@ Clustered deployments also rely on two non-dashboard endpoints for governance an
 **Purpose:** Configure and inspect outbound adapters that export first‑layer execution‑denial decisions into enterprise tooling such as SIEM, SOAR, and IT‑operations platforms, without introducing any new primary enforcement path.
 
 **APIs:**
-- `/api/enterprise-integration/config` (GET) – returns the normalized enterprise integration configuration used by the AI engine.
-- `/api/enterprise-integration/config` (POST) – updates the configuration (admin‑only); writes the JSON surface consumed on startup.
+- `/api/enterprise-integration/config` (GET) — Returns current enterprise integration configuration
+- `/api/enterprise-integration/config` (POST) — Updates configuration (admin‑only)
 
 **Backend Modules & Surfaces:**
-- `server/server.py` – helper functions `_load_enterprise_integration_config()`, `_save_enterprise_integration_config()` and the secured HTTP handlers.
-- `enterprise_integration.json` – JSON configuration file resolved by the core JSON directory helper (syslog_targets, webhook_targets, etc.).
-- `AI/enterprise_integration.py` – integration logic used by the AI engine to wire outbound adapters at runtime.
+- `server/server.py` — Helper functions `_load_enterprise_integration_config()`, `_save_enterprise_integration_config()` and secured HTTP handlers
+- `enterprise_integration.json` — JSON configuration file (syslog_targets, webhook_targets, etc.)
+- `AI/enterprise_integration.py` — Integration logic for outbound adapters
+
+**Dashboard Loaders:**
+- `loadEnterpriseIntegrationStatus()` — Displays current syslog/webhook target counts
+- Live JSON editor for `enterprise_integration.json` configuration
+
+**Metrics Displayed:**
+- Number of configured syslog targets
+- Number of configured webhook targets
+- Live configuration editor with save/reload functionality
+
+```python
+# Enterprise integration configuration
+from helper import show_json
+
+show_json("/api/enterprise-integration/config")  # Current integration config
+```
 
 **Notes:**
-- These integrations are <strong>export‑only</strong>: they send events and summaries out but do not control the first‑layer firewall enforcement path.
+- These integrations are **export‑only**: they send events and summaries out but do not control the first‑layer firewall enforcement path.
 - For safety and audit clarity, the integration plane is deliberately separated from the enforcement plane described in the firewall enforcement and attack‑handling documentation.
