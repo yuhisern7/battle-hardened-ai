@@ -4,6 +4,49 @@
 
 ---
 
+## 🎯 Deployment Role (Read First)
+
+**Battle-Hardened AI can be installed in three roles:**
+
+| Role | Description | Enforcement Authority | Use Case |
+|------|-------------|----------------------|----------|
+| **Gateway / Router** | Protects entire network segment as inline gateway | Full network-wide enforcement | **Recommended** - Home/office networks, branch offices, cloud VPCs |
+| **Host-only** | Protects the local machine and its services | Host-level only | Single server protection, workstations |
+| **Observer** | Monitors traffic via mirror/SPAN without enforcement | Detection-only (no blocking) | Compliance monitoring, analysis mode |
+
+**This document focuses on Gateway / Router mode unless otherwise stated.**
+
+### Important Notes:
+
+✅ **Cloud VMs are fully supported** - Battle-Hardened AI does not require physical hardware. A cloud VM with multiple network interfaces (virtual NICs) is sufficient to operate as a router and enforcement gateway.
+
+✅ **Gateway mode provides maximum protection** - All network traffic passes through Battle-Hardened AI for inspection and enforcement.
+
+✅ **Firewall integration required for enforcement** - Gateway/router mode requires iptables/nftables integration (see [Firewall_enforcement.md](../Firewall_enforcement.md)).
+
+---
+
+## ✅ Gateway Pre-Flight Checklist
+
+**Before installing Battle-Hardened AI in gateway/router mode, ensure:**
+
+- [ ] **Linux system** with kernel 4.15+ (Ubuntu 20.04/22.04/24.04, Debian 11/12, RHEL 8/9)
+- [ ] **2 network interfaces** (physical NICs or virtual NICs for cloud)
+- [ ] **Root or sudo access** for system configuration
+- [ ] **IP forwarding capability** (`sysctl net.ipv4.ip_forward`)
+- [ ] **iptables or nftables** installed and accessible
+- [ ] **Outbound internet access** for relay communication and updates
+- [ ] **8GB RAM minimum** (16GB recommended for production)
+- [ ] **4 CPU cores minimum** (8 cores recommended for 10,000+ connections)
+- [ ] **HMAC shared secret key** obtained from vendor/relay administrator
+
+**For cloud deployments, also ensure:**
+- [ ] **Source/destination check disabled** on network interfaces (AWS/Azure/GCP)
+- [ ] **VPC/VNet route tables** configured to route through Battle-Hardened AI instance
+- [ ] **Security groups/NSGs** allow necessary ports (60000 dashboard, relay ports)
+
+---
+
 ## ⚙️ Network Configuration - IP Whitelisting
 
 **If your network uses a different IP segment than the defaults**, you need to whitelist your gateway/router IP to prevent accidental blocking.
@@ -824,12 +867,17 @@ Also check router AP/client isolation settings if testing from another device.
 ```bash
 # Linux: Find process using port 60000
 sudo lsof -i :60000 || sudo ss -ltnp | grep 60000
+sudo kill -9 <PID>  # If needed
 
-# Windows: Find process
+# Windows: Find and kill process
 netstat -ano | Select-String "60000"
+Stop-Process -Id <PID> -Force  # If needed
 ```
 
 Stop or reconfigure any conflicting service before starting Battle-Hardened AI.
+
+---
+
 **Integration Points:**
 - **Docker:** Automatically runs via `entrypoint.sh`
 - **Native:** Automatically runs on `server.py` startup
@@ -1488,6 +1536,34 @@ curl -k https://localhost:60000  # macOS
 curl.exe -k https://localhost:60000  # Windows
 ```
 
+### Service Control
+
+**Linux (.deb/.rpm):**
+```bash
+# Stop services
+sudo systemctl stop battle-hardened-ai battle-hardened-ai-firewall-sync
+
+# Disable automatic start on boot
+sudo systemctl disable battle-hardened-ai battle-hardened-ai-firewall-sync
+
+# Restart services
+sudo systemctl restart battle-hardened-ai battle-hardened-ai-firewall-sync
+
+# Shutdown gateway
+sudo shutdown now
+```
+
+**Windows:**
+```powershell
+# Check service status
+Get-Service | Where-Object { $_.DisplayName -like "*Battle-Hardened AI*" }
+
+# Stop service (if installed as Windows service)
+Stop-Service "Battle-Hardened AI"
+```
+
+---
+
 ### Dashboard Sections
 
 Navigate to **https://localhost:60000** and verify all sections:
@@ -1526,89 +1602,6 @@ curl "http://192.168.X.X/login?user=admin'--"
 Check dashboard for detected threats.
 
 ---
-
-## Troubleshooting
-
-### Common Issues
-
-#### 1. Docker: "Cannot connect to Docker daemon"
-
-**Linux:**
-```bash
-# Start Docker service
-sudo systemctl start docker
-
-# Enable on boot
-sudo systemctl enable docker
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-**Windows/macOS:**
-- Start Docker Desktop application
-- Wait for "Docker is running" notification
-
-#### 2. Windows: "Npcap not found" or Scapy errors
-
-```powershell
-# Reinstall Npcap from: https://npcap.com/#download
-# Ensure "WinPcap API-compatible mode" is checked
-
-## Post-Installation
-
-### Verify Everything Works
-
-**Linux (.deb/.rpm appliance):**
-```bash
-# Check systemd service status
-sudo systemctl status battle-hardened-ai
-sudo systemctl status battle-hardened-ai-firewall-sync
-
-# Check recent logs for the main service
-sudo journalctl -u battle-hardened-ai -n 50 --no-pager
-
-# From an admin workstation, verify dashboard is reachable
-curl -k https://YOUR_GATEWAY_IP:60000 || echo "curl failed"
-```
-
-**Windows (EXE installer):**
-```powershell
-# Verify the Battle-Hardened AI Windows service is running
-Get-Service | Where-Object { $_.DisplayName -like "*Battle-Hardened AI*" }
-
-# From the Windows host, verify dashboard is reachable
-curl.exe -k https://localhost:60000
-```
-
-### Service Control and Shutdown (Linux appliances)
-
-To safely stop Battle-Hardened AI on a Debian/Ubuntu gateway:
-
-```bash
-sudo systemctl stop battle-hardened-ai battle-hardened-ai-firewall-sync
-```
-
-To prevent automatic start on boot:
-
-```bash
-sudo systemctl disable battle-hardened-ai battle-hardened-ai-firewall-sync
-```
-
-To fully shut down the Linux gateway after stopping services:
-
-```bash
-sudo shutdown now    # or: sudo poweroff
-```
-# Linux: Find process using port 60000
-sudo lsof -i :60000
-sudo kill -9 <PID>
-
-# Windows: Find and kill process
-netstat -ano | Select-String "60000"
-Stop-Process -Id <PID> -Force
-```
 
 #### 5. ML Models not training
 
