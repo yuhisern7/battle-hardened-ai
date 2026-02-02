@@ -82,6 +82,687 @@ Place the `shared_secret.key` file in:
 
 If you are running the **packaged Linux or Windows builds**, you normally do **not** interact with the full Git source tree; treat the developer/auditor docs as optional deep-dive references rather than required install steps.
 
+---
+
+## 🌐 Deployment Scenarios - Detailed Guide
+
+This section provides step-by-step instructions for the most common deployment scenarios. Choose the scenario that matches your use case.
+
+### Scenario 1: Linux Gateway/Router (Network-Wide Protection - RECOMMENDED)
+
+**Goal:** Protect entire network segment by placing Battle-Hardened AI between internet and internal network.
+
+**When to use:**
+- Home/small office networks
+- Branch office protection
+- Network segment isolation
+- Complete visibility and control over all traffic
+
+---
+
+#### 🔧 Equipment Required
+
+**Minimum Hardware:**
+- **Linux appliance/server** with 2 network interfaces (NICs):
+  - **WAN NIC:** Connects to modem/ONT/upstream router
+  - **LAN NIC:** Connects to internal switch/network
+- **CPU:** 4 cores (Intel/AMD x64)
+- **RAM:** 8 GB minimum, 16 GB recommended
+- **Storage:** 32 GB SSD/NVMe minimum, 128 GB recommended
+- **Network:** Gigabit Ethernet NICs (Intel i210/i350 recommended for stability)
+
+**Example Hardware Options:**
+
+| Option | Description | Cost Range |
+|--------|-------------|------------|
+| **Repurposed PC/Server** | Old desktop with dual NICs | $0-200 (reuse) |
+| **Mini PC** | Intel NUC, Protectli Vault, Qotom | $200-600 |
+| **Dedicated Appliance** | Purpose-built firewall hardware | $300-1000 |
+| **VM/Hypervisor** | Proxmox, ESXi with virtual NICs | $0 (software) |
+
+**Network Equipment:**
+- **Modem/ONT** in bridge mode (ISP-provided, disable built-in routing)
+- **Managed switch** (optional but recommended for VLANs)
+- **Wi-Fi access point** in bridge/AP mode (disable router features)
+
+---
+
+#### 📡 Network Topology
+
+```
+INTERNET
+    │
+    │ (WAN connection)
+    │
+┌───▼────────┐
+│ Modem/ONT  │ ← Set to BRIDGE MODE (disable NAT/firewall)
+└───┬────────┘
+    │
+    │ WAN cable (to eth0/enp1s0)
+    │
+┌───▼─────────────────────────┐
+│  Battle-Hardened AI         │ ← Linux Gateway
+│  (Ubuntu/Debian Server)     │
+│                             │
+│  WAN: eth0 (203.0.113.50)   │ ← Public IP from ISP
+│  LAN: eth1 (192.168.1.1)    │ ← Gateway for internal network
+│                             │
+│  Services:                  │
+│  - NAT/Routing             │
+│  - DHCP server             │
+│  - DNS resolver            │
+│  - Firewall (iptables)     │
+│  - Battle-Hardened AI      │
+└───┬─────────────────────────┘
+    │
+    │ LAN cable (from eth1)
+    │
+┌───▼──────┐        ┌────────────┐
+│ Switch   │───────►│ Wi-Fi AP   │ ← Bridge mode (no DHCP/NAT)
+└───┬──────┘        └────────────┘
+    │
+    ├─── Desktop PC (192.168.1.100)
+    ├─── Laptop (192.168.1.101 via Wi-Fi)
+    ├─── Server (192.168.1.50)
+    └─── IoT devices (192.168.1.200+)
+```
+
+---
+
+#### ⚙️ Step-by-Step Setup
+
+**Step 1: Prepare Linux Server**
+
+Install Ubuntu Server 22.04/24.04 or Debian 11/12:
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install required packages
+sudo apt install -y net-tools dnsmasq iptables ipset
+
+# Identify network interfaces
+ip addr show
+# Example output:
+# eth0: WAN interface (connected to modem)
+# eth1: LAN interface (connected to switch)
+```
+
+**Step 2: Configure Network Interfaces**
+
+Edit `/etc/netplan/01-netcfg.yaml` (Ubuntu) or `/etc/network/interfaces` (Debian):
+
+**Ubuntu/Netplan:**
+```yaml
+network:
+  version: 2
+  ethernets:
+    eth0:  # WAN interface
+      dhcp4: true  # Get IP from ISP
+      # Or static if ISP provides:
+      # addresses: [203.0.113.50/24]
+      # gateway4: 203.0.113.1
+      # nameservers:
+      #   addresses: [8.8.8.8, 8.8.4.4]
+    
+    eth1:  # LAN interface
+      addresses: [192.168.1.1/24]  # Gateway IP for internal network
+      dhcp4: no
+```
+
+Apply configuration:
+```bash
+sudo netplan apply
+```
+
+**Debian /etc/network/interfaces:**
+```
+# WAN interface
+auto eth0
+iface eth0 inet dhcp
+
+# LAN interface
+auto eth1
+iface eth1 inet static
+    address 192.168.1.1
+    netmask 255.255.255.0
+```
+
+Apply:
+```bash
+sudo systemctl restart networking
+```
+
+**Step 3: Enable IP Forwarding**
+
+```bash
+# Enable immediately
+sudo sysctl -w net.ipv4.ip_forward=1
+sudo sysctl -w net.ipv6.conf.all.forwarding=1
+
+# Make permanent
+echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
+echo "net.ipv6.conf.all.forwarding=1" | sudo tee -a /etc/sysctl.conf
+```
+
+**Step 4: Configure NAT (Masquerading)**
+
+```bash
+# Set up NAT so internal network can access internet via WAN
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+# Allow forwarding
+sudo iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+sudo iptables -A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Save rules (Ubuntu/Debian)
+sudo apt install iptables-persistent
+sudo netfilter-persistent save
+```
+
+**Step 5: Configure DHCP Server (dnsmasq)**
+
+Edit `/etc/dnsmasq.conf`:
+
+```bash
+# Interface to listen on
+interface=eth1
+
+# DHCP range for internal network
+dhcp-range=192.168.1.100,192.168.1.250,12h
+
+# Gateway (this server)
+dhcp-option=3,192.168.1.1
+
+# DNS servers (this server will forward to ISP or public DNS)
+dhcp-option=6,192.168.1.1
+
+# Domain name
+domain=local
+
+# Upstream DNS servers
+server=8.8.8.8
+server=8.8.4.4
+```
+
+Enable and start:
+```bash
+sudo systemctl enable dnsmasq
+sudo systemctl start dnsmasq
+```
+
+**Step 6: Verify Basic Gateway Functionality**
+
+Connect a test device to LAN switch:
+
+```bash
+# From test device (should get 192.168.1.x IP via DHCP)
+ip addr show  # Verify IP address
+ping 192.168.1.1  # Ping gateway
+ping 8.8.8.8  # Ping internet (test NAT)
+curl https://google.com  # Test full internet connectivity
+```
+
+**Step 7: Install Battle-Hardened AI**
+
+```bash
+# Download .deb package (from vendor)
+sudo dpkg -i battle-hardened-ai_*.deb
+sudo apt-get install -f  # Fix any dependencies
+
+# Configure
+sudo nano /etc/battle-hardened-ai/.env
+
+# Set these variables:
+RELAY_URL=wss://YOUR_RELAY_VPS:60001
+RELAY_API_URL=https://YOUR_RELAY_VPS:60002
+CUSTOMER_ID=your-customer-id
+PEER_NAME=main-gateway
+BATTLE_HARDENED_SECRET_KEY=your-long-random-secret-key
+```
+
+**Step 8: Place Shared Secret Key**
+
+```bash
+# Obtain shared_secret.key from vendor
+# Copy to crypto directory
+sudo mkdir -p /etc/battle-hardened-ai/crypto_keys
+sudo cp shared_secret.key /etc/battle-hardened-ai/crypto_keys/
+sudo chown bhai:bhai /etc/battle-hardened-ai/crypto_keys/shared_secret.key
+sudo chmod 600 /etc/battle-hardened-ai/crypto_keys/shared_secret.key
+```
+
+**Step 9: Whitelist Gateway IP**
+
+```bash
+# Edit whitelist to prevent blocking gateway itself
+sudo nano /var/lib/battle-hardened-ai/json/whitelist.json
+```
+
+Add:
+```json
+[
+  "192.168.1.1",
+  "127.0.0.1"
+]
+```
+
+**Step 10: Start Services**
+
+```bash
+sudo systemctl enable battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync
+
+# Check status
+sudo systemctl status battle-hardened-ai
+sudo journalctl -u battle-hardened-ai -n 50 --no-pager
+```
+
+**Step 11: Access Dashboard**
+
+From any device on internal network:
+```
+https://192.168.1.1:60000
+```
+
+Accept self-signed certificate and login.
+
+**Step 12: Final Verification**
+
+```bash
+# Check firewall rules are being applied
+sudo iptables -L -n -v
+sudo ipset list
+
+# Monitor live threats
+sudo journalctl -u battle-hardened-ai -f
+
+# Test attack detection from external device
+# (e.g., port scan from another network)
+```
+
+---
+
+#### 🔒 Firewall Integration
+
+Battle-Hardened AI automatically syncs with iptables via the `battle-hardened-ai-firewall-sync` service:
+
+```bash
+# Check firewall sync status
+sudo systemctl status battle-hardened-ai-firewall-sync
+
+# View blocked IPs
+sudo ipset list battle_hardened_blocklist
+
+# Manual block (for testing)
+sudo ipset add battle_hardened_blocklist 1.2.3.4
+
+# Manual unblock
+sudo ipset del battle_hardened_blocklist 1.2.3.4
+```
+
+For detailed firewall configuration, see [Firewall_enforcement.md](../Firewall_enforcement.md).
+
+---
+
+### Scenario 2: Cloud Gateway with Virtual NICs (AWS/Azure/GCP)
+
+**Goal:** Deploy Battle-Hardened AI as a virtual gateway in cloud environment protecting VPC/VNet resources.
+
+**When to use:**
+- Cloud-hosted infrastructure (AWS, Azure, GCP)
+- Hybrid cloud deployments
+- Multi-region protection
+- Testing before on-premises deployment
+
+---
+
+#### ☁️ Cloud Architecture Overview
+
+```
+INTERNET
+    │
+    │ (Public IP/Elastic IP)
+    │
+┌───▼─────────────────────────────────────────┐
+│  Cloud VPC/VNet (10.0.0.0/16)               │
+│                                             │
+│  ┌─────────────────────────────────────┐   │
+│  │ Battle-Hardened AI Gateway VM      │   │
+│  │                                     │   │
+│  │ Virtual NIC 1 (Public)              │   │
+│  │   - Public IP: 203.0.113.50        │   │
+│  │   - Subnet: 10.0.1.0/24 (DMZ)      │   │
+│  │                                     │   │
+│  │ Virtual NIC 2 (Private)             │   │
+│  │   - Private IP: 10.0.10.1          │   │
+│  │   - Subnet: 10.0.10.0/24 (App tier)│   │
+│  │                                     │   │
+│  │ Services:                           │   │
+│  │   - NAT Gateway                     │   │
+│  │   - Security Groups/NSG             │   │
+│  │   - Battle-Hardened AI              │   │
+│  └───┬─────────────────────────────────┘   │
+│      │                                      │
+│      │ (Internal routing)                   │
+│      │                                      │
+│  ┌───▼──────────┐  ┌──────────────┐       │
+│  │ Web Servers  │  │ App Servers  │       │
+│  │ 10.0.10.10   │  │ 10.0.10.20   │       │
+│  └──────────────┘  └──────────────┘       │
+│                                             │
+│  ┌──────────────┐  ┌──────────────┐       │
+│  │ Databases    │  │ Storage      │       │
+│  │ 10.0.20.10   │  │ 10.0.30.x    │       │
+│  └──────────────┘  └──────────────┘       │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+#### 🔧 Equipment Required
+
+**Cloud Resources:**
+- **VM Instance:**
+  - Type: e2-standard-4 (GCP), t3.xlarge (AWS), Standard_B4ms (Azure)
+  - vCPUs: 4 cores minimum, 8 recommended
+  - RAM: 8 GB minimum, 16 GB recommended
+  - Storage: 50 GB SSD minimum, 128 GB recommended
+- **Virtual NICs:** 2 network interfaces
+  - NIC 1: External/public subnet (WAN equivalent)
+  - NIC 2: Internal/private subnet (LAN equivalent)
+- **Public IP:** Elastic IP (AWS), Static IP (GCP), Public IP (Azure)
+- **Operating System:** Ubuntu 22.04/24.04 LTS or Debian 11/12
+
+**Network Configuration:**
+- **VPC/VNet:** 10.0.0.0/16 (example)
+- **Public Subnet:** 10.0.1.0/24 (for NIC 1)
+- **Private Subnet:** 10.0.10.0/24 (for NIC 2 and backend services)
+- **Route Tables:** Custom routes pointing to Battle-Hardened AI
+- **Security Groups/NSGs:** Allow necessary ports
+
+---
+
+#### ⚙️ AWS Deployment (Step-by-Step)
+
+**Step 1: Create VPC and Subnets**
+
+```bash
+# Create VPC
+aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=BattleHardenedAI-VPC}]'
+
+# Note the VPC ID from output
+VPC_ID=vpc-xxxxxxxxx
+
+# Create public subnet (for external NIC)
+aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.1.0/24 --availability-zone us-east-1a --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public-Subnet}]'
+
+# Note subnet ID
+PUBLIC_SUBNET_ID=subnet-xxxxxxxxx
+
+# Create private subnet (for internal NIC)
+aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.10.0/24 --availability-zone us-east-1a --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Private-Subnet}]'
+
+PRIVATE_SUBNET_ID=subnet-yyyyyyyyy
+
+# Create Internet Gateway
+aws ec2 create-internet-gateway --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=BH-AI-IGW}]'
+IGW_ID=igw-xxxxxxxxx
+
+# Attach to VPC
+aws ec2 attach-internet-gateway --vpc-id $VPC_ID --internet-gateway-id $IGW_ID
+```
+
+**Step 2: Launch EC2 Instance with Dual NICs**
+
+```bash
+# Create Security Groups
+# External SG (allow dashboard, SSH)
+aws ec2 create-security-group --group-name BH-AI-External-SG --description "Battle-Hardened AI External" --vpc-id $VPC_ID
+
+EXTERNAL_SG_ID=sg-xxxxxxxxx
+
+aws ec2 authorize-security-group-ingress --group-id $EXTERNAL_SG_ID --protocol tcp --port 22 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EXTERNAL_SG_ID --protocol tcp --port 60000 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EXTERNAL_SG_ID --protocol tcp --port 443 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EXTERNAL_SG_ID --protocol tcp --port 80 --cidr 0.0.0.0/0
+
+# Internal SG (allow all from private subnet)
+aws ec2 create-security-group --group-name BH-AI-Internal-SG --description "Battle-Hardened AI Internal" --vpc-id $VPC_ID
+
+INTERNAL_SG_ID=sg-yyyyyyyyy
+
+aws ec2 authorize-security-group-ingress --group-id $INTERNAL_SG_ID --protocol -1 --cidr 10.0.0.0/16
+
+# Launch instance with two network interfaces
+aws ec2 run-instances \
+  --image-id ami-0c55b159cbfafe1f0 \
+  --instance-type t3.xlarge \
+  --key-name your-key-pair \
+  --network-interfaces \
+    "DeviceIndex=0,SubnetId=$PUBLIC_SUBNET_ID,Groups=$EXTERNAL_SG_ID" \
+    "DeviceIndex=1,SubnetId=$PRIVATE_SUBNET_ID,Groups=$INTERNAL_SG_ID" \
+  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=BattleHardened-AI-Gateway}]'
+
+INSTANCE_ID=i-xxxxxxxxx
+```
+
+**Step 3: Allocate and Assign Elastic IP**
+
+```bash
+# Allocate Elastic IP
+aws ec2 allocate-address --domain vpc
+
+EIP_ALLOCATION_ID=eipalloc-xxxxxxxxx
+
+# Associate with primary network interface
+aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id $EIP_ALLOCATION_ID
+```
+
+**Step 4: Configure Source/Dest Check (Critical for NAT)**
+
+```bash
+# Disable source/destination check (allows NAT/routing)
+aws ec2 modify-instance-attribute --instance-id $INSTANCE_ID --no-source-dest-check
+```
+
+**Step 5: SSH to Instance and Configure**
+
+```bash
+# SSH using Elastic IP
+ssh -i your-key.pem ubuntu@YOUR_ELASTIC_IP
+
+# Once connected:
+sudo apt update && sudo apt upgrade -y
+
+# Identify NICs
+ip addr show
+# Example:
+# eth0: 10.0.1.x (public subnet - WAN equivalent)
+# eth1: 10.0.10.1 (private subnet - LAN equivalent)
+```
+
+**Step 6: Configure Network Interfaces**
+
+```bash
+# Edit netplan
+sudo nano /etc/netplan/50-cloud-init.yaml
+```
+
+Add/modify:
+```yaml
+network:
+  version: 2
+  ethernets:
+    eth0:  # Public NIC
+      dhcp4: true
+    eth1:  # Private NIC
+      addresses: [10.0.10.1/24]
+      dhcp4: no
+```
+
+Apply:
+```bash
+sudo netplan apply
+```
+
+**Step 7: Enable IP Forwarding and NAT**
+
+```bash
+# Enable forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
+
+# Configure NAT (masquerade private subnet through public NIC)
+sudo iptables -t nat -A POSTROUTING -s 10.0.10.0/24 -o eth0 -j MASQUERADE
+sudo iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+sudo iptables -A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Save rules
+sudo apt install iptables-persistent -y
+sudo netfilter-persistent save
+```
+
+**Step 8: Update Route Tables**
+
+In AWS Console or via CLI:
+
+```bash
+# Get private route table
+PRIVATE_RT_ID=$(aws ec2 describe-route-tables --filters "Name=vpc-id,Values=$VPC_ID" "Name=association.subnet-id,Values=$PRIVATE_SUBNET_ID" --query 'RouteTables[0].RouteTableId' --output text)
+
+# Add route: all internet traffic from private subnet goes through Battle-Hardened AI
+aws ec2 create-route --route-table-id $PRIVATE_RT_ID --destination-cidr-block 0.0.0.0/0 --network-interface-id $(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].NetworkInterfaces[1].NetworkInterfaceId' --output text)
+```
+
+**Step 9: Install Battle-Hardened AI**
+
+```bash
+# Download and install .deb package
+wget https://your-vendor-url/battle-hardened-ai_*.deb
+sudo dpkg -i battle-hardened-ai_*.deb
+sudo apt-get install -f
+
+# Configure
+sudo nano /etc/battle-hardened-ai/.env
+```
+
+Set:
+```
+RELAY_URL=wss://YOUR_RELAY_VPS:60001
+RELAY_API_URL=https://YOUR_RELAY_VPS:60002
+CUSTOMER_ID=aws-vpc-gateway-1
+PEER_NAME=aws-us-east-1a
+BATTLE_HARDENED_SECRET_KEY=your-secret-key
+```
+
+**Step 10: Start Services**
+
+```bash
+sudo systemctl enable battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync
+
+# Verify
+sudo systemctl status battle-hardened-ai
+```
+
+**Step 11: Launch Backend Servers**
+
+Launch web/app servers in private subnet (10.0.10.0/24). They will automatically route through Battle-Hardened AI gateway.
+
+**Step 12: Test**
+
+From backend server:
+```bash
+curl https://google.com  # Should work through NAT
+# Check logs on Battle-Hardened AI to see traffic
+```
+
+Access dashboard:
+```
+https://YOUR_ELASTIC_IP:60000
+```
+
+---
+
+#### ☁️ Azure Deployment (Quick Guide)
+
+**Resources Needed:**
+- **Virtual Network (VNet):** 10.0.0.0/16
+- **Subnets:**
+  - External: 10.0.1.0/24
+  - Internal: 10.0.10.0/24
+- **VM:** Standard_B4ms (4 vCPU, 16GB RAM)
+  - OS: Ubuntu 22.04 LTS
+  - Network Interfaces: 2 NICs
+- **Public IP:** Static
+- **NSG:** Network Security Groups for external/internal
+
+**Key Configuration:**
+```bash
+# Disable source/dest check on NIC
+az network nic update --name bh-ai-nic-internal --resource-group BH-AI-RG --ip-forwarding true
+
+# Create route table
+az network route-table create --name BH-AI-Routes --resource-group BH-AI-RG
+
+# Add route (all traffic to internal NIC)
+az network route-table route create --name ToInternet --resource-group BH-AI-RG --route-table-name BH-AI-Routes --address-prefix 0.0.0.0/0 --next-hop-type VirtualAppliance --next-hop-ip-address 10.0.10.1
+
+# Associate route table with private subnet
+az network vnet subnet update --resource-group BH-AI-RG --vnet-name BH-AI-VNet --name Private-Subnet --route-table BH-AI-Routes
+```
+
+---
+
+#### ☁️ GCP Deployment (Quick Guide)
+
+**Resources Needed:**
+- **VPC Network:** Custom mode
+- **Subnets:**
+  - External: 10.0.1.0/24 (us-central1)
+  - Internal: 10.0.10.0/24 (us-central1)
+- **VM Instance:** e2-standard-4
+  - OS: Ubuntu 22.04 LTS
+  - Network Interfaces: 2 NICs
+- **External IP:** Static
+- **Firewall Rules:** Allow ingress/egress
+
+**Key Configuration:**
+```bash
+# Create instance with two NICs
+gcloud compute instances create bh-ai-gateway \
+  --zone=us-central1-a \
+  --machine-type=e2-standard-4 \
+  --network-interface=subnet=external-subnet,address=EXTERNAL_IP \
+  --network-interface=subnet=internal-subnet,no-address \
+  --can-ip-forward \
+  --image-family=ubuntu-2204-lts \
+  --image-project=ubuntu-os-cloud
+
+# Create route (direct private subnet traffic through BH-AI)
+gcloud compute routes create to-internet \
+  --network=bh-ai-network \
+  --priority=100 \
+  --destination-range=0.0.0.0/0 \
+  --next-hop-instance=bh-ai-gateway \
+  --next-hop-instance-zone=us-central1-a
+```
+
+---
+
+### Scenario 3: Web Server / Reverse Proxy Protection
+
+**Coming Soon:** Detailed Nginx/Apache integration patterns for protecting web applications.
+
+### Scenario 4: Transparent Bridge Mode (No Routing Changes)
+
+**Coming Soon:** Step-by-step guide for inline transparent bridge deployment.
+
+---
+
 ## Troubleshooting
 
 ### Common Issues (Packaged Installs)
