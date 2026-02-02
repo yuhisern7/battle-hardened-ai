@@ -79,6 +79,13 @@ When attacks are executed from Kali Linux, the system follows this **exact 3-ste
 - Relay availability check using `RELAY_AVAILABLE` and `RELAY_ENABLED` environment flag
 - `relay_threat({...})` - Sends patterns to relay
 
+### Network Monitor (server/network_monitor.py)
+
+- `_share_threat_to_relay()` - Helper function for relay integration
+- Shares ALL network-level threats: port scans, floods, ARP spoofing, DNS attacks
+- Automatic relay sharing after each `_log_threat()` call
+- Universal for all customer IPs (no hardcoded values)
+
 ### Honeypot (AI/real_honeypot.py)
 
 - `_log_attack()` - Local attack logging
@@ -97,6 +104,7 @@ When attacks are executed from Kali Linux, the system follows this **exact 3-ste
 **Function:** `relay_threat()` - Sends threat to relay via WebSocket
 - Broadcasts to relay server
 - Relay stores in global_attacks.json
+- Universal attacker IP handling (works for any network range)
 
 ---
 

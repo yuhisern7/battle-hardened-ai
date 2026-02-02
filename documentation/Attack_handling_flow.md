@@ -94,9 +94,18 @@ print(f"[IP BLOCKING] 🚫 Blocked {ip_address} for {threat_type}")
 ```
 
 ### 5️⃣ RELAY TO RELAY SERVER (< 2 seconds)
-**Location:** `AI/pcs_ai.py` (relay client integration)
+**Location:** Multiple detection modules with relay integration
 **Condition:** `RELAY_ENABLED=true` (✅ Enabled in `.env`)
-**Module:** `AI/relay_client.py`
+**Modules:** 
+- `AI/pcs_ai.py` - Web application attack relay sharing
+- `server/network_monitor.py` - Network-level attack relay sharing (port scans, floods, ARP spoofing)
+- `AI/relay_client.py` - WebSocket client for threat broadcast
+
+**Network Monitor Integration:**
+- Helper function: `_share_threat_to_relay(ip, type, details, level)`
+- Called after EVERY network threat detection
+- Shares: SYN scans, FIN scans, NULL scans, XMAS scans, port scans, SYN floods, UDP floods, ARP spoofing, DNS attacks
+- Universal: Works for ANY customer network (no hardcoded IPs)
 
 **Sends to Relay Server:**
 - WebSocket URL: `wss://<RELAY_SERVER_IP>:60001`

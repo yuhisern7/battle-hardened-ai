@@ -252,55 +252,759 @@ On install (or first start), ensure the following exist with correct ownership a
 - [x] If file logs are used beyond the journal and transient debug output, create a `logrotate` config snippet so logs do not grow without bounds (`packaging/debian/battle-hardened-ai.logrotate`).
 - [x] Ensure log files never contain sensitive secrets or full payloads beyond what README promises (logging remains focused on metadata, summaries, and threat context).
 
+## ✅ DASHBOARD SECTIONS (24 SECTIONS - VERIFY ALL ON DEBIAN/UBUNTU)
+
+### Section 1: 🤖 AI Training Network - Shared Machine Learning
+**API Endpoints:**
+- [ ] `/api/p2p/status` - P2P sync status
+- [ ] `/api/relay/status` - Relay client status and connected peers
+- [ ] `/api/p2p/add-peer` - Add new peer dynamically
+
+**JSON Files:**
+- [ ] `peer_threats.json` - Shared threat intelligence
+- [ ] `ml_training_data.json` - Collaborative ML data
+
+**Playcards/Metrics:**
+- [ ] Total Servers Active
+- [ ] Last Sync timestamp
+- [ ] Threats Shared (local counter)
+- [ ] Threats Learned (from peers)
+- [ ] Global Threats Shared (relay total)
+- [ ] Connected peers list with badges
+
+**Python Modules:**
+- [ ] `AI/p2p_sync.py`
+- [ ] `AI/relay_client.py`
+
+---
+
+### Section 2: 🌐 Network Devices - Live Monitor, Ports & History
+**API Endpoints:**
+- [ ] `/api/connected-devices` - Get all network devices
+- [ ] `/api/device-history` - 7-day device connection history
+- [ ] `/api/scan-devices` - Trigger network scan
+- [ ] `/api/device/block` - Block device by MAC
+- [ ] `/api/device/unblock` - Unblock device
+
+**JSON Files:**
+- [ ] `connected_devices.json` - Current device inventory
+- [ ] `device_history.json` - 7-day device connection log
+- [ ] `blocked_devices.json` - Blocked device list
+
+**Playcards/Metrics:**
+- [ ] Total Devices count
+- [ ] Active Now count
+- [ ] New Devices (24h)
+- [ ] Blocked Devices count
+- [ ] Live device table (MAC, IP, hostname, OS, first/last seen)
+- [ ] Device history timeline (7 days)
+
+**Python Modules:**
+- [ ] `server/device_scanner.py` ⚠️ **CRITICAL**
+- [ ] `server/device_blocker.py`
+
+---
+
+### Section 3: 🔓 VPN/Tor De-Anonymization Statistics
+**API Endpoints:**
+- [ ] `/api/traffic/analysis` - Traffic analysis with VPN/Tor detection
+
+**JSON Files:**
+- [ ] `threat_log.json` - Contains VPN/Tor detection events
+- [ ] `tls_fingerprints.json` - TLS fingerprint database
+
+**Playcards/Metrics:**
+- [ ] VPN Exit Nodes Detected
+- [ ] Tor Exit Nodes Detected
+- [ ] Proxy Chains Identified
+- [ ] Anonymization Attempts Blocked
+
+**Python Modules:**
+- [ ] `AI/traffic_analyzer.py`
+- [ ] `AI/tls_fingerprint.py`
+
+---
+
+### Section 4: 🤖 Real AI/ML Models - Machine Learning Intelligence
+**API Endpoints:**
+- [ ] `/api/stats` - ML model statistics and training metrics
+
+**JSON Files:**
+- [ ] `ml_training_data.json` - Training dataset
+- [ ] `ml_performance_metrics.json` - Model accuracy/precision
+- [ ] `drift_baseline.json` - Baseline for drift detection
+- [ ] `drift_reports.json` - Detected model drift
+
+**ML Models:**
+- [ ] `AI/ml_models/anomaly_detector.pkl`
+- [ ] `AI/ml_models/feature_scaler.pkl`
+- [ ] `AI/ml_models/ip_reputation.pkl`
+
+**Playcards/Metrics:**
+- [ ] Model Accuracy
+- [ ] False Positive Rate
+- [ ] Training Samples count
+- [ ] Last Retrained timestamp
+- [ ] Active Models list
+
+**Python Modules:**
+- [ ] `AI/pcs_ai.py`
+- [ ] `AI/drift_detector.py`
+- [ ] `AI/meta_decision_engine.py`
+
+---
+
+### Section 5: 📊 Security Overview - Live Statistics
+**API Endpoints:**
+- [ ] `/api/stats` - Overall security statistics
+- [ ] `/api/threat_log` - Real-time threat log
+
+**JSON Files:**
+- [ ] `threat_log.json` - All detected threats
+- [ ] `whitelist.json` - Whitelisted IPs
+- [ ] `blocked_ips.json` - Blocked IP addresses
+
+**Playcards/Metrics:**
+- [ ] Total Threats Detected
+- [ ] Threats Blocked (24h)
+- [ ] Whitelisted IPs count
+- [ ] Attack Types breakdown
+- [ ] Recent threats table
+
+**Python Modules:**
+- [ ] `AI/pcs_ai.py`
+
+---
+
+### Section 6: 🎯 Threat Analysis by Type
+**API Endpoints:**
+- [ ] `/api/stats` - Threat breakdown by MITRE ATT&CK technique
+
+**JSON Files:**
+- [ ] `threat_log.json` - Categorized threat data
+
+**Playcards/Metrics:**
+- [ ] SQL Injection attempts
+- [ ] XSS attempts
+- [ ] Brute Force attempts
+- [ ] Port Scans
+- [ ] Malware Downloads
+- [ ] Command Injection
+- [ ] Path Traversal
+- [ ] DDoS attempts
+
+**Python Modules:**
+- [ ] `AI/pcs_ai.py`
+- [ ] `AI/sequence_analyzer.py`
+
+---
+
+### Section 7: 🛡️ IP Management & Threat Monitoring
+**API Endpoints:**
+- [ ] `/api/threat_log` - Threat log with IP filtering
+- [ ] `/api/threat/block-ip` - Block IP address
+- [ ] `/api/whitelist/add` - Add IP to whitelist
+- [ ] `/api/whitelist/remove` - Remove IP from whitelist
+
+**JSON Files:**
+- [ ] `threat_log.json` - Threats with source IPs
+- [ ] `whitelist.json` - Whitelisted IPs
+- [ ] `blocked_ips.json` - Blocked IPs
+
+**Playcards/Metrics:**
+- [ ] Threat log table (IP, type, severity, timestamp, action)
+- [ ] Block/Whitelist action buttons
+- [ ] IP reputation scores
+
+**Python Modules:**
+- [ ] `AI/pcs_ai.py`
+- [ ] `AI/reputation_tracker.py`
+
+---
+
+### Section 8: 🔐 Failed Login Attempts (Battle-Hardened AI Server)
+**API Endpoints:**
+- [ ] `/api/failed-logins` - Admin dashboard failed login attempts
+
+**JSON Files:**
+- [ ] `admin_users.json` - Admin user database (includes failed login tracking)
+
+**Playcards/Metrics:**
+- [ ] Failed Login Attempts (24h)
+- [ ] Suspicious Login IPs
+- [ ] Login attempt timeline
+
+**Python Modules:**
+- [ ] `server/server.py` (login tracking logic)
+
+---
+
+### Section 9: 📈 Attack Type Breakdown (View)
+**API Endpoints:**
+- [ ] `/api/stats` - Attack type distribution
+
+**JSON Files:**
+- [ ] `threat_log.json` - Attack categorization data
+
+**Playcards/Metrics:**
+- [ ] Attack type pie chart
+- [ ] Attack type trend graph
+- [ ] Top 10 attack types
+
+**Python Modules:**
+- [ ] `AI/pcs_ai.py`
+
+---
+
+### Section 10: 📦 Automated Signature Extraction
+**API Endpoints:**
+- [ ] `/api/signature-extraction/stats` - Signature extraction statistics
+- [ ] `/api/signatures/extracted` - Extracted attack signatures
+
+**JSON Files:**
+- [ ] `attack_sequences.json` - Attack patterns
+- [ ] `threat_log.json` - Source data for extraction
+
+**ML Models:**
+- [ ] `AI/ml_models/signature_cache/` - Cached signatures
+
+**Playcards/Metrics:**
+- [ ] Signatures Extracted (total)
+- [ ] New Signatures (24h)
+- [ ] Shared to Network
+- [ ] Extraction Accuracy
+
+**Python Modules:**
+- [ ] `AI/signature_extractor.py`
+- [ ] `AI/sequence_analyzer.py`
+
+---
+
+### Section 11: 💻 System Health & Network Performance
+**API Endpoints:**
+- [ ] `/api/system-health/stats` - System health metrics
+- [ ] `/api/system-status` - Server status and uptime
+- [ ] `/api/performance/metrics` - Network performance data
+
+**JSON Files:**
+- [ ] `cluster_config.json` - HA/failover configuration
+- [ ] `network_performance.json` - Performance metrics
+- [ ] `sla_policy.json` - SLA thresholds
+
+**Playcards/Metrics:**
+- [ ] CPU Usage %
+- [ ] Memory Usage %
+- [ ] Disk Usage %
+- [ ] Network Throughput
+- [ ] Uptime
+- [ ] Health Status (healthy/degraded/critical)
+
+**Python Modules:**
+- [ ] `AI/network_performance.py`
+- [ ] `AI/kernel_telemetry.py`
+
+---
+
+### Section 12: 📑 Audit Evidence & Compliance Mapping
+**API Endpoints:**
+- [ ] `/api/compliance/summary` - Compliance framework coverage
+
+**JSON Files:**
+- [ ] `comprehensive_audit.json` - Audit trail
+- [ ] `sbom.json` - Software Bill of Materials
+- [ ] `model_lineage.json` - ML model provenance
+
+**Playcards/Metrics:**
+- [ ] Compliance Frameworks (NIST, ISO 27001, PCI-DSS, HIPAA, SOC 2)
+- [ ] Controls Implemented
+- [ ] Audit Events (24h)
+- [ ] Compliance Score %
+
+**Python Modules:**
+- [ ] `AI/compliance_reporting.py`
+- [ ] `AI/cryptographic_lineage.py`
+
+---
+
+### Section 13: 🔗 Attack Chain Visualization (Graph Intelligence)
+**API Endpoints:**
+- [ ] `/api/graph-intelligence/stats` - Graph intelligence metrics
+- [ ] `/api/visualization/topology` - Network topology graph
+
+**JSON Files:**
+- [ ] `network_graph.json` - Attack graph data
+- [ ] `lateral_movement_alerts.json` - Lateral movement detection
+- [ ] `trust_graph.json` - Trust relationships
+
+**Playcards/Metrics:**
+- [ ] Attack Chains Detected
+- [ ] Lateral Movement Attempts
+- [ ] Graph Nodes count
+- [ ] Graph Edges count
+- [ ] Attack path visualization
+
+**Python Modules:**
+- [ ] `AI/graph_intelligence.py`
+- [ ] `AI/trust_graph.py`
+- [ ] `AI/causal_inference.py`
+
+---
+
+### Section 14: 💡 Decision Explainability Engine
+**API Endpoints:**
+- [ ] `/api/explainability/stats` - Explainability metrics
+
+**JSON Files:**
+- [ ] `decision_history.json` - Decision audit trail
+- [ ] `fp_filter_config.json` - False positive filtering rules
+
+**Playcards/Metrics:**
+- [ ] Decisions Made (total)
+- [ ] Decisions Explained (%)
+- [ ] Confidence Scores avg
+- [ ] Explainability Coverage %
+
+**Python Modules:**
+- [ ] `AI/explainability_engine.py`
+- [ ] `AI/false_positive_filter.py`
+
+---
+
+### Section 15: 🍯 Adaptive Honeypot (8 Service Personas)
+**API Endpoints:**
+- [ ] `/api/adaptive_honeypot/status` - Honeypot runtime status
+- [ ] `/api/adaptive_honeypot/personas` - Available service personas
+- [ ] `/api/adaptive_honeypot/configure` - Configure/start honeypot
+- [ ] `/api/adaptive_honeypot/stop` - Stop honeypot
+- [ ] `/api/adaptive_honeypot/attacks` - Real-time attacks
+- [ ] `/api/adaptive_honeypot/attacks/history` - Attack history
+
+**JSON Files:**
+- [ ] `honeypot_attacks.json` - Captured honeypot attacks
+- [ ] `honeypot_patterns.json` - Attack patterns learned
+
+**Playcards/Metrics:**
+- [ ] Active Personas (8: SSH, FTP, HTTP, HTTPS, Telnet, MySQL, RDP, SMB)
+- [ ] Attacks Captured (total)
+- [ ] Attacker IPs seen
+- [ ] Attack timeline
+- [ ] Real-time attack feed
+
+**Python Modules:**
+- [ ] `AI/adaptive_honeypot.py`
+- [ ] `AI/real_honeypot.py`
+
+---
+
+### Section 16: 🕷️ AI Security Crawlers (10 Threat Intel Sources)
+**API Endpoints:**
+- [ ] `/api/threat-crawlers/stats` - Crawler statistics
+
+**JSON Files:**
+- [ ] `local_threat_intel.json` - Crawled threat intelligence
+
+**Playcards/Metrics:**
+- [ ] Active Crawlers (10 sources)
+- [ ] Threats Discovered (24h)
+- [ ] Last Crawl timestamp
+- [ ] IOCs Collected
+
+**Python Modules:**
+- [ ] `AI/threat_intelligence.py`
+- [ ] `AI/signature_distribution.py`
+
+---
+
+### Section 17: 🔍 Traffic Analysis & Inspection
+**API Endpoints:**
+- [ ] `/api/traffic/analysis` - Deep packet inspection results
+
+**JSON Files:**
+- [ ] `threat_log.json` - Traffic-based threats
+- [ ] `tls_fingerprints.json` - TLS fingerprint database
+
+**Playcards/Metrics:**
+- [ ] Packets Analyzed
+- [ ] Encrypted Traffic (%)
+- [ ] Suspicious Flows detected
+- [ ] Protocol Breakdown
+
+**Python Modules:**
+- [ ] `AI/traffic_analyzer.py`
+- [ ] `AI/pcap_capture.py`
+- [ ] `server/network_monitor.py` ⚠️ **CRITICAL**
+
+---
+
+### Section 18: 🌍 DNS & Geo Security (Tunneling Detection)
+**API Endpoints:**
+- [ ] `/api/dns/stats` - DNS security statistics
+
+**JSON Files:**
+- [ ] `dns_security.json` - DNS threat data
+
+**Playcards/Metrics:**
+- [ ] DNS Tunneling Attempts
+- [ ] DGA Domains Detected
+- [ ] Geo-Blocked Requests
+- [ ] DNS Queries (total)
+
+**Python Modules:**
+- [ ] `AI/dns_analyzer.py`
+
+---
+
+### Section 19: 👤 User & Identity Trust Signals
+**API Endpoints:**
+- [ ] `/api/users/tracking` - User/device tracking data
+- [ ] `/api/zero-trust/scores` - Zero trust scores
+
+**JSON Files:**
+- [ ] `tracked_users.json` - User behavior tracking
+- [ ] `tracking_data.json` - Identity tracking data
+- [ ] `identity_access_config.json` - Access policies
+- [ ] `admin_users.json` - Admin user database
+
+**Playcards/Metrics:**
+- [ ] Users Tracked
+- [ ] High-Risk Users
+- [ ] Trust Scores avg
+- [ ] Identity Anomalies
+
+**Python Modules:**
+- [ ] `AI/user_tracker.py`
+- [ ] `AI/zero_trust.py`
+
+---
+
+### Section 20: 💣 Sandbox Detonation
+**API Endpoints:**
+- [ ] `/api/sandbox/stats` - Sandbox analysis statistics
+- [ ] `/api/sandbox/detonate` - Upload file for analysis
+
+**JSON Files:**
+- [ ] `file_analysis.json` - Sandbox analysis results
+
+**Playcards/Metrics:**
+- [ ] Files Analyzed (total)
+- [ ] Malware Detected
+- [ ] Clean Files
+- [ ] Analysis Queue
+
+**Python Modules:**
+- [ ] `AI/file_analyzer.py`
+
+---
+
+### Section 21: 📧 Email/SMS Alerts (Critical Only)
+**API Endpoints:**
+- [ ] `/api/alerts/stats` - Alert system statistics
+- [ ] `/api/alerts/email/config` - Email alert configuration
+- [ ] `/api/alerts/sms/config` - SMS alert configuration
+
+**JSON Files:**
+- [ ] (Alerts are sent, not stored in JSON)
+
+**Playcards/Metrics:**
+- [ ] Email Alerts Sent
+- [ ] SMS Alerts Sent
+- [ ] Subscribers count
+- [ ] Email/SMS config forms
+
+**Python Modules:**
+- [ ] `AI/alert_system.py`
+
+---
+
+### Section 22: 🪙 Cryptocurrency Mining Detection
+**API Endpoints:**
+- [ ] `/api/traffic/crypto-mining` - Crypto mining detection stats
+
+**JSON Files:**
+- [ ] `crypto_mining.json` - Mining detection events
+
+**Playcards/Metrics:**
+- [ ] Miner Processes Detected
+- [ ] CPU Spikes (mining-related)
+- [ ] Mining Connections
+- [ ] Risk Level
+- [ ] Detected Miners list
+- [ ] High CPU Processes list
+
+**Python Modules:**
+- [ ] `AI/traffic_analyzer.py`
+- [ ] `AI/crypto_security.py`
+
+---
+
+### Section 23: 🚨 Governance & Emergency Controls
+**API Endpoints:**
+- [ ] `/api/governance/pending-approvals` - Policy approval queue
+- [ ] `/api/governance/stats` - Governance statistics
+- [ ] `/api/killswitch/status` - Emergency killswitch status
+- [ ] `/api/audit-log/clear` - Clear audit log
+- [ ] `/api/self-protection/stats` - Self-protection metrics
+
+**JSON Files:**
+- [ ] `approval_requests.json` - Policy approval queue
+- [ ] `governance_policies.json` - Governance rules
+- [ ] `comprehensive_audit.json` - Audit trail
+- [ ] `integrity_violations.json` - Tamper detection
+- [ ] `secure_deployment.json` - Deployment security status
+
+**Playcards/Metrics:**
+- [ ] Pending Approvals
+- [ ] Governance Policies Active
+- [ ] Emergency Killswitch status
+- [ ] Integrity Violations (24h)
+- [ ] Self-Protection Status
+
+**Python Modules:**
+- [ ] `AI/policy_governance.py`
+- [ ] `AI/emergency_killswitch.py`
+- [ ] `AI/self_protection.py`
+- [ ] `AI/secure_deployment.py`
+
+---
+
+### Section 24: 🏢 Enterprise Security Integrations
+**API Endpoints:**
+- [ ] `/api/enterprise-integration/config` - Syslog/webhook configuration
+- [ ] `/api/vulnerabilities/scan` - Vulnerability scan results
+- [ ] `/api/backup/status` - Backup status
+- [ ] `/api/backup/resilience` - Backup resilience tests
+- [ ] `/api/zero-trust/violations` - Zero trust violations
+- [ ] `/api/behavioral/stats` - Behavioral heuristics
+- [ ] `/api/sandbox/stats` - File sandbox stats
+- [ ] `/api/cloud/posture` - Cloud security posture (CSPM)
+- [ ] `/api/vulnerabilities/darkweb` - Dark web monitoring
+- [ ] `/api/soar/attack-simulation` - SOAR/BAS integration
+- [ ] `/api/zero-trust/dlp` - Data Loss Prevention
+
+**JSON Files:**
+- [ ] `enterprise_integration.json` - Syslog/webhook targets
+- [ ] `backup_status.json` - Backup/recovery data
+- [ ] `recovery_tests.json` - Recovery test results
+- [ ] `cloud_findings.json` - Cloud security findings
+- [ ] `behavioral_metrics.json` - Behavioral analysis
+- [ ] `soar_incidents.json` - SOAR incidents
+
+**Playcards/Metrics:**
+- [ ] SIEM Integrations (syslog targets)
+- [ ] Backup Status (last backup, resilience score)
+- [ ] Vulnerability Count
+- [ ] Cloud Misconfigurations
+- [ ] Zero Trust Violations
+- [ ] DLP Incidents
+- [ ] Dark Web Leaks
+
+**Python Modules:**
+- [ ] `AI/enterprise_integration.py`
+- [ ] `AI/backup_recovery.py`
+- [ ] `AI/vulnerability_manager.py`
+- [ ] `AI/cloud_security.py`
+- [ ] `AI/behavioral_heuristics.py`
+- [ ] `AI/zero_trust.py`
+- [ ] `AI/soar_api.py`
+
+---
+
 ## ✅ DASHBOARD FEATURES TO VERIFY (LINUX DEPLOYMENT)
 
-Verify the same UX expectations as the EXE, but from a Debian/Ubuntu install:
+**All 24 sections above must load and function correctly on Debian/Ubuntu installations.**
 
-1. [ ] Real-time threat monitoring
-2. [ ] Device management (block/unblock)
-3. [ ] IP blocking interface
-4. [ ] Attack visualization
-5. [ ] Honeypot analytics
-6. [ ] DNS security monitoring
-7. [ ] TLS fingerprinting display
-8. [ ] Network graph visualization
-9. [ ] Compliance reporting
-10. [ ] SOAR integration status
-11. [ ] File analysis results
-12. [ ] Behavioral metrics
-13. [ ] Trust graph viewer
-14. [ ] Admin user management
-15. [ ] Alert system
-16. [ ] Backup/recovery status
-17. [ ] Cloud security findings (as implemented today)
-18. [ ] Drift detection reports
-19. [ ] Audit logs
-20. [ ] ML performance metrics
+## ✅ CRITICAL HIDDENIMPORTS (FOR .DEB PYTHON VENV)
 
-## ✅ API ENDPOINTS TO VERIFY (FROM .DEB INSTALL)
+When setting up the Python venv in `postinst`, ensure all required modules are installed via `requirements.txt`:
 
+### Server-Level Modules (5 modules)
+- [ ] `device_scanner` ⚠️ **CRITICAL** for Section 2
+- [ ] `device_blocker` for Section 2
+- [ ] `network_monitor` ⚠️ **CRITICAL** for Sections 17, 22
+- [ ] `report_generator`
+- [ ] `debug_server` (may be excluded on Linux as it's Windows-focused)
+
+### AI-Level Modules (55 modules - all under `AI/` directory)
+- [ ] `AI.adaptive_honeypot` (Section 15)
+- [ ] `AI.advanced_orchestration`
+- [ ] `AI.advanced_visualization`
+- [ ] `AI.alert_system` (Section 21)
+- [ ] `AI.asset_inventory`
+- [ ] `AI.backup_recovery` (Section 24)
+- [ ] `AI.behavioral_heuristics` (Section 24)
+- [ ] `AI.byzantine_federated_learning`
+- [ ] `AI.causal_inference` (Section 13)
+- [ ] `AI.central_sync`
+- [ ] `AI.cloud_security` (Section 24)
+- [ ] `AI.compliance_reporting` (Section 12)
+- [ ] `AI.crypto_security` (Section 22)
+- [ ] `AI.cryptographic_lineage` (Section 12)
+- [ ] `AI.deterministic_evaluation`
+- [ ] `AI.dns_analyzer` (Section 18)
+- [ ] `AI.drift_detector` (Section 4)
+- [ ] `AI.emergency_killswitch` (Section 23)
+- [ ] `AI.enterprise_integration` (Section 24)
+- [ ] `AI.explainability_engine` (Section 14)
+- [ ] `AI.false_positive_filter` (Section 14)
+- [ ] `AI.file_analyzer` (Section 20)
+- [ ] `AI.file_rotation`
+- [ ] `AI.formal_threat_model`
+- [ ] `AI.graph_intelligence` (Section 13)
+- [ ] `AI.kernel_telemetry` (Section 11)
+- [ ] `AI.meta_decision_engine` (Section 4)
+- [ ] `AI.network_performance` (Section 11)
+- [ ] `AI.node_fingerprint`
+- [ ] `AI.p2p_sync` ⚠️ **CRITICAL** for Section 1
+- [ ] `AI.path_helper`
+- [ ] `AI.pcap_capture` (Section 17)
+- [ ] `AI.pcs_ai` ⚠️ **CRITICAL** for Sections 4-9
+- [ ] `AI.policy_governance` (Section 23)
+- [ ] `AI.real_honeypot` (Section 15)
+- [ ] `AI.relay_client` ⚠️ **CRITICAL** for Section 1
+- [ ] `AI.reputation_tracker` (Section 7)
+- [ ] `AI.secure_deployment` (Section 23)
+- [ ] `AI.self_protection` (Section 23)
+- [ ] `AI.sequence_analyzer` (Sections 6, 10)
+- [ ] `AI.signature_distribution` (Section 16)
+- [ ] `AI.signature_extractor` (Section 10)
+- [ ] `AI.signature_uploader`
+- [ ] `AI.soar_api` (Section 24)
+- [ ] `AI.soar_workflows`
+- [ ] `AI.step21_gate` (Section 4)
+- [ ] `AI.step21_policy` (Section 4)
+- [ ] `AI.step21_semantic_gate` (Section 4)
+- [ ] `AI.system_log_collector`
+- [ ] `AI.threat_intelligence` (Section 16)
+- [ ] `AI.tls_fingerprint` (Sections 3, 17)
+- [ ] `AI.traffic_analyzer` ⚠️ **CRITICAL** for Sections 3, 17, 22
+- [ ] `AI.training_sync_client`
+- [ ] `AI.trust_graph` (Section 13)
+- [ ] `AI.user_tracker` (Section 19)
+- [ ] `AI.vulnerability_manager` (Section 24)
+- [ ] `AI.zero_trust` (Sections 19, 24)
+
+### Third-Party Dependencies (from `server/requirements.txt`)
+- [ ] `flask` - Web framework
+- [ ] `flask-cors==4.0.0` ⚠️ **CRITICAL** for API CORS
+- [ ] `websockets` ⚠️ **CRITICAL** for Section 1 (P2P/Relay)
+- [ ] `scapy` - Packet capture
+- [ ] `cryptography` - Encryption and SSL
+- [ ] `scikit-learn` - ML models
+- [ ] `numpy`, `pandas` - Data processing
+- [ ] `joblib` - Model serialization
+- [ ] `psutil` - System monitoring
+- [ ] `requests` - HTTP client
+- [ ] `gunicorn` - Production WSGI server (Linux only)
+
+---
+
+## ✅ API ENDPOINTS TO VERIFY (ORGANIZED BY SECTION)
+
+### Section 1: AI Training Network
+- [ ] `/api/p2p/status`
+- [ ] `/api/relay/status`
+- [ ] `/api/p2p/add-peer`
+
+### Section 2: Network Devices
+- [ ] `/api/connected-devices`
+- [ ] `/api/device-history`
+- [ ] `/api/scan-devices`
+- [ ] `/api/device/block`
+- [ ] `/api/device/unblock`
+
+### Section 3: VPN/Tor De-Anonymization
+- [ ] `/api/traffic/analysis`
+
+### Sections 4-9: AI/ML & Security Overview
 - [ ] `/api/stats`
 - [ ] `/api/threat_log`
-- [ ] `/api/connected-devices`
-- [ ] `/api/traffic/analysis`
-- [ ] `/api/dns/stats`
-- [ ] `/api/adaptive_honeypot/status`
+- [ ] `/api/threat/block-ip`
+- [ ] `/api/whitelist/add`
+- [ ] `/api/whitelist/remove`
+- [ ] `/api/failed-logins`
+
+### Section 10: Signature Extraction
+- [ ] `/api/signature-extraction/stats`
 - [ ] `/api/signatures/extracted`
+
+### Section 11: System Health
+- [ ] `/api/system-health/stats`
 - [ ] `/api/system-status`
+- [ ] `/api/performance/metrics`
+
+### Section 12: Audit & Compliance
 - [ ] `/api/compliance/summary`
+
+### Section 13: Attack Chain Visualization
+- [ ] `/api/graph-intelligence/stats`
+- [ ] `/api/visualization/topology`
+
+### Section 14: Decision Explainability
+- [ ] `/api/explainability/stats`
+
+### Section 15: Adaptive Honeypot
+- [ ] `/api/adaptive_honeypot/status`
+- [ ] `/api/adaptive_honeypot/personas`
+- [ ] `/api/adaptive_honeypot/configure`
+- [ ] `/api/adaptive_honeypot/stop`
+- [ ] `/api/adaptive_honeypot/attacks`
+- [ ] `/api/adaptive_honeypot/attacks/history`
+
+### Section 16: Threat Crawlers
+- [ ] `/api/threat-crawlers/stats`
+
+### Section 17: Traffic Analysis
+- [ ] `/api/traffic/analysis`
+
+### Section 18: DNS & Geo Security
+- [ ] `/api/dns/stats`
+
+### Section 19: User & Identity
+- [ ] `/api/users/tracking`
+- [ ] `/api/zero-trust/scores`
+
+### Section 20: Sandbox Detonation
+- [ ] `/api/sandbox/stats`
+- [ ] `/api/sandbox/detonate`
+
+### Section 21: Email/SMS Alerts
+- [ ] `/api/alerts/stats`
+- [ ] `/api/alerts/email/config`
+- [ ] `/api/alerts/sms/config`
+
+### Section 22: Crypto Mining Detection
+- [ ] `/api/traffic/crypto-mining`
+
+### Section 23: Governance & Emergency
+- [ ] `/api/governance/pending-approvals`
 - [ ] `/api/governance/stats`
 - [ ] `/api/killswitch/status`
-- [ ] `/api/alerts/stats`
-- [ ] `/api/sandbox/stats`
-- [ ] `/api/traffic/crypto-mining`
+- [ ] `/api/audit-log/clear`
+- [ ] `/api/self-protection/stats`
+
+### Section 24: Enterprise Integrations
 - [ ] `/api/enterprise-integration/config`
-- [ ] Representative SOAR/documentation endpoints: `/api/soar/stats`, `/api/openapi.json`, `/api/docs`
-- [ ] All other REST endpoints documented in `documentation/Dashboard.md` respond with 2xx or appropriate auth errors.
+- [ ] `/api/vulnerabilities/scan`
+- [ ] `/api/backup/status`
+- [ ] `/api/backup/resilience`
+- [ ] `/api/zero-trust/violations`
+- [ ] `/api/behavioral/stats`
+- [ ] `/api/cloud/posture`
+- [ ] `/api/vulnerabilities/darkweb`
+- [ ] `/api/soar/attack-simulation`
+- [ ] `/api/zero-trust/dlp`
+
+### System & Utility APIs
+- [ ] `/api/openapi.json` - OpenAPI specification
+- [ ] `/api/docs` - API documentation
+- [ ] `/api/soar/stats` - SOAR orchestration
+- [ ] All endpoints return JSON or appropriate auth errors (not 404/500).
 
 ## ✅ POST-BUILD VERIFICATION (DEBIAN/UBUNTU VIA DOCKER)
 
 Canonical dev test environment is a clean Debian/Ubuntu Docker container:
 
+### Basic Installation & Service Test
 1. [ ] Start a container (example): `docker run --rm -it -v "$PWD":/src -w /src debian:12-slim bash`.
 2. [ ] Inside the container, install build/runtime deps (`apt-get update && apt-get install -y systemd systemd-sysv iptables ipset curl python3 python3-venv` as needed).
 3. [ ] Install package with `dpkg -i battle-hardened-ai_*.deb` (from `/src`).
@@ -308,10 +1012,150 @@ Canonical dev test environment is a clean Debian/Ubuntu Docker container:
 5. [ ] Confirm logs are written under `/var/log/battle-hardened-ai/` inside the container.
 6. [ ] Confirm JSON state and ML models are in the expected `/var/lib/battle-hardened-ai/` locations.
 7. [ ] Verify dashboard loads from the container at `https://<container-ip>:60000` (or `http://` if TLS terminated externally) as per Installation.md.
+
+### Section-by-Section Verification (24 Sections)
+
+**Section 1 - AI Training Network:**
+- [ ] `/api/p2p/status` returns JSON (not 500)
+- [ ] `/api/relay/status` returns JSON (not 500)
+- [ ] Section displays P2P/Relay status without "Loading..." stuck
+
+**Section 2 - Network Devices:**
+- [ ] `/api/connected-devices` returns JSON array
+- [ ] `/api/scan-devices` triggers device scan
+- [ ] Device table populates or shows empty state
+- [ ] `device_scanner.py` module loads without ImportError
+
+**Section 3 - VPN/Tor De-Anonymization:**
+- [ ] `/api/traffic/analysis` returns traffic data with VPN/Tor detection
+
+**Section 4 - AI/ML Models:**
+- [ ] `/api/stats` returns ML model metrics
+- [ ] ML models load from `/var/lib/battle-hardened-ai/AI/ml_models/`
+- [ ] Model accuracy, FPR, training samples display
+
+**Section 5 - Security Overview:**
+- [ ] `/api/stats` returns security statistics
+- [ ] `/api/threat_log` returns threat array
+- [ ] Total threats, blocked IPs, whitelisted IPs display
+
+**Section 6 - Threat Analysis by Type:**
+- [ ] Attack type breakdown displays (SQL, XSS, brute force, etc.)
+- [ ] Attack counts update correctly
+
+**Section 7 - IP Management:**
+- [ ] `/api/threat/block-ip` blocks IP correctly
+- [ ] `/api/whitelist/add` adds IP to whitelist
+- [ ] Threat log table populates
+
+**Section 8 - Failed Logins:**
+- [ ] `/api/failed-logins` returns failed login attempts
+- [ ] Failed login count displays
+
+**Section 9 - Attack Type Breakdown (View):**
+- [ ] Attack pie chart/graph displays
+- [ ] Attack type distribution correct
+
+**Section 10 - Signature Extraction:**
+- [ ] `/api/signature-extraction/stats` returns extraction metrics
+- [ ] Signatures extracted count displays
+
+**Section 11 - System Health:**
+- [ ] `/api/system-health/stats` returns CPU/memory/disk metrics
+- [ ] `/api/system-status` returns uptime
+- [ ] Health status displays (healthy/degraded/critical)
+
+**Section 12 - Audit & Compliance:**
+- [ ] `/api/compliance/summary` returns compliance framework coverage
+- [ ] SBOM file exists at `/var/lib/battle-hardened-ai/server/json/sbom.json`
+- [ ] Compliance score displays
+
+**Section 13 - Attack Chain Visualization:**
+- [ ] `/api/graph-intelligence/stats` returns graph metrics
+- [ ] Attack chains display
+- [ ] Lateral movement alerts display
+
+**Section 14 - Decision Explainability:**
+- [ ] `/api/explainability/stats` returns decision metrics
+- [ ] Decisions made/explained counts display
+
+**Section 15 - Adaptive Honeypot:**
+- [ ] `/api/adaptive_honeypot/status` returns honeypot status
+- [ ] `/api/adaptive_honeypot/attacks` returns attack feed
+- [ ] 8 service personas display (SSH, FTP, HTTP, HTTPS, Telnet, MySQL, RDP, SMB)
+- [ ] Attacks captured count displays
+
+**Section 16 - Threat Crawlers:**
+- [ ] `/api/threat-crawlers/stats` returns crawler metrics
+- [ ] 10 threat intel sources show status
+- [ ] Threats discovered count displays
+
+**Section 17 - Traffic Analysis:**
+- [ ] `/api/traffic/analysis` returns DPI results
+- [ ] Packets analyzed count displays
+- [ ] Encrypted traffic % displays
+
+**Section 18 - DNS & Geo Security:**
+- [ ] `/api/dns/stats` returns DNS threat metrics
+- [ ] DNS tunneling attempts display
+- [ ] DGA domains detected count displays
+
+**Section 19 - User & Identity:**
+- [ ] `/api/users/tracking` returns user tracking data
+- [ ] `/api/zero-trust/scores` returns trust scores
+- [ ] Users tracked count displays
+
+**Section 20 - Sandbox Detonation:**
+- [ ] `/api/sandbox/stats` returns sandbox metrics
+- [ ] File upload form works
+- [ ] Files analyzed count displays
+
+**Section 21 - Email/SMS Alerts:**
+- [ ] `/api/alerts/stats` returns alert metrics
+- [ ] Email/SMS config forms display
+- [ ] Alerts sent counts display
+
+**Section 22 - Crypto Mining Detection:**
+- [ ] `/api/traffic/crypto-mining` returns mining detection data
+- [ ] Miner processes detected count displays
+- [ ] High CPU processes list displays
+
+**Section 23 - Governance & Emergency:**
+- [ ] `/api/governance/stats` returns governance metrics
+- [ ] `/api/killswitch/status` returns killswitch status
+- [ ] Pending approvals display
+- [ ] Emergency killswitch control displays
+
+**Section 24 - Enterprise Integrations:**
+- [ ] `/api/enterprise-integration/config` returns integration config
+- [ ] `/api/backup/status` returns backup status
+- [ ] `/api/cloud/posture` returns cloud security findings
+- [ ] All enterprise integration playcards display
+
+### Attack Tests & Detection Validation
 8. [ ] Run at least one test from `KALI_ATTACK_TESTS.md` (adapted for container networking) to ensure detection, blocking, and logging work end-to-end.
 9. [ ] Confirm Step 21 semantic gate loads and blocks a policy-violating HTTP request (as described in README.md).
 10. [ ] Verify relay connectivity (if enabled in `.env`) does not block core operation when disabled.
+
+### Cleanup & Removal Test
 11. [ ] Check that removing the package with `apt remove battle-hardened-ai` stops the service and leaves operator data (JSON/logs) in a sensible state (documented behavior).
+
+### Browser Console Tests (Optional JavaScript API Validation)
+```javascript
+// Test Section 1
+fetch('/api/p2p/status').then(r => r.json()).then(console.log)
+fetch('/api/relay/status').then(r => r.json()).then(console.log)
+
+// Test Section 2
+fetch('/api/connected-devices').then(r => r.json()).then(console.log)
+
+// Test Section 15
+fetch('/api/adaptive_honeypot/status').then(r => r.json()).then(console.log)
+
+// Test Section 22
+fetch('/api/traffic/crypto-mining').then(r => r.json()).then(console.log)
+```
+All should return JSON objects, not 404/500 errors.
 
 ## ✅ MODES / PROFILES (GATEWAY VS HOST)
 
