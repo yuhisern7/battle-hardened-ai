@@ -2,7 +2,21 @@
 
 > **Distribution note:** This document verifies that the **runtime behavior** of Battle-Hardened AI matches the documented 3-step attack flow and related identity/HA flows **in the source code**. It assumes access to the Git repository layout (`AI/`, `server/`, `relay/`) so you can inspect functions and line numbers directly. Production customers who install via **Linux .deb/.rpm packages** or the **Windows EXE** run the same logic, but do **not** normally see this source tree; treat this file as a developer/auditor reference rather than an end-user operations guide.
 
-## ✅ VERIFIED ATTACK FLOW (3-Step Architecture)
+## 🎯 Deployment Context for Compliance Verification
+
+**This verification applies to all deployment roles:**
+
+| Deployment Role | What's Verified | Scope of Compliance |
+|----------------|----------------|---------------------|
+| **Gateway/Router** | Entire network segment protection | All traffic through gateway node |
+| **Host-only** | Local machine + terminated services | Traffic to/from this host only |
+| **Observer** | SPAN/mirror traffic analysis | Detection-only (enforcement via external firewall) |
+
+**Installation reference:** For deployment role details, see [Installation.md § Deployment Role](installation/Installation.md#-deployment-role-read-first).
+
+**Cloud deployment:** All verified behaviors apply equally to cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
+
+---
 
 When attacks are executed from Kali Linux, the system follows this **exact 3-step flow**:
 

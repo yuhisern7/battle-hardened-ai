@@ -148,6 +148,24 @@ In the standard shipping profiles:
 
 In its standard form, Battle-Hardened AI runs on a **Linux gateway or edge appliance** (physical or virtual), directly in front of the protected segment. Optional Windows/macOS nodes act as **host-level defenders** for specific assets or branches. It is designed to integrate without disrupting existing stacks—SIEM, SOAR, IAM, EDR/XDR, NGFW—acting solely as the execution-control authority and gateway commander.
 
+#### Deployment Context: Gateway vs Host vs Observer
+
+**Protection scope varies by deployment role:**
+
+| Deployment Role | What Gets Protected | When to Use |
+|----------------|---------------------|-------------|
+| **Gateway/Router** | Entire network segment (all devices behind gateway) | Primary deployment for network-wide protection |
+| **Host-only** | Single machine + services it terminates | Windows/macOS endpoints, specific servers |
+| **Observer** | Detection-only (no direct enforcement) | SPAN/mirror traffic analysis, SOC sensors |
+
+**Installation reference:** For detailed setup by deployment role, see:
+- [Installation.md § Deployment Role](documentation/installation/Installation.md#🎯-deployment-role-read-first)
+- [Installation.md § Gateway Pre-Flight Checklist](documentation/installation/Installation.md#✅-gateway-pre-flight-checklist)
+- [Installation.md § Linux Gateway Setup](documentation/installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- [Installation.md § Cloud Gateway Setup](documentation/installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
+
+**Cloud deployment:** Battle-Hardened AI works identically on cloud VMs (AWS/Azure/GCP) using virtual NICs. Physical hardware not required.
+
 ### Semantic Enforcement Model
 
 *How Battle-Hardened AI decides which requests are allowed to execute or blocked before they reach downstream systems.*
@@ -531,99 +549,33 @@ If you're starting from source as a developer or auditor, begin with [Filepurpos
 - **Autoencoder:** An unsupervised neural network used here to spot "never-seen-before" traffic patterns and potential zero-day attacks.
 - **MITRE ATT&CK:** A community-maintained catalog of real-world attacker tactics and techniques; this README maps coverage against those techniques.
 
-### Deployment Scope — What Can Be Protected
+### Deployment Scope — Three Roles, Many Environments
 
-Battle-Hardened AI is built as a **first-layer decision authority** designed to operate in a **gateway or router role**—strategically positioned to decide which interactions are permitted to produce operational effects before downstream systems are even touched. It may also be deployed in **host-only** or **observer** mode when direct inline placement isn’t possible.
+**Battle-Hardened AI operates in 3 deployment roles:**
 
-#### Deployment Modes and Coverage
+| Deployment Role | Protection Scope | Enforcement Method |
+|----------------|------------------|-------------------|
+| **Gateway/Router** | Entire network segment (all devices behind gateway) | Direct firewall commands (iptables/nftables on Linux) |
+| **Host-only** | Single machine + services it terminates | Local firewall (iptables on Linux, Windows Defender Firewall) |
+| **Observer** | Detection-only (no direct enforcement) | Exports decisions to external firewall via JSON feeds |
 
-##### 🏠 Home & Small Office Networks
+**Installation reference:** For setup by deployment role, see:
+- [Installation.md § Deployment Role](documentation/installation/Installation.md#🎯-deployment-role-read-first)
+- [Installation.md § Gateway Pre-Flight Checklist](documentation/installation/Installation.md#✅-gateway-pre-flight-checklist)
+- [Installation.md § Linux Gateway Setup](documentation/installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- [Installation.md § Cloud Gateway Setup](documentation/installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
 
-- As a gateway node (for example, a Linux box or dedicated appliance between modem and LAN), Battle-Hardened AI protects the **entire network** behind it.
-- In host-only mode on Windows or macOS, Battle-Hardened AI secures that individual host and any mirrored traffic explicitly routed through it.
+**Cloud deployment:** Works identically on cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
 
-##### 🏢 Enterprise Networks
+**These 3 roles adapt to different environments:**
 
-- Positioned at the LAN/VLAN/VPN edge or attached to a SPAN/mirror port, Battle-Hardened AI provides execution control at the boundary (north–south) and can observe lateral (east–west) traffic when mirrored.
-- Deployed as a SOC sensor, it delivers deep threat visibility without requiring routing changes.
-
-##### 🖥 Servers, Data Centers & Application Stacks
-
-- Installed directly on reverse proxies or appliance nodes, Battle-Hardened AI governs first-layer execution control for inbound connections to mission-critical workloads and services.
-
-##### 🌐 Websites & APIs
-
-- Deployed in front of web servers or API gateways, Battle-Hardened AI filters inbound HTTP(S) traffic semantically before application stacks process it, working alongside WAFs—not as a replacement.
-
-##### ☁️ Cloud Infrastructure (IaaS / PaaS)
-
-- Operates as a sidecar or inline observer within cloud deployments, with access to VPC/VNet flows, load balancers, or telemetry, allowing pre-execution enforcement for exposed cloud services.
-
-##### 🏭 OT, Critical Infrastructure & R&D Environments
-
-- Deployed as a non-intrusive observer or segment gateway, Battle-Hardened AI enforces semantic denial without inserting agents into sensitive ICS/SCADA/lab equipment.
-
-##### ⚖️ Government, Defense & Regulated SOCs
-
-- As a semantic command node in front of classified or sovereign environments, Battle-Hardened AI enforces execution control while maintaining strict data privacy and sovereignty.
-
-#### Placement Determines Authority
-
-| Placement Type | Visibility & Authority |
-|----------------|------------------------|
-| Gateway (primary) | Full control of inbound/outbound traffic; pre-execution enforcement |
-| Host-level | Protection scoped to local host services (for example, SSH, RDP, HTTP) |
-| Observer | High-fidelity telemetry; enforcement via connected firewall/router |
-
-For true control, Battle-Hardened AI must sit at a routing, NAT, or firewall decision point—either as a bridge, gateway, or authoritative observer wired into enforcement APIs.
-
-Representative deployment topologies:
-
-```text
- (A) Linux Gateway / Router (recommended)
-
-    Internet / WAN
-      │
-   ┌────▼────┐
-   │ Modem / │ (bridge mode)
-   │   ONT   │
-   └────┬────┘
-      │
-   ┌────▼─────────────────────┐
-   │  Battle-Hardened AI      │  (Linux gateway / container)
-   │  (NAT, routing, firewall │
-   │   + 21-layer AI engine)  │
-   └────┬─────────────────────┘
-      │
-    ┌───▼───┐      ┌────────────┐
-    │Switch │ ...  │ Wi‑Fi AP   │
-    └───────┘      └────────────┘
-
-
- (B) Windows Host-Only / Appliance
-
-    Internet / LAN
-      │
-    ┌───▼────────────┐
-    │ Windows Server │  BattleHardenedAI.exe
-    │  or Workstation│  + .env.windows
-    └───┬────────────┘
-      │ (host services: RDP/SSH/HTTP)
-      ▼
-    Protected apps / data
-
-
- (C) Optional Relay / Training Hub
-
-    Multiple Sites                        VPS / Data Center
-
-  ┌─────────────────┐                 ┌────────────────────┐
-  │  BH-AI Node A   │  WS 60001/     │  Relay + Training   │
-  └─────────────────┘  HTTPS 60002   │  (Docker/systemd)   │
-  ┌─────────────────┐  ────────────► │  ai_training_...    │
-  │  BH-AI Node B   │  ◄──────────── │  model dist. API    │
-  └─────────────────┘                 └────────────────────┘
-```
+- **🏠 Home & Small Office:** Gateway protects entire LAN; host-only protects individual Windows/macOS machines
+- **🏢 Enterprise Networks:** Gateway at LAN/VLAN/VPN edge; observer via SPAN/mirror for SOC visibility without routing changes
+- **🖥 Servers & Data Centers:** Gateway on reverse proxies/appliance nodes; host-only on critical servers
+- **🌐 Websites & APIs:** Gateway in front of web servers/API gateways (works alongside WAFs, not replacing them)
+- **☁️ Cloud (IaaS/PaaS):** Gateway with virtual NICs (AWS ENIs, Azure vNICs, GCP interfaces); observer via VPC/VNet flow logs
+- **🏭 OT & Critical Infrastructure:** Observer mode for non-intrusive ICS/SCADA/lab monitoring (no agents on sensitive equipment)
+- **⚖️ Government & Defense:** Gateway for classified networks with strict data sovereignty (air-gapped relay option available)
 
 #### Enforcement Requires Firewall Integration
 

@@ -2,7 +2,28 @@
 
 > **Audience & distribution:** This document is written for **security engineers, architects, and auditors** who want to verify that the implemented attack path matches the documented design. It describes the **intended and currently implemented behavior** of the system, not a legal or formal security guarantee. Operational behavior still depends on configuration (for example whitelist entries, deployment mode, and firewall wiring).
 
-## ✅ INTENDED BEHAVIOR: DETECTED ATTACKS ARE IMMEDIATELY BLOCKED
+---
+
+## 🎯 Deployment Mode Determines Protection Scope
+
+**What gets protected depends on deployment role:**
+
+| Deployment Role | Traffic Scope | Enforcement Authority |
+|----------------|---------------|----------------------|
+| **Gateway/Router** | Entire network segment (all devices behind gateway) | Full network-wide blocking via iptables/nftables |
+| **Host-only** | Local machine + services it terminates | Host-level blocking only |
+| **Observer** | SPAN/mirror traffic (analysis only) | Detection-only (no direct blocking) |
+
+**Installation reference:** For deployment setup, see:
+- [Installation.md § Deployment Role](installation/Installation.md#-deployment-role-read-first)
+- [Installation.md § Gateway Pre-Flight Checklist](installation/Installation.md#-gateway-pre-flight-checklist)
+- [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+
+**Cloud deployment:** All attack handling flows work identically on cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
+
+**PoC testing:** For formal acceptance testing, see [Battle-Hardened-AI_PoC_Acceptance_Criteria.md](installation/Battle-Hardened-AI_PoC_Acceptance_Criteria.md) and [Linux-Gateway-Testing.md](installation/Linux-Gateway-Testing.md).
+
+---
 
 When a request matches any configured or learned attack pattern in scope of the current deployment, the IP is blocked and logged as described below, subject to the documented whitelist and configuration rules.
 
@@ -251,7 +272,15 @@ Battle-Hardened AI operates across two separate planes that serve different purp
 
 Battle-Hardened AI enforces decisions locally and directly at the first layer.
 
-When deployed as a gateway, inline bridge, or privileged host appliance, Battle-Hardened AI runs with appropriate system authority and applies enforcement actions immediately using the underlying operating system's firewall and networking controls.
+**Deployment role determines enforcement scope:**
+
+| Deployment Role | Enforcement Authority | What Gets Blocked |
+|----------------|----------------------|-------------------|
+| **Gateway/Router** | Network-wide (entire segment) | All traffic through gateway (iptables/nftables) |
+| **Host-only** | Host-level only | Traffic to/from this machine only |
+| **Observer** | Detection-only (no enforcement) | Nothing (analysis mode) |
+
+When deployed as a **gateway**, inline bridge, or privileged host appliance, Battle-Hardened AI runs with appropriate system authority and applies enforcement actions immediately using the underlying operating system's firewall and networking controls.
 
 This includes:
 
@@ -262,6 +291,11 @@ This includes:
 These actions are executed without reliance on external systems, cloud services, or third-party APIs. This is what allows Battle-Hardened AI to deny execution before any downstream system is engaged.
 
 In short: Battle-Hardened AI does not ask another system to block traffic – it enforces the decision itself at the boundary.
+
+**For gateway deployment setup:**
+- See [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- See [Installation.md § Cloud Gateway Setup](installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
+- See [Installation.md § Gateway Pre-Flight Checklist](installation/Installation.md#-gateway-pre-flight-checklist)
 
 ### 2. Enterprise Integration Plane (Visibility & Coordination)
 

@@ -2,15 +2,41 @@
 
 > **Audience & distribution:** This guide is aimed at **advanced Linux operators and developers** tuning capacity. Customer deployments normally use the Linux `.deb`/`.rpm` packages or Windows EXE installer; they run the **same Gunicorn/Docker stack under the hood**, but you typically manage it via the packaged service (systemd/Docker) rather than calling `gunicorn` or `docker compose` directly. Treat explicit `pip`/`gunicorn`/`docker` commands here as **reference or source-based examples**.
 
+---
+
+## 🎯 Deployment Role & Capacity Context
+
+**Before scaling, understand what you're protecting:**
+
+| Role | What Capacity Numbers Mean | Example |
+|------|---------------------------|----------|
+| **Gateway / Router** | Total inbound/outbound sessions for protected network segment | 8,250 connections = entire office network traffic |
+| **Host-only** | Connections to local server and terminated services | 8,250 connections = single web/API server load |
+| **Observer** | Volume of mirrored/SPAN traffic analyzed | 8,250 connections = analyzed flows (enforcement via external firewall) |
+
+**See [Installation.md](Installation.md) for deployment role details and Pre-Flight Checklist.**
+
+### Important Notes:
+
+✅ **Cloud VMs fully supported** - These capacity numbers apply equally to cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
+
+✅ **Linux is primary tier** - All extreme-scale configurations (100,000+ connections) require Linux gateway deployment.
+
+✅ **Windows is host-tier** - Windows deployments are limited to ~10,000 connections maximum due to OS constraints.
+
+---
+
 ## 📊 Current Capacity vs Extreme Scale (Linux as Primary Tier)
 
-| Configuration | CPU Cores | Workers | Connections/Worker | Max Connections | Use Case |
-|--------------|-----------|---------|-------------------|-----------------|----------|
-| **Default (Linux gateway)** | 8 | 17 | ~250 (sync) | ~4,250 | Home/SMB segments (Linux edge box) |
-| **Production (Linux gateway)** | 16 | 33 | ~250 (sync) | ~8,250 | Enterprise segments (Linux gateway / reverse proxy) |
-| **Extreme Scale (Linux only)** | 32+ | 128 | 10,000 (async) | **1,280,000** | National-scale / DDoS defense on Linux edge |
+| Configuration | CPU Cores | Workers | Connections/Worker | Max Connections | Deployment Mode | Use Case |
+|--------------|-----------|---------|-------------------|-----------------|-----------------|----------|
+| **Default (Linux gateway)** | 8 | 17 | ~250 (sync) | ~4,250 | Gateway/Router | Home/SMB network segments |
+| **Production (Linux gateway)** | 16 | 33 | ~250 (sync) | ~8,250 | Gateway/Router/Host | Enterprise networks, high-traffic servers |
+| **Extreme Scale (Linux only)** | 32+ | 128 | 10,000 (async) | **1,280,000** | Gateway (national-scale) | DDoS defense, carrier-grade edge |
 
-> **Primary deployment:** All capacity numbers in this guide assume Battle-Hardened AI is running on **Linux** as a gateway / edge appliance or reverse proxy in front of the protected segment. Windows and macOS deployments are treated as host/appliance tiers and do not participate in the extreme-scale/Linux gateway architecture.
+> **Deployment context:** When deployed as a **gateway**, these connections represent total network segment traffic. When deployed as a **host**, they represent load on that specific server. See [Installation.md § Deployment Role](Installation.md#-deployment-role-read-first) for details.
+
+> **Cloud deployment:** All configurations work on cloud VMs (AWS EC2, Azure VMs, GCP Compute) with virtual NICs. No physical hardware required. See [Installation.md § Cloud Gateway Deployment](Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp).
 
 ---
 
@@ -135,6 +161,13 @@ docker compose up -d
 - ✅ **Capacity**: ~4,250 connections (8-core), ~8,250 connections (16-core)
 - ✅ Dynamic worker scaling based on CPU cores
 
+**Deployment context:** These connection numbers represent:
+- **Gateway role**: Total network segment traffic (all devices)
+- **Host role**: Load on this server only
+- **Observer role**: Volume of mirrored traffic analyzed
+
+For gateway deployment, see [Installation.md § Linux Gateway Setup](Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended).
+
 **Option B: Extreme Scale (National-Level Defense)**
 ```bash
 cd server
@@ -225,42 +258,52 @@ sudo sysctl -p
 
 **Home Network (1-10 devices):**
 ```bash
-# Windows (recommended): use the Battle-Hardened AI Windows installer and start via Start Menu shortcut or BattleHardenedAI.exe
-
-# Windows (from source/dev):
-cd battle-hardened-ai/server
+# Windows (Host-only role - protects local machine)
 python installation/watchdog.py
 
-# Linux
+# Linux Gateway (protects entire home network - requires 2 NICs)
 docker compose up -d
+# + Complete Installation.md § Linux Gateway Setup first
 ```
-**Capacity:** 100-500 connections
+**Capacity:** 100-500 connections  
+**Deployment role:**
+- **Windows**: Host-only (local machine protection)
+- **Linux (single NIC)**: Host-only (protects VPS/server)
+- **Linux (dual NIC)**: Gateway/Router (protects entire home network)
 
-- On **Windows**, this protects the **local host** and any services it terminates, unless you route other devices through it.
-- On **Linux**, if the node is placed as a **gateway or front-line reverse proxy**, it can protect the **entire home network segment** behind it.
+For Linux gateway deployment, follow [Installation.md § Gateway Pre-Flight Checklist](Installation.md#-gateway-pre-flight-checklist).
 
 ---
 
 **SMB Network (10-100 devices):**
 ```bash
-# Linux (Docker - Recommended)
+# Linux Gateway (recommended - requires 2 NICs + firewall integration)
 docker compose up -d
+# + Complete Installation.md § Linux Gateway Setup
 ```
-**Capacity:** ~4,250-8,250 connections (depends on CPU cores)
+**Capacity:** ~4,250-8,250 connections (depends on CPU cores)  
+**Deployment role:** Gateway/Router  
+**What's protected:** Entire SMB network segment behind this appliance
 
-When deployed as a **gateway or dedicated security appliance** in front of the SMB network, Battle-Hardened AI provides first-layer protection for that segment. When deployed on a single server, it protects that host and the services it terminates.
+**Prerequisites:**
+- Linux VM/appliance with 2 NICs (WAN + LAN)
+- IP forwarding enabled, iptables/nftables configured
+- DHCP/DNS configured, clients routing through gateway
+- See [Installation.md § Linux Gateway Setup](Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
 
 ---
 
 **Enterprise Network (100-1,000 devices):**
 ```bash
-# Multiple Docker servers + Reverse Proxy
+# Multiple Gateway nodes OR Load-balanced cluster
 docker compose up -d  # On 3-12 servers
-# + nginx load balancer
+# + nginx/HAProxy load balancer
 ```
-**Capacity:** 25,000-100,000 connections (12 × 16-core servers)
-
-In this mode, Battle-Hardened AI nodes typically sit **behind an external load balancer or WAF** and act as a **first-layer execution gate for application tiers**. They can also run as **observer nodes** analyzing mirrored traffic, with enforcement wired back into firewalls or orchestration.
+**Capacity:** 25,000-100,000 connections (12 × 16-core servers)  
+**Deployment roles:**
+- **Gateway cluster**: Each node protects a network segment
+- **Reverse proxy tier**: Behind load balancer, protects application tier
+- **Observer nodes**: Analyze mirrored traffic, enforce via external firewall
 
 ---
 

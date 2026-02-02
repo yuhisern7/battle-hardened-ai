@@ -434,14 +434,7 @@ DetectionSignal(
 - Graph patterns → `relay/ai_training_materials/training_datasets/graph_topology.json`
 - Attack records → `relay/ai_training_materials/global_attacks.json`
 
-**Stage 5 → Stage 6 Flow:** Customer extracts materials locally → `AI/relay_client.py` pushes to relay (every hour) → relay aggregates into training datasets
-
-**Privacy Guarantees:**
-- ✅ No raw exploit payloads stored
-- ✅ No PII/PHI retained
-- ✅ IP addresses hashed (SHA-256)
-- ✅ Packet content stripped (metadata only)
-- ✅ Only statistical features shared
+**Stage 5 → Stage 6 Flow:** Customer extracts materials locally → `AI/relay_client.py` pushes to relay (every hour) → relay aggregates into training datasets (see Section 4 for privacy guarantees)
 
 ---
 
@@ -737,26 +730,21 @@ battle-hardened-ai/
     └── ...
 ```
 
-### Path Resolution Rules
-- **JSON files:** Modules should resolve JSON paths via `AI/path_helper.get_json_dir()` / `AI/path_helper.get_json_file()`, which by default map to `server/json/` (native and Windows EXE) or `/app/json/` (Docker)
-- **ML models:** All modules use the ML models directory returned by `AI/path_helper.get_ml_models_dir()` (typically `AI/ml_models/` in development, `/app/ml_models/` in Docker)
-- **Relay sync:** `AI/training_sync_client.py` downloads into this ML models directory
-- **Relay training data:** Always under `relay/ai_training_materials/` (customer nodes never access this)
-
 ### Path Helper Quick Reference (AI/path_helper)
-- `get_json_dir()` → Returns the base JSON directory for local runtime data (for example `server/json/` in native/Windows EXE runs, `/app/json/` in Docker).
-- `get_json_file(name: str)` → Returns an absolute path inside the JSON directory (for example `get_json_file("threat_log.json")`). Use this for all local JSON surfaces (threat logs, audits, causal/trust, compliance, etc.).
-- `get_threat_log_file()` → Convenience helper that returns the canonical `threat_log.json` path. Detection, governance, and rotation utilities should call this instead of hardcoding paths.
-- `get_ml_models_dir()` → Returns the ML models directory used by all Stage 2 ML signals and training sync (typically `AI/ml_models/` or `/app/ml_models/`). RandomForest, IsolationForest, Gradient Boosting, LSTM, and autoencoder models are all loaded from here.
-- `get_relay_training_dir()` → Returns the root directory that AI modules use when exporting training materials for the relay (for example `relay/ai_training_materials/` in development or the operator-configured equivalent in production). Modules such as `graph_intelligence.py`, `reputation_tracker.py`, and `explainability_engine.py` append their own subfolders under this root.
 
-### Relay Training Materials Quick Reference
-- `global_attacks.json` → Central attack log written by the relay (never by customer nodes); read during Stage 7 retraining.
-- `ai_signatures/learned_signatures.json` → Global signature database aggregated from all nodes; used by signature matching and ExploitDB-derived patterns.
-- `reputation_data/` → Hashed, privacy-preserving reputation exports from customer nodes (written via helpers such as `AI/reputation_tracker.py`).
-- `training_datasets/` → Feature tables and anonymized graph/topology exports (for example `graph_topology.json` from `AI/graph_intelligence.py`).
-- `explainability_data/` → Explainability and forensic context exports from `AI/explainability_engine.py`.
-- `ml_models/` / `trained_models/` → Models trained on relay data and pushed back to customer nodes via `AI/training_sync_client.py`.
+**Core paths for AI modules:**
+- `get_json_dir()` → Base JSON directory (`server/json/` native, `/app/json/` Docker)
+- `get_json_file(name)` → Absolute path to JSON file (e.g., `get_json_file("threat_log.json")`)
+- `get_threat_log_file()` → Canonical threat log path
+- `get_ml_models_dir()` → ML models directory (`AI/ml_models/` or `/app/ml_models/`)
+- `get_relay_training_dir()` → Relay training export root (`relay/ai_training_materials/`)
+
+**Key relay subdirectories:**
+- `global_attacks.json` — Central attack log (relay writes, Stage 7 reads)
+- `ai_signatures/learned_signatures.json` — Global signature database
+- `reputation_data/` — Hashed reputation exports
+- `training_datasets/` — Feature tables and anonymized graphs
+- `ml_models/` — Trained models for distribution
 
 ---
 
@@ -774,16 +762,11 @@ battle-hardened-ai/
 - Relay training materials inaccessible to customers
 
 ### Data Minimization
-✅ **Training sync is explicit and limited**
-- `AI/relay_client.py` sends only sanitized training summaries
-- No raw JSON logs uploaded (only structured attack records)
-- Replay server returns models/signatures (no customer data pulled)
-
 ✅ **Privacy-preserving extraction (Stage 5)**
 - IP addresses hashed (SHA-256) before relay transmission
-- No raw exploit payloads stored
-- Packet content stripped (metadata only)
+- No raw exploit payloads or packet content
 - PII/PHI never retained
+- Only sanitized training summaries shared via `AI/relay_client.py`
 
 ### Auditability
 ✅ **Centralized external communication**

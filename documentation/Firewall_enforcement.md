@@ -9,6 +9,33 @@ This guide shows how to **turn those decisions into real firewall blocks** on:
 
 It is written for **enterprise and regulated environments** with change control, GPO/MDM, and third‑party EDR/endpoint firewalls. Treat the concrete scripts here as **reference implementations** of the required ports and rules, not as a replacement for your existing policy tooling.
 
+---
+
+## 🎯 Deployment Role Determines Firewall Enforcement Scope
+
+**What firewall enforcement protects depends on deployment mode:**
+
+| Deployment Role | Firewall Enforcement Scope | What Gets Blocked |
+|----------------|---------------------------|-------------------|
+| **Gateway/Router (Linux)** | Entire network segment (all devices behind gateway) | All traffic through gateway via iptables/nftables |
+| **Host-only (Linux/Windows)** | Local machine + services it terminates | Traffic to/from this host only |
+| **Observer** | Detection-only (no firewall enforcement) | Nothing (analysis mode - external firewall required) |
+
+**Installation reference:** For deployment setup, see:
+- [Installation.md § Deployment Role](installation/Installation.md#🎯-deployment-role-read-first)
+- [Installation.md § Gateway Pre-Flight Checklist](installation/Installation.md#✅-gateway-pre-flight-checklist)
+- [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- [Installation.md § Cloud Gateway Setup](installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
+
+**Cloud deployment:** All firewall enforcement mechanisms work identically on cloud VMs (AWS/Azure/GCP). Virtual NICs fully supported.
+
+**Critical distinction:**
+- **Linux gateway:** Protects entire network segment (requires 2 NICs, IP forwarding, route tables)
+- **Windows host/Linux host-only:** Protects only the local machine
+- **Observer mode:** No firewall enforcement (analysis only)
+
+---
+
 > **Distribution note:** Customer deployments normally use Linux packages (`.deb`/`.rpm`) or the Windows EXE installer; you do **not** need a Git clone of the repository. Where this guide references paths like `server/docker-compose.yml` or `server/.env.linux`, treat those as **developer/source examples** – packaged Linux appliances run a native Gunicorn + systemd service (see INSTALLATION), while source-based labs may use the Docker stack instead.
 
 > Battle-Hardened AI remains a **first-layer decision node**. These integrations simply push its `blocked_ips` into the OS firewall so port scans and attacks from those IPs are dropped at the network boundary.
@@ -188,13 +215,8 @@ Now Windows Defender Firewall will be updated periodically from Battle-Hardened 
 
 ## 3. Notes and Limitations
 
-- Battle-Hardened AI remains a **first-layer decision engine**. These integrations only control how those decisions are enforced at the OS/network level.
-- For **Linux**:
-  - The host must be placed as a **gateway/router or edge device** to protect more than itself.
-  - ipset/iptables rules configured by the firewall sync helper affect the host directly (native systemd service on packaged installs, or via host networking + capabilities in Docker-based labs).
-- For **Windows**:
-  - The firewall integration primarily protects the **Windows host itself** and any services directly exposed on that host.
-  - It does not automatically protect other devices on the LAN unless Windows is acting as a router.
+- **Linux gateway:** ipset/iptables rules configured by the firewall sync helper affect the host directly (native systemd service on packaged installs, or via host networking + capabilities in Docker-based labs).
+- **Windows host:** The firewall integration does not automatically protect other devices on the LAN unless Windows is acting as a router (uncommon). For network-wide protection, use Linux gateway deployment instead.
 - Always test new firewall rules carefully to avoid locking yourself out of remote access.
 
 This file is intended as a reference so you can plug Battle-Hardened AI's blocked IP list into the underlying firewall on both Linux and Windows without changing core application code.

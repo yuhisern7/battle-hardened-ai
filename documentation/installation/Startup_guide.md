@@ -1,5 +1,25 @@
 # Battle-Hardened AI - Complete Startup Guide
 
+## 🎯 Deployment Role (Read First)
+
+**Before starting, understand what you're protecting:**
+
+| Role | What This Protects | Enforcement Authority |
+|------|-------------------|----------------------|
+| **Gateway / Router** | Entire network segment (all devices behind this node) | Full network-wide blocking via firewall |
+| **Host-only** | Local machine + services it terminates | Host-level blocking only |
+| **Observer** | Analysis only (via SPAN/mirror traffic) | Detection-only (no direct blocking) |
+
+**Key Points:**
+
+✅ **Cloud VMs fully supported** - Virtual NICs work identically to physical NICs. Cloud gateway deployment is production-ready.
+
+✅ **Gateway mode = maximum protection** - Placing Battle-Hardened AI at network boundary protects everything behind it.
+
+✅ **Pre-flight checklist required** - For gateway deployments, see [Installation.md § Gateway Pre-Flight Checklist](Installation.md#-gateway-pre-flight-checklist).
+
+---
+
 ## 🚀 Quick Start (TL;DR)
 
 **Linux (Packaged Appliance - Recommended for Linux Customers):**
@@ -51,16 +71,17 @@ Battle-Hardened AI includes enterprise-grade stability and crash protection:
 
 ---
 
-## 🎯 Overview
+## 🎯 Development vs Production Mode
+
 This guide shows you how to run the server in **development mode** (simple testing) vs **production mode** (handles thousands of concurrent attacks).
 
-Battle-Hardened AI always protects **whatever traffic reaches its first-layer decision point**. What you can realistically defend depends on **where you place it and which port(s) it listens on**:
+**Your deployment role** (Gateway/Host/Observer - see table above) determines **what you protect**, while the startup mode determines **how much load you can handle**:
 
-- **Gateway placement** – Battle-Hardened AI runs on a Linux box, router, or dedicated security appliance that sits in front of your network or segment. All inbound/outbound traffic for that boundary passes through port 60000 (or your chosen port) on this node.
-- **Server/host placement** – Battle-Hardened AI runs directly on an application or security server (Windows or Linux) and protects the **local host and any services it terminates** (web, API, SSH, RDP, custom services) on its bound port.
-- **Observer/monitoring placement** – Battle-Hardened AI runs on a node that receives mirrored/SPAN traffic or cloud flow logs. It still performs full first-layer analysis, but **enforcement depends on how you wire its block/allow decisions into firewalls, routers, or orchestration.**
+- **Development mode** (`python server.py`) - Testing only, ~10 connections
+- **Production mode** (`watchdog.py` or Docker) - Real deployments, 1,000s of connections
+- **Extreme scale** (async workers) - National-scale, 100,000+ connections
 
-For **network-wide protection**, you must deploy Battle-Hardened AI at a **gateway or routing/control point** where traffic either **naturally passes through** or is **explicitly mirrored**.
+For gateway deployments with 2 NICs and firewall integration, follow [Installation.md § Linux Gateway Setup](Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended) before starting the server.
 
 ---
 
@@ -284,13 +305,19 @@ Environment configuration:
 
 ## 🎯 Quick Start Recommendations
 
-These examples show **how to run** Battle-Hardened AI; what you actually protect depends on placement and routing:
+**What you protect depends on deployment role** (see table at top):
 
-- On **Windows/macOS**, running natively protects the **local host and any services it terminates**, plus any traffic you explicitly route or proxy through it.
-- On **Linux VPS or bare metal**, running as a front-line service can protect an entire **home/SMB/enterprise segment** when the node sits at a **gateway or reverse-proxy position**.
-- A **relay server** is an intelligence node only; it does **not** protect traffic directly.
+| Deployment | Role | What's Protected | Setup Required |
+|------------|------|------------------|----------------|
+| Windows native | Host-only | Local machine + services | Just start server |
+| Linux VPS (single NIC) | Host-only | VPS + terminated services | Just start server |
+| Linux gateway (dual NIC) | Gateway/Router | Entire network segment | [Installation.md Gateway Setup](Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended) |
+| Cloud VM (dual vNIC) | Gateway/Router | VPC/VNet resources | [Installation.md Cloud Gateway](Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp) |
+| Relay server | N/A (intelligence) | Nothing (training only) | Relay setup guide |
 
-**Home Testing (Windows):** (host-only by default)
+---
+
+**Home Testing (Windows):** (Host-only role)
 ```powershell
 cd server
 python installation/watchdog.py
@@ -298,13 +325,19 @@ python installation/watchdog.py
 
 This protects the Windows machine (and any services it terminates) unless you deliberately route other devices' traffic through it.
 
-**Production Server (Linux VPS):** (gateway or reverse-proxy)
+**Production Server (Linux VPS):** (Gateway/Router role - requires 2 NICs)
 ```bash
 cd server
 docker-compose up -d
 ```
 
-Use this when the VPS is positioned as a **gateway or reverse proxy** in front of other servers or networks so that inbound traffic passes through Battle-Hardened AI first.
+For **gateway deployment**, complete [Installation.md § Gateway Pre-Flight Checklist](Installation.md#-gateway-pre-flight-checklist) first:
+- 2 network interfaces (WAN + LAN)
+- IP forwarding enabled
+- Firewall integration configured
+- Route tables pointing to this node
+
+For **host-only deployment** (single NIC), just start the server - it protects the VPS itself.
 
 **Relay Server (Linux VPS):**
 ```bash

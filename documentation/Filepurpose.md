@@ -4,7 +4,26 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 > **Audience & distribution note:** This is a **developer/auditor reference** tied to the Git repository layout. It assumes you have the full source tree checked out (AI/, server/, relay/) so you can inspect modules and JSON surfaces directly. **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE normally do not see this folder structure**; they operate the packaged services using README and INSTALLATION. Use this file when you need to understand or verify how the runtime behavior maps back to individual source files.
 
-**Documentation Index:**
+---
+
+## 🎯 Deployment Context for File Architecture
+
+**Pipeline implementation varies by deployment role:**
+
+| Deployment Role | What Pipelines Protect | File Locations |
+|----------------|------------------------|----------------|
+| **Gateway/Router** | Entire network segment (all devices) | Same AI/ server/ modules, different scope of traffic |
+| **Host-only** | Local machine + terminated services | Same AI/ server/ modules, host traffic only |
+| **Observer** | SPAN/mirror traffic (analysis only) | Same AI/ modules, no direct enforcement |
+
+**Installation reference:** For deployment setup, see:
+- [Installation.md § Deployment Role](installation/Installation.md#🎯-deployment-role-read-first)
+- [Installation.md § Gateway Pre-Flight Checklist](installation/Installation.md#✅-gateway-pre-flight-checklist)
+- [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+
+**Cloud deployment:** All file architectures and pipelines work identically on cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
+
+---
 - **[Installation](installation/Installation.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
 - **[README.md](README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture
 - **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** — Attack simulation test procedures

@@ -4,6 +4,27 @@ This document provides a comprehensive guide to the core dashboard sections, map
 
 > **Distribution note:** In production, customers typically access the dashboard via a **Linux appliance installed from a .deb/.rpm package** or a **Windows host/appliance installed from the signed EXE**, and do **not** work with the Git source tree. The API examples and helper scripts in this file assume a **development or lab environment** where you have the repository checked out and can run Python scripts from the project root. For packaged deployments, you can still hit the same HTTPS endpoints (for example from Postman or your own tools); just ignore any instructions that mention the repo layout.
 
+---
+
+## 🎯 Dashboard Scope by Deployment Role
+
+**What the dashboard shows depends on deployment mode:**
+
+| Deployment Role | Dashboard Shows | Example Metrics |
+|----------------|----------------|------------------|
+| **Gateway/Router** | Entire network segment traffic + threats | All devices' connections, network-wide blocks |
+| **Host-only** | Local host traffic + terminated services | Server connections, host-level blocks |
+| **Observer** | SPAN/mirror traffic analysis | Detection stats (no enforcement metrics) |
+
+**Installation reference:** For deployment setup:
+- [Installation.md § Deployment Role](installation/Installation.md#-deployment-role-read-first)
+- [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- [Installation.md § Cloud Gateway Setup](installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
+
+**Cloud deployment:** All dashboard APIs work identically on cloud VMs (AWS/Azure/GCP). Virtual NICs supported.
+
+---
+
 **Installation & Setup:**
 - For installation instructions, see [Installation](installation/Installation.md)
 - For relay server setup, see [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)
