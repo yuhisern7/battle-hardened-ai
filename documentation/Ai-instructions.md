@@ -166,7 +166,7 @@
 
 1. **Customer Node runtime (packaged)** — What production customers run in the Linux package or Windows EXE; contains the compiled/packaged equivalents of `server/` and `AI/` but does **not** expose the raw source tree.
 2. **AI Intelligence Layer (AI/ source tree)** — The source modules that implement all 20 detection signals, the Step 21 semantic gate, and ensemble logic (stages 2-3). Available to developers and auditors working from Git.
-3. **Central Relay (relay/)** — Operator-controlled training hub (stages 6-7). The relay source lives under `relay/` in the repo and is **not shipped with the customer Linux/Windows packages**; it is deployed separately on a VPS when used.
+3. **Central Relay (relay/ + AI/ + server/)** — Operator-controlled training hub (stages 6-7). The relay deployment requires 3 folders: `relay/` (WebSocket server + model distribution API), `AI/` (crypto security, ML models, threat analysis), and `server/` (path utilities, JSON configs). Deployed separately on a VPS via Docker when used.
 
 ---
 
@@ -189,7 +189,7 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 → schema normalization → normalized event object
 ```
 
-**JSON Persistence:** JSON is written under the directory returned by `AI/path_helper.get_json_dir()` (typically `server/json/` in native/Windows EXE runs, `/app/json/` in Docker)
+**JSON Persistence:** JSON is written under the directory returned by `AI/path_helper.get_json_dir()` (typically `server/json/` in native/Windows EXE runs, `/app/server/json/` in Docker relay containers)
 
 **Stage 1 → Stage 2 Transition:**
 1. Network monitor creates normalized event: `{"src_ip": "...", "dst_ip": "...", "src_port": ..., "protocol": "...", "timestamp": "...", ...}`

@@ -98,7 +98,7 @@ In both cases, the Linux box should be a **gateway/router** or **edge device** f
 
 3. For Docker-based labs, the entrypoint script [server/entrypoint.sh](server/entrypoint.sh):
     - Detects `BH_FIREWALL_SYNC_ENABLED=true`.
-    - Starts `/app/installation/bh_firewall_sync.py` in the background, which reads `/app/json/blocked_ips.json` (the container view of the JSON directory resolved by AI/path_helper) and applies `ipset`/`iptables` rules on the host.
+    - Starts `/app/installation/bh_firewall_sync.py` in the background, which reads `/app/json/blocked_ips.json` (the customer node container view of the JSON directory resolved by AI/path_helper; note: relay server containers use /app/server/json/ instead) and applies `ipset`/`iptables` rules on the host.
 
 From this point onward:
 

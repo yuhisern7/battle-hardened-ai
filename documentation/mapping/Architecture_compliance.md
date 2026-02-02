@@ -102,8 +102,10 @@ When attacks are executed from Kali Linux, the system follows this **exact 3-ste
 ### Relay Client (AI/relay_client.py)
 
 **Function:** `relay_threat()` - Sends threat to relay via WebSocket
-- Broadcasts to relay server
-- Relay stores in global_attacks.json
+- Broadcasts to relay server (requires AI/, relay/, server/ folders in Docker container)
+- Relay stores in global_attacks.json at `/app/relay/ai_training_materials/`
+- Uses AI/crypto_security.py for HMAC signing (requires shared_secret.key)
+- Uses server/path_helper.py for path resolution
 - Universal attacker IP handling (works for any network range)
 
 ---

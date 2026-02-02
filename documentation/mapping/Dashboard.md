@@ -438,7 +438,7 @@ show_json("/api/compliance/report/gdpr")
 - `AI/advanced_visualization.py` — Graph rendering
 
 **JSON Output:**
-- `network_graph.json` — Topology data (stored under the JSON directory resolved by AI/path_helper, typically server/json/ in native/Windows EXE runs or /app/json/ in Docker)
+- `network_graph.json` — Topology data (stored under the JSON directory resolved by AI/path_helper, typically server/json/ in native/Windows EXE runs, /app/json/ in customer node Docker containers, or /app/server/json/ in relay Docker containers)
 - `lateral_movement_alerts.json` — Hop chain alerts (same JSON directory resolution)
 
 **Test Script:**
@@ -465,7 +465,7 @@ show_json("/api/graph-intelligence/attack-chains")
 - `AI/false_positive_filter.py` — Gate-level reasoning
 
 **JSON Output:**
-- `forensic_reports/*.json` — Incident explainability reports stored under the JSON directory resolved by AI/path_helper (typically server/json/ in native/Windows EXE runs or /app/json/ in Docker). These are used for offline analysis (no separate hunting console).
+- `forensic_reports/*.json` — Incident explainability reports stored under the JSON directory resolved by AI/path_helper (typically server/json/ in native/Windows EXE runs, /app/json/ in customer node Docker containers, or /app/server/json/ in relay Docker containers). These are used for offline analysis (no separate hunting console).
 
 **Test Script:**
 ```python

@@ -3,7 +3,7 @@
 
 This document is written for people who understand first-layer enforcement, gateways, and control planes. It assumes familiarity with firewalls, routing, kernel telemetry, and pre-execution decision systems.
 
-Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21 layers, semantic execution-denial, trust graph, causal inference) corresponds to concrete modules, code paths, and enforcement points that can be inspected in this repository and its documentation. For a formal mapping from claims to code and runtime behavior, see [documentation/Filepurpose.md](documentation/Filepurpose.md) and [documentation/Architecture_compliance.md](documentation/Architecture_compliance.md).
+Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21 layers, semantic execution-denial, trust graph, causal inference) corresponds to concrete modules, code paths, and enforcement points that can be inspected in this repository and its documentation. For a formal mapping from claims to code and runtime behavior, see [documentation/mapping/Filepurpose.md](documentation/mapping/Filepurpose.md) and [documentation/mapping/Architecture_compliance.md](documentation/mapping/Architecture_compliance.md).
 
 ---
 
@@ -349,13 +349,13 @@ You never modify Battle-Hardened AI code—you wire your tools to the Battle-Har
 
 - Download the latest Linux package (`.deb`/`.rpm`) or Windows `.exe` installer from the distribution channel provided by the project.
 - Install following [documentation/installation/Installation.md](documentation/installation/Installation.md), then bring services up as described in [Startup guide](documentation/installation/Startup_guide.md).
-- Open the dashboard documented in [Dashboard](documentation/Dashboard.md) to verify live telemetry and decision traces.
+- Open the dashboard documented in [Dashboard](documentation/mapping/Dashboard.md) to verify live telemetry and decision traces.
 - Wire your local firewall using [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md) and confirm that blocked IPs appear both in the dashboard and in JSON outputs.
 
 **Enterprise / SOC**
 
 - Select one gateway or choke point per protected segment, and install Battle-Hardened AI there using [documentation/installation/Installation.md](documentation/installation/Installation.md).
-- Follow [Startup guide](documentation/installation/Startup_guide.md) to start services, then integrate with SIEM/SOAR as described in [Dashboard](documentation/Dashboard.md) and [Attack handling flow](documentation/Attack_handling_flow.md).
+- Follow [Startup guide](documentation/installation/Startup_guide.md) to start services, then integrate with SIEM/SOAR as described in [Dashboard](documentation/mapping/Dashboard.md) and [Attack handling flow](documentation/Attack_handling_flow.md).
 - Enable firewall synchronization using [documentation/Firewall_enforcement.md](documentation/Firewall_enforcement.md) so auto-block decisions propagate to `iptables`/`ipset` (Linux) or Windows Defender Firewall.
 - Run a controlled test from [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md) to validate end-to-end detection, blocking, and logging before broad rollout.
 
@@ -413,7 +413,7 @@ The **Enterprise Security Integrations** section (24) provides configuration and
 
 ##### Example: Minimal `enterprise_integration.json`
 
-Battle-Hardened AI resolves an `enterprise_integration.json` file from its JSON configuration directory (see `AI/path_helper.py` and `documentation/Dashboard.md` for directory details). A minimal, realistic example looks like this:
+Battle-Hardened AI resolves an `enterprise_integration.json` file from its JSON configuration directory (see `AI/path_helper.py` and `documentation/mapping/Dashboard.md` for directory details). A minimal, realistic example looks like this:
 
 ```json
 {
@@ -504,7 +504,7 @@ Firewall enforcement paths (Linux vs Windows EXE):
 
 #### Troubleshooting & Operational Scenarios (Quick Reference)
 
-- **Step 21 seems too aggressive (false positives):** Use the Governance & Emergency Controls section (23) to move from fully autonomous deny into observe or approval modes, then adjust the Step 21 policy bundle under `policies/step21` (for example, HTTP method and trust-threshold settings) and reload. For detailed guidance, see `documentation/Architecture_compliance.md` and `documentation/Attack_handling_flow.md`.
+- **Step 21 seems too aggressive (false positives):** Use the Governance & Emergency Controls section (23) to move from fully autonomous deny into observe or approval modes, then adjust the Step 21 policy bundle under `policies/step21` (for example, HTTP method and trust-threshold settings) and reload. For detailed guidance, see `documentation/mapping/Architecture_compliance.md` and `documentation/Attack_handling_flow.md`.
 - **Relay/central training status is unhealthy:** Check Section 1 on the dashboard and the `/api/relay/status` endpoint for detailed error messages (DNS, TLS, authentication). Verify relay settings in the environment or in the installed `.env.windows` file next to `BattleHardenedAI.exe` (for EXE deployments), and ensure outbound firewall rules permit the configured relay URL/port.
 - **Blocked IPs are not reflected in Windows Firewall:** Confirm that `blocked_ips.json` is being updated in the runtime JSON directory (for EXE builds this is under `%LOCALAPPDATA%/Battle-Hardened AI/server/json`), and that Task Scheduler is invoking `{app}/windows-firewall/configure_bh_windows_firewall.ps1` with `-SkipBaselineRules` and the correct `-JsonPath`. See `documentation/Firewall_enforcement.md` for examples.
 - **Dashboard shows data but enforcement appears inactive:** On Linux, verify iptables/ipset rules were created and are still present; on Windows, inspect the "Battle-Hardened AI Blocked IPs" rule and ensure no third-party software has overridden it. In both cases, check the watchdog/service status and the Security Overview (Section 5) for recent block events.
@@ -531,15 +531,15 @@ While isolated forms of semantic validation exist in narrow domains, to our know
 
 For auditors, engineers, and operators, the following documents serve as the authoritative technical references for this system:
 
-- [Filepurpose](documentation/Filepurpose.md) — Maps every core file and JSON surface to the 7-stage pipeline and 21 detection layers
+- [Filepurpose](documentation/mapping/Filepurpose.md) — Maps every core file and JSON surface to the 7-stage pipeline and 21 detection layers
 - [AI instructions](documentation/Ai-instructions.md) — Developer implementation guide, validation flow, and dashboard/endpoint mapping
-- [Dashboard](documentation/Dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
-- [Architecture compliance verification](documentation/Architecture_compliance.md) — Formal proof that runtime code paths implement the documented log → block → relay architecture
+- [Dashboard](documentation/mapping/Dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
+- [Architecture compliance verification](documentation/mapping/Architecture_compliance.md) — Formal proof that runtime code paths implement the documented log → block → relay architecture
 - [Attack handling flow](documentation/Attack_handling_flow.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
 
 These documents collectively define the system’s intended behavior, guarantees, and constraints.
 
-If you're starting from source as a developer or auditor, begin with [Filepurpose](documentation/Filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
+If you're starting from source as a developer or auditor, begin with [Filepurpose](documentation/mapping/Filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
 
 ### Key Terms (For Non-Specialists)
 

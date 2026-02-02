@@ -49,7 +49,48 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 7. **Continuous Learning** → ML retraining, adaptation
 
 ---
+## Dashboard Section Mapping (inspector_ai_monitoring.html)
 
+**Core First-Layer Dashboard (24 Sections):**
+
+| Section | Title | Purpose | Key Files |
+|---------|-------|---------|----------|
+| **1** | 🤖 AI Training Network - Shared Machine Learning | Global P2P mesh for distributed AI training & real-time threat sharing | `AI/relay_client.py`, `AI/p2p_sync.py`, `AI/training_sync_client.py`, `relay/relay_server.py` |
+| **2** | 🌐 Network Devices - Live Monitor, Ports & History | Live device discovery, asset inventory, network topology | `server/device_scanner.py`, `server/json/connected_devices.json`, `server/json/device_history.json` |
+| **3** | 🔓 Attackers VPN/Tor De-Anonymization Statistics | VPN/Tor fingerprinting, anonymization tracking | `AI/pcs_ai.py` (Signal #11), dashboard metrics |
+| **4** | 🤖 Real AI/ML Models - Machine Learning Intelligence | Core ML models: RandomForest, IsolationForest, GradientBoosting, LSTM | `AI/ml_models/*.pkl`, `AI/ml_models/sequence_lstm.keras`, `AI/pcs_ai.py` (Signals #3-5, #7) |
+| **5** | 📊 Security Overview - Live Statistics | Real-time threat counters, attack summaries, blocked IPs | `server/json/threat_log.json`, `server/json/blocked_ips.json`, `AI/pcs_ai.py` |
+| **6** | 🎯 Threat Analysis by Type | Attack type breakdown, threat categories | `server/json/threat_log.json`, `AI/behavioral_heuristics.py` |
+| **7** | 🛡️ IP Management & Threat Monitoring | IP blocking, whitelisting, threat filtering | `server/json/blocked_ips.json`, `server/json/whitelist.json`, `server/device_blocker.py` |
+| **8** | 🔐 Failed Login Attempts (Battle-Hardened AI Server) | Dashboard login failures, brute-force attempts | `server/server.py`, `server/json/admin_users.json` |
+| **9** | 📈 Attack Type Breakdown (View) | Visual attack type distribution, trend analysis | `server/json/threat_log.json`, `AI/advanced_visualization.py` |
+| **10** | 📦 Automated Signature Extraction - Attack Pattern Analysis | Attack pattern learning, signature generation | `AI/signature_extractor.py`, `relay/ai_training_materials/ai_signatures/learned_signatures.json` |
+| **11** | 💻 System Health & Network Performance | CPU/RAM/network metrics, performance monitoring | `AI/network_performance.py`, `server/json/network_performance.json` |
+| **12** | 📑 Audit Evidence & Compliance Mapping | Comprehensive audit log, compliance frameworks | `server/json/comprehensive_audit.json`, `AI/compliance_reporting.py`, `AI/emergency_killswitch.py` |
+| **13** | 🔗 Attack Chain Visualization (Phase 4 - Graph Intelligence) | Network graph, lateral movement, C2 detection | `AI/graph_intelligence.py`, `server/json/network_graph.json`, `server/json/lateral_movement_alerts.json` |
+| **14** | 🧠 Decision Explainability Engine (Phase 7 - Transparency) | AI decision transparency, forensic reports | `AI/explainability_engine.py`, `server/json/forensic_reports/`, `relay/ai_training_materials/explainability_data/` |
+| **15** | 🍯 Adaptive Honeypot - AI Training Sandbox | Real honeypot services (7 ports), attack capture | `AI/real_honeypot.py`, `AI/adaptive_honeypot.py`, `server/json/honeypot_attacks.json`, `server/json/honeypot_patterns.json` |
+| **16** | 🤖 AI Security Crawlers & Threat Intelligence Sources | OSINT feeds, CVE/MalwareBazaar/URLhaus/OTX | `AI/threat_intelligence.py`, `relay/threat_crawler.py`, `relay/exploitdb_scraper.py`, `server/json/local_threat_intel.json` |
+| **17** | 🔍 Traffic Analysis & Inspection | Protocol analysis, crypto mining detection, traffic anomalies | `AI/traffic_analyzer.py`, `AI/network_performance.py`, `server/json/crypto_mining.json` |
+| **18** | 🌍 DNS & Geo Security | DNS tunneling/DGA detection, TLS fingerprinting, geographic analysis | `AI/dns_analyzer.py`, `AI/tls_fingerprint.py`, `server/json/dns_security.json`, `server/json/tls_fingerprints.json` |
+| **19** | 👤 User & Identity Trust Signals | User behavior tracking, trust scoring, UEBA | `AI/user_tracker.py`, `AI/trust_graph.py`, `server/json/tracked_users.json`, `server/json/trust_graph.json` |
+| **20** | 💣 Sandbox Detonation | Static file analysis, sandbox integration (external) | `AI/file_analyzer.py` |
+| **21** | 📧 Email/SMS Alerts (Critical Only) | Critical SYSTEM event notifications (kill-switch, integrity, failures) | `AI/alert_system.py` |
+| **22** | 🪙 Cryptocurrency Mining Detection | Traffic analysis enhanced with crypto mining patterns | `AI/traffic_analyzer.py`, `server/json/crypto_mining.json` (Signal #8) |
+| **23** | 🚨 Governance & Emergency Controls | Kill-switch, approval workflows, policy governance, self-protection | `AI/emergency_killswitch.py`, `AI/policy_governance.py`, `AI/self_protection.py`, `AI/secure_deployment.py`, `server/json/approval_requests.json`, `server/json/integrity_violations.json` |
+| **24** | 🏢 Enterprise Security Integrations | SOAR API, enterprise adapters (SIEM/ticketing/ITSM outbound only) | `AI/soar_api.py`, `AI/soar_workflows.py`, `AI/enterprise_integration.py`, `server/json/soar_incidents.json` |
+
+**Additional Non-Core Sections (Experimental/Auxiliary):**
+- **Vulnerability & Supply Chain Management** (non-numbered) — CVE tracking, patch management, SBOM | `AI/vulnerability_manager.py`, `server/json/sbom.json`
+- **Dark Web Monitoring** (non-numbered) — Dark web intelligence (experimental) | Auxiliary feature
+- **Attack Simulation / Purple Team** (non-numbered) — Red team/BAS testing (experimental) | Auxiliary feature
+- **Cloud Security Posture Management** (non-numbered) — Multi-cloud monitoring (AWS/Azure/GCP) | `AI/cloud_security.py`, `server/json/cloud_findings.json`
+- **Data Loss Prevention / DLP** (non-numbered) — Data classification, DLP events (experimental) | `AI/zero_trust.py` (partial)
+- **Backup & Recovery Status** (non-numbered) — Backup monitoring, ransomware resilience | `AI/backup_recovery.py`, `server/json/backup_status.json`, `server/json/recovery_tests.json`
+
+**Note:** Sections marked as "experimental" or "non-core" represent auxiliary enterprise capabilities whose HTTP APIs are disabled by default. They should be treated as lab/development tooling unless explicitly enabled and configured by operators.
+
+---
 ## Critical JSON Surfaces by Pipeline Stage
 
 | Pipeline Stage | Local JSON (JSON directory via AI/path_helper) | Relay JSON (relay/ai_training_materials/) | Purpose |
@@ -243,8 +284,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - When adding or modifying detection layers, always resolve local JSON paths via the helpers in `AI/path_helper` (for example `get_json_file("threat_log.json")`, `get_threat_log_file()`), rather than hardcoding `server/json` or `/app/json`.
 - ML models for new signals must load from the directory returned by `get_ml_models_dir()` so that training sync and relay-distributed updates remain consistent.
 - Any new training exports intended for the relay (for example new `training_datasets/` or `reputation_data/` variants) should build their paths from `get_relay_training_dir()` and append a subdirectory, instead of embedding `relay/ai_training_materials` literals in AI modules.
-- Documentation examples should describe JSON and relay locations in terms of these helpers ("JSON directory", "relay training directory") rather than fixed filesystem paths so that Docker/native deployments stay aligned.
-
+- Documentation examples should describe JSON and relay locations in terms of these helpers ("JSON directory", "relay training directory") rather than fixed filesystem paths so that Docker/native deployments stay aligned.- **Container path differences:** Customer node containers use `/app/json/` for JSON storage, while relay server containers use `/app/server/json/` because the relay Dockerfile copies the server/ folder to provide path_helper.py and config access.
 ---
 
 ### Stage 3: Ensemble Decision Engine (Sequential Intelligence Modulation)
@@ -365,7 +405,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/crypto_keys/` — Shared HMAC keys
 
 **Relay Server:**
-- `relay/relay_server.py` — WebSocket relay, HMAC validation
+- `relay/relay_server.py` — WebSocket relay, HMAC validation (requires AI/crypto_security.py, server/path_helper.py)
 - `relay/signature_sync.py` — Signature deduplication
 - `relay/ai_training_materials/global_attacks.json` — Central attack log from all customer nodes (auto-rotates at 100MB → global_attacks_1.json, etc.)
 - `relay/ai_training_materials/ai_signatures/learned_signatures.json` — Attack pattern signatures for ML training (auto-rotates at 100MB → learned_signatures_1.json, etc.)
@@ -378,10 +418,16 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `relay/training_sync_api.py` — HTTPS model distribution and training stats API (port 60002)
 
 **Relay Infrastructure (NOT shipped to customers):**
-- `relay/docker-compose.yml` — Relay deployment
-- `relay/Dockerfile` — Relay container image
-- `relay/ai_training_materials/` — Training data lake
-- `relay/crypto_keys/` — Relay HMAC keys
+- `relay/docker-compose.yml` — Relay deployment (requires AI/, relay/, server/ folders)
+- `relay/Dockerfile` — Relay container image (built with context: .. to access all 3 folders)
+- `relay/ai_training_materials/` — Training data lake (stored at /app/relay/ai_training_materials/ in container)
+- `relay/crypto_keys/` — Relay HMAC keys (mounted to /app/relay/crypto_keys/ in container)
+
+**Required Container Folder Structure:**
+- `/app/AI/` — Crypto security (HMAC signing via crypto_security.py), ML models, threat analysis modules
+- `/app/relay/` — WebSocket relay server (relay_server.py), model distribution API (training_sync_api.py)
+- `/app/server/` — Path utilities (path_helper.py), JSON config access
+- `/app/server/json/` — Server JSON directory (used by AI modules via path_helper for relay-side configs)
 
 ---
 
@@ -681,6 +727,13 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 ---
 
 ## Relay Folder
+
+**Note:** The relay server Docker deployment requires 3 folders from the workspace:
+- `AI/` → `/app/AI/` (crypto security, ML models)
+- `relay/` → `/app/relay/` (WebSocket server, training API)
+- `server/` → `/app/server/` (path_helper.py, JSON configs)
+
+This is configured in `relay/Dockerfile` with `context: ..` so Docker can access the parent directory.
 
 - relay/.env — Active relay server environment configuration (used by Docker Compose).
 - relay/documents/Ai_training_commands.md — Relay AI training command reference and usage examples.

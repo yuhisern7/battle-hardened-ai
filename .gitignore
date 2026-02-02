@@ -2,6 +2,10 @@
 .env
 relay/.env
 
+# Build artifacts (Windows EXE packaging)
+packaging/windows/dist/
+packaging/windows/build/
+
 # Python cache
 __pycache__/
 *.py[cod]

@@ -135,8 +135,12 @@ print(f"[IP BLOCKING] 🚫 Blocked {ip_address} for {threat_type}")
 
 ### 6️⃣ RELAY SERVER STORAGE (< 3 seconds)
 **Location:** Relay Server `relay/relay_server.py` → `relay/signature_sync.py`
-**Container:** `security-relay-server` (Docker)
+**Container:** `security-relay-server` (Docker - built with AI/, relay/, server/ folders)
 **File:** `/app/relay/ai_training_materials/global_attacks.json`
+**Required Folders:**
+- `/app/AI/` - Crypto security (HMAC), ML models, threat analysis
+- `/app/relay/` - WebSocket relay + model distribution API
+- `/app/server/` - Path utilities (path_helper.py), JSON config access
 
 **Relay Server Receives:****
 - Verifies HMAC signature
@@ -178,14 +182,17 @@ Get-Content server\json\threat_log.json | ConvertFrom-Json | Select-Object -Last
 # SSH to relay server
 ssh root@<RELAY_SERVER_IP>
 
-# View last 50 attacks stored
-tail -50 /root/battle-hardened-ai/relay/ai_training_materials/global_attacks.json
+# View last 50 attacks stored (inside Docker container)
+docker exec security-relay-server tail -50 /app/relay/ai_training_materials/global_attacks.json
 
 # Count total attacks
-jq '. | length' /root/battle-hardened-ai/relay/ai_training_materials/global_attacks.json
+docker exec security-relay-server jq '. | length' /app/relay/ai_training_materials/global_attacks.json
 
 # Watch attacks live
-tail -f /root/battle-hardened-ai/relay/ai_training_materials/global_attacks.json
+docker exec security-relay-server tail -f /app/relay/ai_training_materials/global_attacks.json
+
+# Or access mounted volume on host (if using volume mounts)
+tail -50 /root/battle-hardened-ai/relay/ai_training_materials/global_attacks.json
 ```
 
 ### Check Relay Server Logs
@@ -264,10 +271,11 @@ This 4-step attack handling flow is a concrete, minimal slice through the full 7
 - **Stage 5 – Training Extraction:**
   - AI/signature_extractor.py turns the logged attack into sanitized signatures (keywords, encodings, patterns) with no exploit code or raw payloads.
 - **Stage 6 – Relay Sharing (Optional):**
-  - AI/relay_client.py sends the sanitized pattern to relay/relay_server.py, which persists into relay/ai_training_materials/global_attacks.json and, over time, learned_signatures.json.
+  - AI/relay_client.py sends the sanitized pattern to relay/relay_server.py (running in Docker with AI/, relay/, server/ folders), which persists into relay/ai_training_materials/global_attacks.json and, over time, learned_signatures.json.
+  - Relay server uses AI/crypto_security.py for HMAC verification and server/path_helper.py for path resolution.
 - **Stage 7 – Continuous Learning:**
   - Relay/ai_retraining.py and related tooling use global_attacks.json and learned_signatures.json to retrain models and write updated signatures and models into relay/ai_training_materials (for example ml_models/).
-  - Customer nodes later pull **only** pre-trained models via AI/training_sync_client.py (HTTPS to relay/training_sync_api.py) and updated signatures/threat-intel bundles via AI/signature_distribution.py; no raw training data ever leaves relay.
+  - Customer nodes later pull **only** pre-trained models via AI/training_sync_client.py (HTTPS to relay/training_sync_api.py on port 60002) and updated signatures/threat-intel bundles via AI/signature_distribution.py; no raw training data ever leaves relay.
 
 The guarantees in this document are therefore a strict, end-to-end instantiation of the broader 7-stage, 21-layer design: any attack that triggers the detection stack will follow exactly this log → block → extract → relay path.
 
