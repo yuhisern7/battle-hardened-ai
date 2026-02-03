@@ -171,7 +171,7 @@ powershell.exe -ExecutionPolicy Bypass -File .\windows-firewall\configure_bh_win
 ```powershell
 cd "C:\Program Files\Battle-Hardened AI\windows-firewall"
 
-.\u005cconfigure_bh_windows_firewall.ps1 -ExcludeAddresses 165.22.108.8
+.\u005cconfigure_bh_windows_firewall.ps1 -ExcludeAddresses YOUR_RELAY_IP
 ```
 
 This one-shot script is **idempotent** and is meant to be:

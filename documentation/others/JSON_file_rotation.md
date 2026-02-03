@@ -60,7 +60,7 @@ These files rotate at **100MB** on YOUR local system (not the relay server):
 - **Writer:** Various system components
 - **Status:** **ENABLED** (since v1.0)
 
-### Relay Server Files (VPS at wss://165.22.108.8:60001)
+### Relay Server Files (Relay VPS - wss://YOUR_RELAY_IP:60001)
 
 These files rotate at **100MB** on the RELAY SERVER (not your local system):
 
