@@ -62,26 +62,27 @@
 
 ### JSON Files (52 files from server/json/)
 - [ ] admin_users.json
+- [ ] alert_config.json (Section 21)
 - [ ] approval_requests.json
 - [ ] attack_sequences.json
 - [ ] backup_status.json
 - [ ] behavioral_metrics.json
-- [ ] blocked_devices.json
+- [ ] blocked_devices.json (Section 2)
 - [ ] blocked_ips.json
-- [ ] blocked_peers.json
+- [ ] blocked_peers.json (Section 1)
 - [ ] causal_analysis.json
 - [ ] cloud_findings.json
-- [ ] cluster_config.json
+- [ ] cluster_config.json (Section 11)
 - [ ] comprehensive_audit.json
-- [ ] connected_devices.json
+- [ ] connected_devices.json (Section 2)
 - [ ] crypto_mining.json
 - [ ] decision_history.json
-- [ ] device_history.json
+- [ ] device_history.json (Section 2)
 - [ ] dns_security.json
 - [ ] drift_baseline.json
 - [ ] drift_reports.json
 - [ ] enterprise_integration.json
-- [ ] file_analysis.json
+- [ ] file_analysis.json (Section 20)
 - [ ] formal_threat_model.json
 - [ ] fp_filter_config.json
 - [ ] governance_policies.json
@@ -89,7 +90,8 @@
 - [ ] honeypot_patterns.json
 - [ ] identity_access_config.json
 - [ ] integrity_violations.json
-- [ ] lateral_movement_alerts.json
+- [ ] killswitch_state.json (Section 23)
+- [ ] lateral_movement_alerts.json (Section 13)
 - [ ] local_threat_intel.json
 - [ ] meta_engine_config.json
 - [ ] ml_performance_metrics.json
@@ -97,15 +99,18 @@
 - [ ] model_lineage.json
 - [ ] network_graph.json
 - [ ] network_performance.json
-- [ ] peer_threats.json
+- [ ] peer_threats.json (Section 1)
 - [ ] recovery_tests.json
+- [ ] relay_status.json (Section 1, runtime)
 - [ ] reputation_export.json
 - [ ] sample_threats.json
+- [ ] sandbox_results.json (Section 20)
 - [ ] sbom.json
 - [ ] secure_deployment.json
 - [ ] sla_policy.json
 - [ ] soar_incidents.json
 - [ ] support_tickets.json
+- [ ] system_health.json (Section 11, runtime)
 - [ ] threat_log.json
 - [ ] tls_fingerprints.json
 - [ ] tracked_users.json
@@ -114,6 +119,9 @@
 - [ ] whitelist.json
 - [ ] pattern_filter_state.json (Architecture Enhancement #2)
 - [ ] ml_performance.json (Architecture Enhancement #3)
+- [ ] **Directories:**
+  - [ ] compliance_reports/ (Section 12)
+  - [ ] forensic_reports/ (Section 14)
 
 ### ML Models (AI/ml_models/)
 - [ ] anomaly_detector.pkl

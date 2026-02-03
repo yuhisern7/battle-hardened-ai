@@ -45,6 +45,254 @@ We are not aware of any publicly documented enterprise-grade system that:
 
 ---
 
+## Architecture Understanding
+
+### Core Premise: First-Layer Execution-Control Authority
+
+Battle-Hardened AI operates at the **gateway boundary** as the **decision authority**, making pre-execution determinations about what should be blocked or allowed. It does not handle packets directly—instead, it **commands the local firewall** (iptables, nftables, Windows Defender Firewall) to enforce its decisions.
+
+This architecture creates a clear separation of concerns:
+- **Battle-Hardened AI:** Intelligence, analysis, and decision-making
+- **OS Firewall:** Enforcement and packet filtering
+
+### Control-Plane Split: Decision vs Enforcement
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                    DECISION PLANE                        │
+│  Battle-Hardened AI (21 detection layers + semantic gate)│
+│  - Analyzes traffic via mirror/tap/inline observation    │
+│  - Evaluates trust, causality, semantics                 │
+│  - Makes block/allow decisions                           │
+│  - Emits JSON decisions to enforcement plane             │
+└────────────────────┬─────────────────────────────────────┘
+                     │ Commands (JSON + firewall API)
+                     ↓
+┌──────────────────────────────────────────────────────────┐
+│                   ENFORCEMENT PLANE                      │
+│  OS Firewall (iptables/nftables/Windows Defender)       │
+│  - Receives IP block/unblock commands                    │
+│  - Applies rules at kernel level                         │
+│  - Drops packets, terminates connections                 │
+│  - No analysis—purely enforcement                        │
+└──────────────────────────────────────────────────────────┘
+```
+
+**This ensures:**
+- Battle-Hardened AI cannot be bypassed by routing changes (firewall enforces at kernel)
+- Firewall remains auditable and controllable by operators
+- Integration with SIEM/SOAR happens via JSON export, not enforcement path
+
+### Deployment Roles
+
+Battle-Hardened AI supports three primary deployment roles:
+
+| Role | Description | Enforcement | Use Case |
+|------|-------------|-------------|----------|
+| **Gateway/Router** | Inline at network boundary; all protected traffic routes through BH-AI VM | ✅ Full (commands firewall to block before execution) | Enterprise networks, SOC first-layer defense, critical infrastructure |
+| **Host-only** | Endpoint protection on individual servers/workstations | ✅ Full (local firewall blocking) | Critical servers, Windows/macOS assets, zero-trust endpoints |
+| **Observer** | Monitor-only mode via SPAN/TAP; no routing changes | ❌ None (log-only, no blocking) | PoC validation, compliance auditing, testing before production |
+
+**Recommended:** Gateway/Router mode for first-layer enforcement. Host-only mode for critical assets that need defense-in-depth beyond network controls.
+
+### Topologies
+
+#### Router Mode (Production Default)
+
+Battle-Hardened AI VM acts as the **default gateway** for protected systems:
+
+```
+Internet ──→ BH-AI Gateway ──→ Protected Systems
+              (Decision +         (receive only
+              Enforcement)         pre-approved traffic)
+```
+
+- Protected systems route all traffic through BH-AI
+- BH-AI inspects traffic and commands firewall
+- Attackers blocked before reaching protected services
+
+**Setup:** See [Installation.md](documentation/installation/Installation.md) Gateway/Router Mode section.
+
+#### Transparent Bridge Mode (Planned)
+
+BH-AI operates inline **without becoming the default gateway**:
+
+```
+Internet ──→ BH-AI Bridge ──→ Router ──→ Protected Systems
+              (transparent        (existing gateway)
+               inspection)
+```
+
+- No routing changes required
+- BH-AI inspects traffic via bridge interface
+- Commands firewall on bridge to drop malicious packets
+
+**Status:** Coming soon. See [Installation.md](documentation/installation/Installation.md) for updates.
+
+#### Tap/Mirror Mode (Observer Only)
+
+BH-AI receives copy of traffic via **SPAN port or network TAP**:
+
+```
+Internet ──→ Router ──→ Protected Systems
+               │
+               └──→ SPAN/TAP ──→ BH-AI Observer
+                                  (monitor-only)
+```
+
+- No enforcement (logging and alerting only)
+- Useful for PoC validation and compliance monitoring
+- Cannot block attacks (read-only deployment)
+
+**Use case:** Pre-production testing, regulatory compliance validation.
+
+### Federated Relay Architecture
+
+When the **optional relay** is enabled, Battle-Hardened AI nodes share intelligence globally while preserving privacy:
+
+#### Patterns-Only Sharing (Customer → Relay)
+
+```
+Customer Node ──→ Relay Server
+Uploads:
+  ✅ Attack signatures (sanitized patterns: keywords, encodings, attack types)
+  ✅ Behavioral metrics (anonymized statistics)
+  ✅ Reputation updates (IP hashes, not raw IPs)
+  
+  ❌ NO raw payloads
+  ❌ NO customer data or PII
+  ❌ NO training data
+```
+
+- **Smart Pattern Filtering (Enhancement #2):** Bloom filter deduplicates patterns before upload (70-80% bandwidth savings)
+- **Privacy:** Only abstract signatures shared, never customer content
+
+#### Models-Only Pull (Relay → Customer)
+
+```
+Relay Server ──→ Customer Node
+Downloads:
+  ✅ Trained ML models (.pkl, .onnx formats)
+  ✅ Updated signatures (global attack database)
+  ✅ Reputation scores (aggregated intelligence)
+  
+  ❌ NO raw training data leaves relay
+  ❌ NO other customers' data exposed
+```
+
+- **Model Cryptographic Signing (Enhancement #1):** Ed25519 signatures prevent model injection (MITRE T1574.012)
+- **Byzantine Validation:** 94% malicious update rejection rate (AI/byzantine_federated_learning.py)
+- **ONNX Optimization (Enhancement #5):** Models distributed in ONNX format (2-5x faster CPU inference)
+
+#### Privacy-Preserving Architecture
+
+| Data Type | Shared with Relay? | Why Safe? |
+|-----------|-------------------|-----------|
+| Attack patterns | ✅ Yes (sanitized) | Abstract signatures only, no payloads |
+| Behavioral metrics | ✅ Yes (anonymized) | Statistical aggregates, no identifiable data |
+| ML models | ⬇️ Downloaded only | Relay trains and distributes, customer never uploads raw data |
+| Customer traffic | ❌ Never | Stays local; only pattern hashes leave site |
+| User credentials | ❌ Never | Local analysis only |
+| Raw logs/PII | ❌ Never | Full data sovereignty |
+
+**Result:** Global threat intelligence **without** exposing customer data or violating sovereignty requirements.
+
+See [Federated AI Training & Relay Architecture](#-federated-ai-training--relay-architecture) below for Stage 6-7 technical flow.
+
+### Architecture Enhancements: ML Pipeline Hardening Layer
+
+Beyond the 21 detection layers, Battle-Hardened AI implements **5 production security features** that harden the ML training pipeline against supply chain attacks, performance degradation, and adversarial manipulation:
+
+| Enhancement | Security Benefit | Performance Benefit | MITRE Defense |
+|-------------|------------------|---------------------|---------------|
+| **#1: Model Cryptographic Signing** | Prevents model injection | <1ms overhead | T1574.012 (Supply Chain) |
+| **#2: Smart Pattern Filtering** | Reduces attack surface | 70-80% bandwidth savings | N/A (Operational) |
+| **#3: Model Performance Monitoring** | Detects model poisoning | ~5% overhead | T1565.001 (Data Manipulation) |
+| **#4: Adversarial Training** | ML evasion resistance | Training +30% (relay-side only) | T1562.004 (Impair Defenses) |
+| **#5: ONNX Model Format** | Faster threat response | **2-5x faster inference** | N/A (Performance) |
+
+**Key capabilities:**
+- Ed25519 cryptographic signatures verify every model before loading
+- Bloom filters deduplicate attack patterns (76% bandwidth reduction in production)
+- Production accuracy tracking triggers auto-retraining if model degrades
+- FGSM adversarial training makes models robust against ML evasion attacks
+- ONNX Runtime provides 2-5x faster CPU inference (no GPU required)
+
+**For detailed technical documentation:**
+- [Architecture_Enhancements.md](documentation/architecture/Architecture_Enhancements.md) - Complete implementation guide
+- [ONNX_Integration.md](documentation/architecture/ONNX_Integration.md) - ONNX deployment and benchmarks
+
+### Operational Loop: Continuous Defense Improvement
+
+Battle-Hardened AI operates in a **continuous improvement cycle** that ensures defenses adapt to evolving threats:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. DETECT                                                  │
+│  └─ 21 layers analyze traffic (signatures, ML, behavioral) │
+└────────────────────┬────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│  2. DECIDE (Deny/Allow)                                     │
+│  └─ Ensemble voting + semantic gate + trust modulation     │
+│     Block ≥75% | Log ≥50% | Allow <50%                     │
+└────────────────────┬────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│  3. ENFORCE                                                 │
+│  └─ Command OS firewall (iptables/nftables/Windows FW)     │
+│     Drop packets, terminate connections, apply TTL          │
+└────────────────────┬────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│  4. LOG & EXPORT                                            │
+│  ├─ Local: threat_log.json, comprehensive_audit.json       │
+│  ├─ Dashboard: Real-time WebSocket updates                 │
+│  └─ SIEM/SOAR: Outbound JSON export (optional)             │
+└────────────────────┬────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│  5. LEARN & MEASURE                                         │
+│  ├─ Extract attack signatures (sanitized patterns only)    │
+│  ├─ Update reputation tracker (IP trust scores)            │
+│  ├─ Monitor ML performance (accuracy, drift detection)     │
+│  ├─ Collect behavioral metrics (anonymized statistics)     │
+│  └─ Validate model integrity (Byzantine defense)           │
+└────────────────────┬────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│  6. UPDATE (Continuous Improvement)                         │
+│  ├─ Hourly: New signatures merged into detection database  │
+│  ├─ Every 6 hours: Pull updated models from relay          │
+│  ├─ Weekly: Retrain ML models with labeled attack data     │
+│  ├─ Monthly: Refresh drift baseline (adapt to environment) │
+│  └─ On degradation: Auto-retrain if accuracy <92%          │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     └──→ Loop back to DETECT with improved defenses
+```
+
+**Key feedback mechanisms:**
+
+- **Immediate (real-time):** Reputation updates, trust degradation, firewall rules
+- **Hourly:** Signature extraction and merging
+- **Every 6 hours:** Model and intelligence updates from relay (if enabled)
+- **Weekly:** ML model retraining with new labeled attack data
+- **Monthly:** Baseline drift refresh (adapts to legitimate network changes)
+- **On-demand:** Emergency retraining if performance monitoring detects accuracy <85%
+
+**Privacy-preserving learning:**
+- Only **patterns** uploaded to relay (sanitized signatures, no payloads)
+- Only **models** downloaded from relay (no raw training data exposed)
+- All raw logs, credentials, and customer data remain on-premises
+- Full data sovereignty maintained
+
+This **closed-loop architecture** ensures defenses improve automatically without manual intervention, while maintaining strict privacy and auditability requirements.
+
+See [Stage 7: Continuous Learning Loop](#stage-7-continuous-learning-loop) below for technical implementation details.
+
+---
+
 ## What Does Battle-Hardened AI Do?
 
 *Visual Attack Detection & Response Flow*

@@ -55,38 +55,65 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
 - [x] For files that must exist at install time (to avoid 500s), ensure they are shipped in the package or created by `postinst` or an init script (templates under `/opt/battle-hardened-ai/server/json/` plus `postinst` seeding cover this).
 - [x] Key JSON files are present/handled (either as templates under `server/json/` copied by `postinst`, or created on demand by `installation/init_json_files.py`):
   - [x] `admin_users.json`
+  - [x] `alert_config.json` (Section 21 - Email/SMS alerting)
+  - [x] `approval_requests.json` (Section 23 - Governance)
   - [x] `attack_sequences.json`
+  - [x] `backup_status.json` (Section 24 - Backup monitoring)
   - [x] `behavioral_metrics.json`
-  - [x] `blocked_devices.json`
+  - [x] `blocked_devices.json` (Section 2)
   - [x] `blocked_ips.json`
+  - [x] `blocked_peers.json` (Section 1 - P2P mesh)
   - [x] `causal_analysis.json`
+  - [x] `cloud_findings.json` (Section 24 - Cloud security)
+  - [x] `cluster_config.json` (Section 11 - HA configuration)
   - [x] `comprehensive_audit.json`
+  - [x] `connected_devices.json` (Section 2 - Device inventory)
   - [x] `crypto_mining.json`
+  - [x] `decision_history.json` (Explainability)
+  - [x] `device_history.json` (Section 2 - 7-day history)
   - [x] `dns_security.json`
   - [x] `drift_baseline.json`
+  - [x] `drift_reports.json` (Section 4 - Drift detection)
   - [x] `enterprise_integration.json`
+  - [x] `file_analysis.json` (Section 20 - Sandbox)
+  - [x] `formal_threat_model.json`
+  - [x] `fp_filter_config.json` (False positive filter)
   - [x] `governance_policies.json`
   - [x] `honeypot_attacks.json`
   - [x] `honeypot_patterns.json`
+  - [x] `identity_access_config.json`
+  - [x] `integrity_violations.json` (Section 23 - Self-protection)
+  - [x] `killswitch_state.json` (Section 23 - Emergency killswitch)
+  - [x] `lateral_movement_alerts.json` (Section 13 - Graph intelligence)
   - [x] `local_threat_intel.json`
   - [x] `meta_engine_config.json`
   - [x] `ml_performance_metrics.json`
   - [x] `model_lineage.json`
-  - [x] `network_graph.json`
+  - [x] `network_graph.json` (Section 13 - Attack chains)
   - [x] `network_performance.json`
+  - [x] `peer_threats.json` (Section 1 - P2P threats)
+  - [x] `recovery_tests.json` (Section 24 - Backup recovery)
+  - [x] `relay_status.json` (Section 1 - Relay connection, runtime)
   - [x] `reputation_export.json`
   - [x] `sample_threats.json`
+  - [x] `sandbox_results.json` (Section 20 - Sandbox detonation)
   - [x] `sbom.json`
   - [x] `secure_deployment.json`
   - [x] `sla_policy.json`
   - [x] `soar_incidents.json`
   - [x] `support_tickets.json`
+  - [x] `system_health.json` (Section 11 - System metrics, runtime)
   - [x] `threat_log.json`
   - [x] `tls_fingerprints.json`
+  - [x] `tracked_users.json` (Section 19 - UEBA)
+  - [x] `tracking_data.json`
   - [x] `trust_graph.json`
   - [x] `whitelist.json`
   - [x] `pattern_filter_state.json` (Architecture Enhancement #2 - Bloom filter state)
   - [x] `ml_performance.json` (Architecture Enhancement #3 - ML performance monitoring data)
+  - [x] **Directories:**
+    - [x] `compliance_reports/` (Section 12 - PCI-DSS/HIPAA/GDPR/SOC2)
+    - [x] `forensic_reports/` (Section 14 - Decision explainability)
 
 (Exact list has been reconciled with `server/json/` and Filepurpose.md; any new JSON surfaces added later must follow the same pattern.)
 
@@ -295,6 +322,7 @@ On install (or first start), ensure the following exist with correct ownership a
 **Python Modules:**
 - [ ] `AI/p2p_sync.py`
 - [ ] `AI/relay_client.py`
+- [ ] `AI/pattern_filter.py` - Architecture Enhancement #2 (70-80% bandwidth savings)
 
 ---
 
@@ -348,17 +376,27 @@ On install (or first start), ensure the following exist with correct ownership a
 ### Section 4: 🤖 Real AI/ML Models - Machine Learning Intelligence
 **API Endpoints:**
 - [ ] `/api/stats` - ML model statistics and training metrics
+- [ ] `/api/architecture-enhancements/status` - All 5 enhancement statuses
+- [ ] `/api/model-signing/verification-status` - Signature verification details (Enhancement #1)
+- [ ] `/api/onnx/performance` - ONNX vs pickle inference times (Enhancement #5)
+- [ ] `/api/pattern-filter/stats` - Pattern deduplication statistics (Enhancement #2)
+- [ ] `/api/ml-performance` - ML performance monitoring (Enhancement #3)
 
 **JSON Files:**
 - [ ] `ml_training_data.json` - Training dataset
 - [ ] `ml_performance_metrics.json` - Model accuracy/precision
 - [ ] `drift_baseline.json` - Baseline for drift detection
 - [ ] `drift_reports.json` - Detected model drift
+- [ ] `ml_performance.json` - Architecture Enhancement #3 - Performance monitoring data
+- [ ] `pattern_filter_state.json` - Architecture Enhancement #2 - Bloom filter state
 
 **ML Models:**
 - [ ] `AI/ml_models/anomaly_detector.pkl`
 - [ ] `AI/ml_models/feature_scaler.pkl`
 - [ ] `AI/ml_models/ip_reputation.pkl`
+- [ ] `AI/ml_models/anomaly_detector.onnx` - Architecture Enhancement #5 (2-5x faster)
+- [ ] `AI/ml_models/feature_scaler.onnx` - Architecture Enhancement #5
+- [ ] `AI/ml_models/threat_classifier.onnx` - Architecture Enhancement #5
 
 **Playcards/Metrics:**
 - [ ] Model Accuracy
@@ -366,11 +404,21 @@ On install (or first start), ensure the following exist with correct ownership a
 - [ ] Training Samples count
 - [ ] Last Retrained timestamp
 - [ ] Active Models list
+- [ ] Model Signatures - ✅ Verified (Ed25519) or ⚠️ Unverified (Enhancement #1)
+- [ ] ONNX Inference Time - X.Xms (2-5x faster) vs pickle baseline (Enhancement #5)
+- [ ] Pattern Filter Efficiency - XX% bandwidth saved (Enhancement #2)
+- [ ] Performance Monitor Status - Accuracy XX.X% (healthy/warning/critical) (Enhancement #3)
+- [ ] Adversarial Training - ✅ Enabled or ❌ Disabled (Enhancement #4)
 
 **Python Modules:**
 - [ ] `AI/pcs_ai.py`
 - [ ] `AI/drift_detector.py`
 - [ ] `AI/meta_decision_engine.py`
+- [ ] `AI/model_signing.py` - Architecture Enhancement #1 (MITRE T1574.012)
+- [ ] `AI/pattern_filter.py` - Architecture Enhancement #2 (70-80% bandwidth savings)
+- [ ] `AI/model_performance_monitor.py` - Architecture Enhancement #3 (MITRE T1565.001)
+- [ ] `AI/onnx_model_converter.py` - Architecture Enhancement #5 (relay-side)
+- [ ] ONNX runtime integration in `AI/pcs_ai.py` - Architecture Enhancement #5
 
 ---
 
@@ -770,6 +818,7 @@ On install (or first start), ensure the following exist with correct ownership a
 - [ ] `governance_policies.json` - Governance rules
 - [ ] `comprehensive_audit.json` - Audit trail
 - [ ] `integrity_violations.json` - Tamper detection
+- [ ] `killswitch_state.json` - Emergency killswitch status
 - [ ] `secure_deployment.json` - Deployment security status
 
 **Playcards/Metrics:**
@@ -872,10 +921,14 @@ When setting up the Python venv in `postinst`, ensure all required modules are i
 - [ ] `AI.graph_intelligence` (Section 13)
 - [ ] `AI.kernel_telemetry` (Section 11)
 - [ ] `AI.meta_decision_engine` (Section 4)
+- [ ] `AI.model_signing` ⚠️ **CRITICAL** for Architecture Enhancement #1 (MITRE T1574.012)
+- [ ] `AI.model_performance_monitor` ⚠️ **CRITICAL** for Architecture Enhancement #3 (MITRE T1565.001)
 - [ ] `AI.network_performance` (Section 11)
 - [ ] `AI.node_fingerprint`
+- [ ] `AI.onnx_model_converter` - Architecture Enhancement #5 (relay-side conversion)
 - [ ] `AI.p2p_sync` ⚠️ **CRITICAL** for Section 1
 - [ ] `AI.path_helper`
+- [ ] `AI.pattern_filter` ⚠️ **CRITICAL** for Architecture Enhancement #2 (70-80% bandwidth savings)
 - [ ] `AI.pcap_capture` (Section 17)
 - [ ] `AI.pcs_ai` ⚠️ **CRITICAL** for Sections 4-9
 - [ ] `AI.policy_governance` (Section 23)
@@ -915,6 +968,9 @@ When setting up the Python venv in `postinst`, ensure all required modules are i
 - [ ] `psutil` - System monitoring
 - [ ] `requests` - HTTP client
 - [ ] `gunicorn` - Production WSGI server (Linux only)
+- [ ] `onnxruntime` ⚠️ **CRITICAL** for Architecture Enhancement #5 (2-5x faster CPU inference)
+- [ ] `skl2onnx` - Architecture Enhancement #5 (relay-side ONNX conversion)
+- [ ] `onnx` - ONNX model format support
 
 ---
 
