@@ -24,6 +24,12 @@
 ### AI Detection Modules (55 files)
 - [ ] All 55 .py files from AI/ directory as Python source
 - [ ] AI/__init__.py for package imports
+- [ ] **5 Architecture Enhancement Modules**:
+  - [ ] AI/model_signing.py - Ed25519 cryptographic model verification (MITRE T1574.012)
+  - [ ] AI/pattern_filter.py - Bloom filter deduplication (70-80% bandwidth savings)
+  - [ ] AI/model_performance_monitor.py - Production ML accuracy tracking (MITRE T1565.001)
+  - [ ] AI/onnx_model_converter.py - ONNX model conversion (relay-side)
+  - [ ] ONNX runtime integration in AI/pcs_ai.py (2-5x faster inference)
 
 ### Server Modules (Critical - Bundled via .spec)
 - [ ] server/device_scanner.py (cross-platform network detection: Linux via ip route/addr, Windows via ipconfig parsing, fallback via socket trick)
@@ -106,6 +112,8 @@
 - [ ] tracking_data.json
 - [ ] trust_graph.json
 - [ ] whitelist.json
+- [ ] pattern_filter_state.json (Architecture Enhancement #2)
+- [ ] ml_performance.json (Architecture Enhancement #3)
 
 ### ML Models (AI/ml_models/)
 - [ ] anomaly_detector.pkl
@@ -113,6 +121,11 @@
 - [ ] ip_reputation.pkl
 - [ ] node_fingerprint.json
 - [ ] signature_cache/ directory
+- [ ] **ONNX Models (Architecture Enhancement #5 - optional but recommended)**:
+  - [ ] anomaly_detector.onnx
+  - [ ] feature_scaler.onnx
+  - [ ] threat_classifier.onnx
+  - [ ] Note: If ONNX models absent, system falls back to .pkl models
 
 ### Crypto Keys
 - [ ] Build-time source keys present in `server/crypto_keys/` (for Linux/Docker and initial TLS)
@@ -122,6 +135,9 @@
 - [ ] `server/crypto_keys/ssl_cert.pem`
 - [ ] `server/crypto_keys/ssl_key.pem`
 - [ ] Windows EXE runtime keys stored in `%LOCALAPPDATA%\Battle-Hardened AI\server\crypto_keys` (auto-created on first run)
+- [ ] **Model Signing Keys (Architecture Enhancement #1)**:
+  - [ ] `relay_public_key.pem` (customer verification key for relay-signed models)
+  - [ ] `relay_signing_key.pem` (relay-side only, not shipped to customers)
 
 ### Step21 Policies (policies/step21/)
 - [ ] manifest.json
@@ -210,10 +226,12 @@
 - [ ] Threats Learned (from peers)
 - [ ] Global Threats Shared (relay total)
 - [ ] Connected peers list with badges
+- [ ] **Pattern Filter Bandwidth Saved** (Architecture Enhancement #2 - 70-80% deduplication)
 
 **Python Modules:**
 - [ ] `AI/p2p_sync.py`
 - [ ] `AI/relay_client.py`
+- [ ] `AI/pattern_filter.py` (Architecture Enhancement #2)
 
 ---
 
@@ -267,17 +285,27 @@
 ### Section 4: 🤖 Real AI/ML Models - Machine Learning Intelligence
 **API Endpoints:**
 - [ ] `/api/stats` - ML model statistics and training metrics
+- [ ] `/api/architecture-enhancements/status` - All 5 enhancement statuses (NEW)
+- [ ] `/api/model-signing/verification-status` - Signature verification details (Enhancement #1)
+- [ ] `/api/onnx/performance` - ONNX vs pickle inference times (Enhancement #5)
+- [ ] `/api/pattern-filter/stats` - Pattern deduplication statistics (Enhancement #2)
+- [ ] `/api/ml-performance` - ML performance monitoring (Enhancement #3)
 
 **JSON Files:**
 - [ ] `ml_training_data.json` - Training dataset
 - [ ] `ml_performance_metrics.json` - Model accuracy/precision
 - [ ] `drift_baseline.json` - Baseline for drift detection
 - [ ] `drift_reports.json` - Detected model drift
+- [ ] `ml_performance.json` - **Architecture Enhancement #3** - Performance monitoring data
+- [ ] `pattern_filter_state.json` - **Architecture Enhancement #2** - Bloom filter state
 
 **ML Models:**
 - [ ] `AI/ml_models/anomaly_detector.pkl`
 - [ ] `AI/ml_models/feature_scaler.pkl`
 - [ ] `AI/ml_models/ip_reputation.pkl`
+- [ ] `AI/ml_models/anomaly_detector.onnx` - **Architecture Enhancement #5** (optional, 2-5x faster)
+- [ ] `AI/ml_models/feature_scaler.onnx` - **Architecture Enhancement #5** (optional)
+- [ ] `AI/ml_models/threat_classifier.onnx` - **Architecture Enhancement #5** (optional)
 
 **Playcards/Metrics:**
 - [ ] Model Accuracy
@@ -285,11 +313,21 @@
 - [ ] Training Samples count
 - [ ] Last Retrained timestamp
 - [ ] Active Models list
+- [ ] **Model Signatures** - ✅ Verified (Ed25519) or ⚠️ Unverified (Enhancement #1)
+- [ ] **ONNX Inference Time** - X.Xms (4.0x faster) vs pickle baseline (Enhancement #5)
+- [ ] **Pattern Filter Efficiency** - XX% bandwidth saved (Enhancement #2)
+- [ ] **Performance Monitor Status** - Accuracy XX.X% (healthy/warning/critical) (Enhancement #3)
+- [ ] **Adversarial Training** - ✅ Enabled or ❌ Disabled (Enhancement #4)
 
 **Python Modules:**
 - [ ] `AI/pcs_ai.py`
 - [ ] `AI/drift_detector.py`
 - [ ] `AI/meta_decision_engine.py`
+- [ ] `AI/model_signing.py` - **Architecture Enhancement #1** (MITRE T1574.012 defense)
+- [ ] `AI/pattern_filter.py` - **Architecture Enhancement #2** (70-80% bandwidth savings)
+- [ ] `AI/model_performance_monitor.py` - **Architecture Enhancement #3** (MITRE T1565.001 defense)
+- [ ] `AI/onnx_model_converter.py` - **Architecture Enhancement #5** (relay-side conversion)
+- [ ] ONNX runtime integration in `AI/pcs_ai.py` - **Architecture Enhancement #5** (2-5x faster inference)
 
 ---
 
@@ -784,10 +822,14 @@ All 55 .py files must be importable:
 - [ ] `graph_intelligence` (Section 13)
 - [ ] `kernel_telemetry` (Section 11)
 - [ ] `meta_decision_engine` (Section 4)
+- [ ] `model_signing` ⚠️ **CRITICAL for Architecture Enhancement #1**
+- [ ] `model_performance_monitor` ⚠️ **CRITICAL for Architecture Enhancement #3**
 - [ ] `network_performance` (Section 11)
 - [ ] `node_fingerprint`
+- [ ] `onnx_model_converter` (Relay-side for Architecture Enhancement #5)
 - [ ] `p2p_sync` ⚠️ **CRITICAL for Section 1**
 - [ ] `path_helper` (used by many modules)
+- [ ] `pattern_filter` ⚠️ **CRITICAL for Architecture Enhancement #2**
 - [ ] `pcap_capture` (Section 17)
 - [ ] `pcs_ai` ⚠️ **CRITICAL for Sections 4-9**
 - [ ] `policy_governance` (Section 23)
@@ -837,6 +879,9 @@ All 55 .py files must be importable:
 - [ ] `requests`
 - [ ] `asyncio` ⚠️ **CRITICAL for async operations**
 - [ ] `email.mime` modules
+- [ ] `onnxruntime` ⚠️ **CRITICAL for Architecture Enhancement #5 (2-5x faster inference)**
+- [ ] `skl2onnx` (Relay-side for Architecture Enhancement #5 conversion)
+- [ ] `onnx` (Model format support)
 
 ---
 

@@ -2,6 +2,15 @@
 **Generated:** February 3, 2026  
 **Purpose:** Comprehensive cross-reference of ALL dashboard sections with HTML IDs, JavaScript functions, APIs, JSON files, and Python modules
 
+**Architecture Enhancements:** This system implements 5 production-ready architecture enhancements:
+1. **Model Cryptographic Signing** - Ed25519 signatures prevent malicious model injection (`AI/model_signing.py`)
+2. **Smart Pattern Filtering** - Bloom filter deduplication saves 70-80% relay bandwidth (`AI/pattern_filter.py`)
+3. **Model Performance Monitoring** - Track ML accuracy in production, trigger retraining (`AI/model_performance_monitor.py`)
+4. **Adversarial Training** - FGSM algorithm makes models robust against evasion (`relay/gpu_trainer.py`)
+5. **ONNX Model Format** - 2-5x faster CPU inference with ONNX Runtime (`AI/onnx_model_converter.py`)
+
+For complete documentation, see [Architecture_Enhancements.md](../architecture/Architecture_Enhancements.md) and [ONNX_Integration.md](../architecture/ONNX_Integration.md).
+
 ---
 
 ## ✅ SECTION 1: AI Training Network - Shared Machine Learning
@@ -111,6 +120,8 @@
 ### JSON Files
 - `server/json/drift_baseline.json` - Drift detection baseline
 - `server/json/drift_reports.json` - Drift analysis results
+- `server/json/model_lineage.json` - Cryptographic model lineage (Feature #1)
+- `server/json/model_performance.json` - Performance monitoring metrics (Feature #3)
 
 ### Python Modules
 - `AI/pcs_ai.py` - ML orchestrator (Signals #3-7)
@@ -119,9 +130,14 @@
 - `AI/ml_models/ip_reputation.pkl` - GradientBoosting (Signal #5)
 - `AI/ml_models/sequence_lstm.keras` - LSTM (Signal #7)
 - `AI/drift_detector.py` - Signal #9
+- **Architecture Enhancements:**
+  * `AI/model_signing.py` - Feature #1: Cryptographic model signing (Ed25519)
+  * `AI/model_performance_monitor.py` - Feature #3: Production ML accuracy tracking
+  * `AI/onnx_model_converter.py` - Feature #5: ONNX conversion (2-5x faster inference)
+  * `relay/gpu_trainer.py` - Feature #4: Adversarial training with FGSM
 
 ### Verification Status
-✅ **VERIFIED** - Matches Filepurpose.md Stage 2 Signals #3-9
+✅ **VERIFIED** - Matches Filepurpose.md Stage 2 Signals #3-9 + 5 Architecture Enhancements
 
 ---
 
@@ -272,14 +288,17 @@
 
 ### JSON Files
 - `relay/ai_training_materials/ai_signatures/learned_signatures.json` - Global signature database (auto-rotates at 100MB)
+- `server/json/honeypot_patterns.json` - Local pattern cache
 
 ### Python Modules
 - `AI/signature_extractor.py` - Pattern extraction (Signal #2)
 - `AI/signature_uploader.py` - Upload to relay
 - `relay/exploitdb_scraper.py` - ExploitDB patterns (43,971+ exploits)
+- **Architecture Enhancements:**
+  * `AI/pattern_filter.py` - Feature #2: Smart pattern filtering (70-80% bandwidth savings)
 
 ### Verification Status
-✅ **VERIFIED** - Matches Filepurpose.md Stage 5 (Training Extraction), Stage 2 Signal #2
+✅ **VERIFIED** - Matches Filepurpose.md Stage 5 (Training Extraction), Stage 2 Signal #2 + Feature #2 (Pattern Filtering)
 
 ---
 

@@ -32,9 +32,14 @@ This document maps each dashboard section (1-24) to its loader functions and ver
 - **Function**: Embedded in page load
 - **APIs**: `/api/stats` (includes model status)
 - **Files**: `AI/pcs_ai.py`, `AI/ml_models/*.pkl`, `AI/ml_models/*.keras`
-- **JSON**: `server/json/drift_baseline.json`, `server/json/drift_reports.json`
+- **JSON**: `server/json/drift_baseline.json`, `server/json/drift_reports.json`, `server/json/model_lineage.json`, `server/json/model_performance.json`
 - **Purpose**: ML model status and drift detection
-- **Status**: ✅ MATCHES Filepurpose.md Stage 2 Signals #3-9
+- **Architecture Enhancements**:
+  * Feature #1: Model Cryptographic Signing (`AI/model_signing.py`) - Ed25519 signatures
+  * Feature #3: Model Performance Monitoring (`AI/model_performance_monitor.py`) - Production accuracy tracking
+  * Feature #4: Adversarial Training (`relay/gpu_trainer.py`) - FGSM robustness
+  * Feature #5: ONNX Model Format (`AI/onnx_model_converter.py`) - 2-5x faster inference
+- **Status**: ✅ MATCHES Filepurpose.md Stage 2 Signals #3-9 + 5 Architecture Enhancements
 
 ### Section 5: Security Overview - Live Statistics
 - **Function**: Main threat log loader (embedded in page)

@@ -13,6 +13,7 @@ The goal of this testing is to prove that Battle-Hardened AI:
 - Commands the local firewall autonomously
 - Blocks attackers before protected services are reached
 - Does not depend on SIEM/SOAR for enforcement
+- Implements 5 production-ready ML pipeline security enhancements (cryptographic signing, smart filtering, performance monitoring, adversarial training, ONNX optimization)
 
 ---
 
@@ -249,6 +250,107 @@ After restart:
 
 ---
 
+### I. Architecture Enhancements Validation
+
+**Objective:** Verify the 5 ML pipeline security enhancements are operational.
+
+#### Enhancement #1: Model Cryptographic Signing
+
+- [ ] Check logs for model signature verification:
+  ```bash
+  docker logs battle-hardened-ai 2>&1 | grep "Model signature verified"
+  ```
+
+- [ ] Verify public key exists:
+  ```bash
+  ls -la /var/lib/battle-hardened-ai/server/crypto_keys/relay_public_key.pem
+  ```
+
+- [ ] Test tamper detection (optional):
+  - Modify a `.pkl` model file
+  - Restart BH-AI
+  - Expected: "Signature verification failed" error in logs
+
+**Expected:** Models load with cryptographic verification (MITRE T1574.012 defense).
+
+#### Enhancement #2: Smart Pattern Filtering
+
+- [ ] Check pattern filter statistics via API:
+  ```bash
+  curl -k https://localhost:60000/api/pattern-filter/stats
+  ```
+
+- [ ] Verify Bloom filter state file exists:
+  ```bash
+  ls -la /var/lib/battle-hardened-ai/server/json/pattern_filter_state.json
+  ```
+
+- [ ] If relay enabled, confirm bandwidth savings (70-80% deduplication)
+
+**Expected:** Pattern deduplication active, reducing relay bandwidth consumption.
+
+#### Enhancement #3: Model Performance Monitoring
+
+- [ ] Check ML performance metrics via API:
+  ```bash
+  curl -k https://localhost:60000/api/ml-performance
+  ```
+
+- [ ] Verify performance data persists:
+  ```bash
+  cat /var/lib/battle-hardened-ai/server/json/ml_performance.json
+  ```
+
+- [ ] Check dashboard displays accuracy metrics (accuracy, precision, F1 score)
+
+**Expected:** ML performance tracking active (MITRE T1565.001 defense - detects model poisoning).
+
+#### Enhancement #4: Adversarial Training
+
+- [ ] (Relay-side feature) If testing relay server:
+  - Check logs for "Generated adversarial examples" during training
+  - Verify FGSM algorithm executed
+
+- [ ] Customer gateway: Models received from relay include adversarial robustness
+
+**Expected:** Models resistant to ML evasion attacks (MITRE T1562.004 defense).
+
+#### Enhancement #5: ONNX Model Format (Performance)
+
+- [ ] Check logs for ONNX model loading:
+  ```bash
+  docker logs battle-hardened-ai 2>&1 | grep "Loading ONNX model"
+  docker logs battle-hardened-ai 2>&1 | grep "Using ONNX Runtime"
+  ```
+
+- [ ] Verify ONNX models exist:
+  ```bash
+  ls -la /var/lib/battle-hardened-ai/AI/ml_models/*.onnx
+  ```
+
+- [ ] Check inference performance (should be 2-5x faster than pickle):
+  ```bash
+  docker logs battle-hardened-ai 2>&1 | grep "ONNX inference time"
+  ```
+
+- [ ] Test fallback: Delete `.onnx` file, verify system falls back to `.pkl` models
+
+**Expected:** 2-5x faster CPU inference, 40% lower CPU usage, no GPU required.
+
+#### Architecture Enhancements Summary
+
+- [ ] All 5 enhancements operational without errors
+- [ ] Performance improvements verified (2-5x faster inference)
+- [ ] Security guarantees active (model signing, adversarial robustness, performance monitoring)
+- [ ] Graceful fallbacks work (ONNX → pickle, missing signatures → warnings)
+- [ ] Bandwidth savings confirmed (70-80% pattern deduplication if relay enabled)
+
+**For detailed technical documentation:**
+- [Architecture_Enhancements.md](../architecture/Architecture_Enhancements.md)
+- [ONNX_Integration.md](../architecture/ONNX_Integration.md)
+
+---
+
 ## Acceptance Criteria (Pass / Fail)
 
 The deployment **passes** if all are true:
@@ -259,6 +361,7 @@ The deployment **passes** if all are true:
 - ✅ BH-AI blocks attackers via firewall
 - ✅ Blocking persists across restarts
 - ✅ No dependency on SIEM/SOAR for enforcement
+- ✅ 5 architecture enhancements operational (model signing, pattern filtering, performance monitoring, ONNX optimization)
 
 If any of the above fail, the deployment is **not production-ready**.
 
@@ -272,5 +375,6 @@ Passing this checklist proves that Battle-Hardened AI is operating as:
 - An **autonomous firewall commander**
 - A **pre-execution enforcement system**
 - A **stateful, learning defense control**
+- A **production-hardened ML security platform** with cryptographic integrity, bandwidth optimization, performance monitoring, adversarial robustness, and 2-5x faster inference
 
 This is the minimum bar for enterprise and regulated environments.

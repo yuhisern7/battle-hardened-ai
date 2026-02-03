@@ -121,7 +121,7 @@ Place the `shared_secret.key` file in:
 |-----------------------------------------|-------------------------------------------------------------------------------------------------------------------|
 | **Customer operator (Linux appliance)** | This INSTALLATION guide (Linux .deb/.rpm sections), README (high level), FIREWALL_ENFORCEMENT, dashboard docs    |
 | **Customer operator (Windows EXE)**     | This INSTALLATION guide (Windows installer/EXE sections), README, FIREWALL_ENFORCEMENT, Windows firewall scripts |
-| **Developers / auditors (source)**      | ai-instructions (architecture & pipeline), ARCHITECTURE_COMPLIANCE, dashboard (API details), filepurpose, etc.  |
+| **Developers / auditors (source)**      | ai-instructions (architecture & pipeline), ARCHITECTURE_ENHANCEMENTS, ONNX_INTEGRATION, dashboard (API details), filepurpose, etc.  |
 
 If you are running the **packaged Linux or Windows builds**, you normally do **not** interact with the full Git source tree; treat the developer/auditor docs as optional deep-dive references rather than required install steps.
 

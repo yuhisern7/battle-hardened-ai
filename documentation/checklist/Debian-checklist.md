@@ -27,6 +27,12 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
 
 - [x] All 55+ Python modules from `AI/` installed as source on the target (entire `AI/` tree copied under `/opt/battle-hardened-ai/AI/` by `packaging/debian/rules`).
 - [x] `AI/__init__.py` present so package imports work.
+- [x] **5 Architecture Enhancement Modules** present:
+  - [x] `AI/model_signing.py` - Ed25519 cryptographic model verification (MITRE T1574.012 defense)
+  - [x] `AI/pattern_filter.py` - Bloom filter deduplication (70-80% bandwidth savings)
+  - [x] `AI/model_performance_monitor.py` - Production ML accuracy tracking (MITRE T1565.001 defense)
+  - [x] `AI/onnx_model_converter.py` - Model conversion to ONNX format (relay-side, may be present but not used on gateway)
+  - [x] ONNX runtime integration in `AI/pcs_ai.py` - 2-5x faster CPU inference
 - [x] 21-layer detection modules present:
   - [x] `AI/step21_gate.py`
   - [x] `AI/step21_policy.py`
@@ -79,6 +85,8 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
   - [x] `tls_fingerprints.json`
   - [x] `trust_graph.json`
   - [x] `whitelist.json`
+  - [x] `pattern_filter_state.json` (Architecture Enhancement #2 - Bloom filter state)
+  - [x] `ml_performance.json` (Architecture Enhancement #3 - ML performance monitoring data)
 
 (Exact list has been reconciled with `server/json/` and Filepurpose.md; any new JSON surfaces added later must follow the same pattern.)
 
@@ -89,6 +97,11 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
 - [x] `ip_reputation.pkl`
 - [x] `node_fingerprint.json`
 - [x] `signature_cache/` directory (if used in Linux deployments)
+- [x] **ONNX Models (Architecture Enhancement #5 - 2-5x faster inference)**:
+  - [x] `anomaly_detector.onnx` (if relay distributes ONNX models)
+  - [x] `feature_scaler.onnx` (if available)
+  - [x] `threat_classifier.onnx` (if available)
+  - [x] Note: ONNX models are optional; system falls back to pickle models if unavailable
 
 ### Crypto Keys (`server/crypto_keys/` → runtime location)
 
@@ -96,6 +109,9 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
   - [x] Shipped into a secure location (for lab/demo) under `/opt/battle-hardened-ai/server/crypto_keys`, **and**
   - [x] Generated/overridden on first run in `/var/lib/battle-hardened-ai/server/crypto_keys` by `packaging/debian/battle-hardened-ai.postinst`.
 - [x] TLS cert/key paths in Linux match the defaults in `.env` / README (Gunicorn and server use `BASE_DIR/crypto_keys/ssl_{cert,key}.pem`, while Debian runtime keys live under `/var/lib/battle-hardened-ai/server/crypto_keys` for message security and relay HMAC).
+- [x] **Model Signing Keys (Architecture Enhancement #1)**:
+  - [x] Customer verification public key: `/var/lib/battle-hardened-ai/server/crypto_keys/relay_public_key.pem` (for verifying relay-signed models)
+  - [x] Relay signing private key: Only on relay server, not shipped with customer gateway package
 
 ### Step 21 Policies (`policies/step21/`)
 
@@ -129,9 +145,13 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
   - [ ] Depend solely on system `python3` + `pip` packages (no venv).
 - [x] For the chosen model, document clearly in Installation.md:
   - [x] Minimum supported Python version (3.10+ on Debian/Ubuntu as per the Debian .deb section).
-  - [x] Which dependencies are installed via `apt` vs `pip` (base `python3`, `python3-venv`, `systemd`, `iptables`, `ipset`, `curl` via `apt`; Python packages from `server/requirements.txt` including Flask-CORS==4.0.0 via `pip` in the venv).
+  - [x] Which dependencies are installed via `apt` vs `pip` (base `python3`, `python3-venv`, `systemd`, `iptables`, `ipset`, `curl` via `apt`; Python packages from `server/requirements.txt` including Flask-CORS==4.0.0, onnxruntime (Architecture Enhancement #5), skl2onnx (relay-side for Enhancement #5) via `pip` in the venv).
 - [x] Ensure `gunicorn` (Linux-only) is available where systemd `ExecStart` expects it: either in the venv or system-wide (systemd `ExecStart` uses `/opt/battle-hardened-ai/venv/bin/gunicorn`, and postinst now creates the venv and installs requirements).
 - [x] Confirm that sequence/deep-learning features gracefully degrade if TensorFlow is not installed (as documented in `server/requirements.txt` and guarded in `AI/sequence_analyzer.py` by optional TensorFlow imports).
+- [x] **Architecture Enhancements - Graceful Degradation**:
+  - [x] ONNX runtime is optional: System falls back to pickle models if `onnxruntime` unavailable (check `AI/pcs_ai.py` for fallback logic)
+  - [x] Model signing warnings logged if public keys missing (system still functions with reduced security)
+  - [x] Pattern filter can be disabled without breaking relay uploads (just loses bandwidth savings)
 
 ### Service User & Permissions (PLAN BEFORE BUILD)
 

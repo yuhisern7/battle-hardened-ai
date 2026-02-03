@@ -29,7 +29,8 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** — Attack simulation test procedures
 - **[Dashboard](Dashboard.md)** — Core first-layer dashboard API reference
 - **[AI instructions](Ai-instructions.md)** — Developer guide and implementation details
-- **[Architecture compliance](Architecture_compliance.md)** — Architecture documentation and compliance mapping
+- **[Architecture Enhancements](Architecture_Enhancements.md)** — 5 implemented features (Model Signing, Pattern Filtering, Performance Monitoring, Adversarial Training, ONNX) plus compliance verification
+- **[ONNX Integration](ONNX_Integration.md)** — ONNX model format implementation (2-5x faster CPU inference)
 - **[Attack handling flow](Attack_handling_flow.md)** — Attack handling flow diagrams
 - **[test-hmac.md](test-hmac.md)** — HMAC authentication testing guide
 
