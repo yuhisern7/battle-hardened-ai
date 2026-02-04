@@ -1,13 +1,22 @@
 # EXE Build Checklist - Battle Hardened AI
 
-## ✅ BUILD STATUS (2026-01-24)
+## ✅ BUILD STATUS (2026-02-04)
 
-**Last Build:** Completed 2026-01-24 (websockets included)  
+**Last Build:** Completed 2026-02-04 (TensorFlow 2.18.1 + Python 3.12 distutils compatibility)  
 **PyInstaller Spec:** `packaging/windows/BattleHardenedAI.spec` ✅ Updated  
 **Icon:** `assets/BATTLE-HARDENED-AI.ico` (multi-size ICO: 16–256px) ✅ Included  
 **Environment Files:** `server/.env` (Linux/Docker) and `packaging/windows/.env.windows` (Windows template copied to `packaging/windows/dist/.env.windows` for the EXE) ✅ Synchronized  
 
-### Recent Fixes Applied
+### Recent Fixes Applied (2026-02-04)
+- ✅ **Python 3.12 Distutils Compatibility** - Created `distutils_compat.py` shim module that redirects `import distutils` to `setuptools._distutils`
+- ✅ **TensorFlow 2.18.1** - Downgraded from 2.20.0 (missing tensorflow.python.trackable) to 2.18.1 (stable Keras integration)
+- ✅ **ONNX 1.16.2** - Locked to compatible version (was 1.15.0, tested 1.20.1/1.19.1 had conflicts)
+- ✅ **setuptools ≥65.0.0** - Required for Python 3.12+ distutils compatibility
+- ✅ **Runtime Hook** - `runtime_hook_ml.py` loads distutils_compat.py before TensorFlow imports
+- ✅ **PyInstaller collect_all** - Use `collect_all('setuptools')` to bundle entire setuptools package
+- ✅ **ML Models Working** - TensorFlow, ONNX Runtime, and all 21 AI layers load successfully in EXE
+
+### Previous Fixes Applied (2026-01-24)
 - ✅ Added `websockets` module (was missing - caused relay_client.py error)
 - ✅ Added `websockets.client` and `asyncio` for async support
 - ✅ Added `Flask-CORS==4.0.0` to server/requirements.txt (was missing - caused API CORS errors)
@@ -191,6 +200,8 @@
 
 ### Packaging
 - [ ] packaging/windows/ directory contents (build scripts, .iss, local dist/)
+- [ ] packaging/windows/distutils_compat.py (Python 3.12 distutils compatibility shim)
+- [ ] packaging/windows/runtime_hook_ml.py (PyInstaller runtime hook for ML package initialization)
 
 ### Required Source Folders for EXE Build
 - [ ] AI/ (all detection modules and AI/ml_models/)

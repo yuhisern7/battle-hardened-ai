@@ -2,6 +2,22 @@
 
 > Goal: Ship a reproducible `.deb` package for Debian/Ubuntu gateways and hosts that matches the architecture and behavior documented in README.md and Installation.md, with clean systemd integration and no surprises for operators.
 
+## ✅ PYTHON 3.12 COMPATIBILITY (2026-02-04)
+
+**Distutils Compatibility:**
+- ✅ Python 3.12 removed `distutils` from standard library
+- ✅ TensorFlow 2.18.1 requires distutils during initialization
+- ✅ `setuptools>=65.0.0` in requirements.txt provides `setuptools._distutils`
+- ✅ Python automatically finds distutils via setuptools (no manual shim needed for venv)
+- ✅ All ML packages (TensorFlow, ONNX, scikit-learn) work correctly with Python 3.12+
+
+**Tested Working Versions (server/requirements.txt):**
+- `tensorflow-cpu>=2.18.0,<2.19.0` - TensorFlow 2.18.x has stable Keras integration (2.20.0 missing tensorflow.python.trackable)
+- `onnx==1.16.2` - Compatible with TensorFlow 2.18.x (1.20.1 has ml_dtypes conflicts, 1.19.1 breaks skl2onnx)
+- `setuptools>=65.0.0` - Provides distutils compatibility for Python 3.12+
+- `onnxruntime==1.16.3` - Fast inference runtime
+- `skl2onnx==1.16.0` - sklearn to ONNX conversion
+
 ## ✅ SCOPE & TARGETS
 
 - [x] Target distros and versions defined (Debian 12, Ubuntu 22.04 LTS as documented in Installation.md).

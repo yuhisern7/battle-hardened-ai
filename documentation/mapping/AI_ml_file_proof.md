@@ -20,29 +20,100 @@ For complete documentation, see [Architecture_Enhancements.md](Architecture_Enha
 │ CUSTOMER NODE (Windows EXE / Linux Install)                             │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
-│  1. ATTACK DETECTION                                                    │
+│  STAGE 1: DATA INGESTION & NORMALIZATION                               │
 │     ├─ server/network_monitor.py (line 1-707)                          │
-│     │  └─ Captures packets, extracts metadata                          │
-│     └─ AI/pcs_ai.py (line 1-2000+)                                     │
-│        └─ 20 detection signals analyze traffic                         │
+│     │  └─ Live packet capture (Scapy/eBPF), extracts metadata          │
+│     ├─ server/device_scanner.py                                         │
+│     │  └─ Network device discovery (cross-platform)                    │
+│     ├─ AI/kernel_telemetry.py                                           │
+│     │  └─ eBPF/XDP kernel syscall correlation (Linux only)             │
+│     ├─ AI/system_log_collector.py                                       │
+│     │  └─ System log ingestion (auth logs, app logs)                   │
+│     ├─ AI/pcap_capture.py                                               │
+│     │  └─ PCAP saving for offline analysis                             │
+│     ├─ AI/asset_inventory.py                                            │
+│     │  └─ Asset inventory management                                    │
+│     └─ AI/cloud_security.py                                             │
+│        └─ Cloud API integration (AWS/Azure/GCP)                         │
 │                                                                          │
-│  2. PATTERN EXTRACTION                                                  │
-│     └─ AI/signature_extractor.py (line 1-423)                          │
-│        ├─ extract_signature(payload, attack_type)  (line 253-330)     │
-│        ├─ _detect_encodings(payload)  (line 147-191)                  │
-│        ├─ _extract_keywords(payload)  (line 193-206)                  │
-│        └─ Stores to: server/json/honeypot_patterns.json               │
-│        └─ DELETES: Original exploit payload (privacy-preserving)      │
+│  STAGE 2: 20 PARALLEL DETECTION SIGNALS + STEP 21 SEMANTIC GATE        │
+│     ├─ AI/pcs_ai.py (line 1-7147) - Main orchestrator                  │
+│     │  └─ Coordinates all 20 detection signals                          │
+│     │                                                                    │
+│     ├─ PRIMARY DETECTION SIGNALS (1-18):                                │
+│     │  ├─ Signal #1: AI/kernel_telemetry.py - eBPF syscalls            │
+│     │  ├─ Signal #2: AI/threat_intelligence.py - Signatures            │
+│     │  │            AI/real_honeypot.py - 7 honeypot services          │
+│     │  │            AI/dns_analyzer.py - DNS tunneling/DGA             │
+│     │  ├─ Signal #3: AI/ml_models/threat_classifier.pkl (RandomForest) │
+│     │  ├─ Signal #4: AI/ml_models/anomaly_detector.pkl (IsolationFor.) │
+│     │  ├─ Signal #5: AI/ml_models/ip_reputation.pkl (GradientBoosting) │
+│     │  ├─ Signal #6: AI/behavioral_heuristics.py - 15 metrics + APT    │
+│     │  ├─ Signal #7: AI/sequence_analyzer.py - LSTM kill-chains        │
+│     │  ├─ Signal #8: AI/traffic_analyzer.py - Crypto mining            │
+│     │  │            AI/tls_fingerprint.py - TLS C2 detection           │
+│     │  │            AI/network_performance.py - Performance metrics     │
+│     │  ├─ Signal #9: AI/drift_detector.py - KS/PSI model degradation   │
+│     │  ├─ Signal #10: AI/graph_intelligence.py - Lateral movement      │
+│     │  │             AI/advanced_visualization.py - Graph rendering     │
+│     │  ├─ Signal #11: VPN/Tor fingerprinting (in pcs_ai.py)            │
+│     │  ├─ Signal #12: AI/threat_intelligence.py - OSINT feeds          │
+│     │  ├─ Signal #13: AI/false_positive_filter.py - 5-gate consensus   │
+│     │  ├─ Signal #14: AI/reputation_tracker.py - Recidivism tracking   │
+│     │  ├─ Signal #15: AI/explainability_engine.py - Decision clarity   │
+│     │  ├─ Signal #16: AI/advanced_orchestration.py - 24-48h forecast   │
+│     │  ├─ Signal #17: AI/byzantine_federated_learning.py - Poisoning   │
+│     │  └─ Signal #18: AI/self_protection.py - Tampering detection      │
+│     │               AI/cryptographic_lineage.py - Model provenance      │
+│     │                                                                    │
+│     ├─ STRATEGIC INTELLIGENCE LAYERS (19-20):                           │
+│     │  ├─ Signal #19: AI/causal_inference.py (585 lines)                │
+│     │  │  └─ Root cause analysis (LEGITIMATE vs ATTACK)                │
+│     │  └─ Signal #20: AI/trust_graph.py (422 lines)                    │
+│     │     └─ Persistent entity trust tracking (0-100 scores)           │
+│     │                                                                    │
+│     └─ LAYER 21: STEP 21 SEMANTIC EXECUTION-DENIAL GATE (FINAL)        │
+│        ├─ AI/step21_semantic_gate.py - Semantic validation logic       │
+│        ├─ AI/step21_policy.py - Policy loading                          │
+│        ├─ AI/step21_gate.py - Gate orchestration                        │
+│        └─ policies/step21/ - 4 policy files (signed manifest)          │
 │                                                                          │
-│  3. UPLOAD TO RELAY (WITH PATTERN FILTERING - Feature #2)              │
-│     └─ AI/signature_uploader.py (line 1-262)                           │
-│        ├─ AI/pattern_filter.py - Bloom filter deduplication           │
-│        │  └─ 70-80% bandwidth savings (skip duplicate patterns)        │
-│        ├─ upload_signature(signature)  (line 84-134)                   │
-│        ├─ WebSocket → wss://YOUR_RELAY_IP:60001                        │
-│        └─ Sends ONLY: keywords, encodings, attack_type (NO payload)   │
+│  STAGE 3: ENSEMBLE DECISION ENGINE (WEIGHTED VOTING)                   │
+│     ├─ AI/meta_decision_engine.py                                       │
+│     │  └─ Weighted voting: Σ(weight × confidence × is_threat)          │
+│     └─ AI/false_positive_filter.py                                      │
+│        └─ 5-gate consensus validation                                   │
 │                                                                          │
-│  4. DOWNLOAD TRAINED MODELS (WITH ONNX - Feature #5)                   │
+│  STAGE 4: RESPONSE EXECUTION (POLICY-GOVERNED)                         │
+│     ├─ server/device_blocker.py                                         │
+│     │  └─ Firewall blocking (iptables/nftables + TTL)                  │
+│     ├─ AI/alert_system.py                                               │
+│     │  └─ Email/SMS alerts (SMTP/Twilio) - critical events only        │
+│     ├─ AI/policy_governance.py                                          │
+│     │  └─ Approval workflows                                            │
+│     ├─ AI/emergency_killswitch.py                                       │
+│     │  └─ SAFE_MODE override                                            │
+│     └─ AI/file_rotation.py                                              │
+│        └─ ML training log rotation (auto-rotates at 100MB)             │
+│                                                                          │
+│  STAGE 5: TRAINING MATERIAL EXTRACTION (PRIVACY-PRESERVING)            │
+│     ├─ AI/signature_extractor.py (line 1-423)                          │
+│     │  ├─ extract_signature(payload, attack_type)  (line 253-330)      │
+│     │  ├─ _detect_encodings(payload)  (line 147-191)                   │
+│     │  ├─ _extract_keywords(payload)  (line 193-206)                   │
+│     │  └─ Stores to: server/json/honeypot_patterns.json                │
+│     │  └─ DELETES: Original exploit payload (privacy-preserving)       │
+│     ├─ AI/reputation_tracker.py - Export hashed IP reputation          │
+│     └─ AI/graph_intelligence.py - Anonymize graph topology             │
+│                                                                          │
+│  STAGE 6: RELAY SHARING (GLOBAL INTELLIGENCE)                          │
+│     ├─ AI/signature_uploader.py (line 1-262)                           │
+│     │  ├─ AI/pattern_filter.py - Bloom filter deduplication            │
+│     │  │  └─ 70-80% bandwidth savings (skip duplicate patterns)        │
+│     │  ├─ upload_signature(signature)  (line 84-134)                   │
+│     │  ├─ WebSocket → wss://YOUR_RELAY_IP:60001                        │
+│     │  └─ Sends ONLY: keywords, encodings, attack_type (NO payload)   │
+│     ├─ AI/relay_client.py - WebSocket client for relay connection      │
 │     └─ AI/training_sync_client.py (line 1-176)                         │
 │        ├─ download_ml_models()  (line 70-86)                           │
 │        ├─ HTTPS → https://YOUR_RELAY_IP:60002/models/                  │
@@ -858,6 +929,138 @@ def verify_customer_message(message: Dict) -> tuple[bool, str]:
 ---
 
 ## 📊 Complete File Inventory (Updated with Enhancements)
+
+### STAGE 1: Data Ingestion & Normalization Files (7 files)
+
+| File | Purpose | Platform |
+|------|---------|----------|
+| **server/network_monitor.py** (707 lines) | Live packet capture (Scapy/eBPF) | All |
+| **server/device_scanner.py** | Network device discovery | All (cross-platform) |
+| **AI/kernel_telemetry.py** | eBPF/XDP kernel syscall correlation | Linux only |
+| **AI/system_log_collector.py** | System log ingestion (auth/app logs) | All |
+| **AI/pcap_capture.py** | PCAP saving for offline analysis | All |
+| **AI/asset_inventory.py** | Asset inventory management | All |
+| **AI/cloud_security.py** | Cloud API integration (AWS/Azure/GCP) | All |
+
+**JSON Outputs (Stage 1):**
+- `server/json/connected_devices.json` - Active device inventory
+- `server/json/device_history.json` - 7-day device connection history
+- `server/json/network_monitor_state.json` - Packet capture state and counters
+
+---
+
+### STAGE 2: 20 Detection Signals + Step 21 Semantic Gate Files (25+ files)
+
+**Main Orchestrator:**
+| File | Lines | Purpose |
+|------|-------|---------|
+| **AI/pcs_ai.py** | 7,147 | Main threat detection orchestrator (coordinates all 20 signals) |
+
+**PRIMARY DETECTION SIGNALS (1-18):**
+
+| Signal # | File(s) | Purpose | Weight |
+|----------|---------|---------|--------|
+| **#1** | `AI/kernel_telemetry.py` | eBPF syscall/network correlation | 0.75 |
+| **#2** | `AI/threat_intelligence.py`<br>`AI/real_honeypot.py`<br>`AI/dns_analyzer.py` | Signature matching (3,066+ patterns)<br>7 honeypot services (SSH, FTP, Telnet, MySQL, HTTP, SMTP, RDP)<br>DNS tunneling/DGA detection | 0.90 |
+| **#3** | `AI/ml_models/threat_classifier.pkl` (.onnx) | RandomForest threat classifier | 0.80 |
+| **#4** | `AI/ml_models/anomaly_detector.pkl` (.onnx) | IsolationForest anomaly detector | 0.75 |
+| **#5** | `AI/ml_models/ip_reputation.pkl` (.onnx) | Gradient Boosting IP reputation | 0.78 |
+| **#6** | `AI/behavioral_heuristics.py` | 15 metrics + APT patterns (low-and-slow, off-hours, credential reuse) | 0.75 |
+| **#7** | `AI/sequence_analyzer.py`<br>`AI/ml_models/sequence_lstm.keras` | LSTM kill-chain state progression + APT campaign patterns | 0.85 |
+| **#8** | `AI/traffic_analyzer.py`<br>`AI/tls_fingerprint.py`<br>`AI/network_performance.py`<br>`AI/ml_models/traffic_autoencoder.keras` | Protocol/app breakdown, crypto mining detection<br>TLS C2 detection<br>Network performance metrics<br>Autoencoder for traffic anomalies | 0.80 |
+| **#9** | `AI/drift_detector.py` | KS/PSI model degradation monitoring | 0.65 |
+| **#10** | `AI/graph_intelligence.py`<br>`AI/advanced_visualization.py` | Lateral movement, C2 detection, hop chains<br>Graph rendering | 0.92 |
+| **#11** | *(in `AI/pcs_ai.py`)* | VPN/Tor de-anonymization statistics (metadata-only) | 0.70 |
+| **#12** | `AI/threat_intelligence.py`<br>`relay/threat_crawler.py` | OSINT correlation (VirusTotal, AbuseIPDB)<br>CVE, MalwareBazaar, URLhaus, AlienVault OTX | 0.95 |
+| **#13** | `AI/false_positive_filter.py` | 5-gate consensus validation | 0.82 |
+| **#14** | `AI/reputation_tracker.py` | Cross-session recidivism tracking | 0.85 |
+| **#15** | `AI/explainability_engine.py` | Decision transparency & consistency checks | 0.78 |
+| **#16** | `AI/advanced_orchestration.py` | 24-48h threat forecasting (advisory only) | 0.75 |
+| **#17** | `AI/byzantine_federated_learning.py` | Poisoned update rejection (Krum, trimmed mean) | 0.85 |
+| **#18** | `AI/self_protection.py`<br>`AI/cryptographic_lineage.py` | Tampering detection<br>Model provenance tracking | 0.90 |
+
+**STRATEGIC INTELLIGENCE LAYERS (19-20):**
+
+| Signal # | File | Lines | Purpose | Weight |
+|----------|------|-------|---------|--------|
+| **#19** | `AI/causal_inference.py` | 585 | Root cause analysis (LEGITIMATE_CAUSE vs EXTERNAL_ATTACK vs MISCONFIGURATION) | 0.88 |
+| **#20** | `AI/trust_graph.py` | 422 | Persistent entity trust tracking (0-100 scores, non-linear degradation) | 0.90 |
+
+**LAYER 21: STEP 21 SEMANTIC EXECUTION-DENIAL GATE (FINAL):**
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| **AI/step21_semantic_gate.py** | ~400 | Semantic validation logic (validates 4 dimensions: state, intent, structure, trust) |
+| **AI/step21_policy.py** | ~300 | Policy loading and verification |
+| **AI/step21_gate.py** | ~250 | Gate orchestration |
+| **policies/step21/** | 4 files | Policy files: `manifest.json`, `manifest.sig`, `policy.json`, `schema.json` |
+
+**JSON Outputs (Stage 2):**
+- `server/json/threat_log.json` - Primary threat log (auto-rotates at 100MB)
+- `server/json/dns_security.json` - DNS analyzer metrics
+- `server/json/tls_fingerprints.json` - TLS fingerprinting data
+- `server/json/network_graph.json` - Network topology
+- `server/json/lateral_movement_alerts.json` - Hop chain alerts
+- `server/json/attack_sequences.json` - LSTM sequence history
+- `server/json/behavioral_metrics.json` - Per-IP heuristic scores
+- `server/json/drift_baseline.json` - Baseline distribution
+- `server/json/drift_reports.json` - Drift analysis results
+- `server/json/reputation.db` - SQLite reputation database
+- `server/json/reputation_export.json` - Training export
+- `server/json/forensic_reports/` - Explainability outputs (directory)
+- `server/json/comprehensive_audit.json` - Central audit log (auto-rotates at 100MB)
+- `server/json/causal_analysis.json` - Layer 19 causal inference results
+- `server/json/trust_graph.json` - Layer 20 entity trust state (persistent)
+- `server/json/honeypot_attacks.json` - Honeypot attack logs
+- `server/json/honeypot_patterns.json` - Extracted honeypot patterns
+- `server/json/crypto_mining.json` - Crypto mining detection log
+- `server/json/local_threat_intel.json` - Local threat indicators
+- `server/json/fp_filter_config.json` - FP filter tuning
+- `server/json/integrity_violations.json` - Integrity violations
+- `server/json/model_lineage.json` - Cryptographic lineage chain
+
+---
+
+### STAGE 3: Ensemble Decision Engine Files (2 files)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| **AI/meta_decision_engine.py** | ~500 | Weighted voting: Σ(weight × confidence × is_threat) / Σ(weight)<br>5-step modulation: Voting → Authoritative boosting → Causal modulation → Trust modulation → Final decision |
+| **AI/false_positive_filter.py** | ~350 | 5-gate consensus validation (also participates as Signal #13) |
+
+**JSON Outputs (Stage 3):**
+- `server/json/decision_history.json` - Per-signal contributions audit
+- `server/json/meta_engine_config.json` - Ensemble engine configuration
+
+---
+
+### STAGE 4: Response Execution Files (5 files)
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| **server/device_blocker.py** | ~400 | Firewall blocking (iptables/nftables + TTL management) |
+| **AI/alert_system.py** | ~350 | Email/SMS alerting (SMTP/Twilio) - **critical system events only** (system failure, kill-switch changes, integrity breaches; NOT general threat alerts) |
+| **AI/policy_governance.py** | ~450 | Approval workflows for policy changes |
+| **AI/emergency_killswitch.py** | ~200 | SAFE_MODE override and emergency shutdown |
+| **AI/file_rotation.py** | 272 | ML training log rotation (auto-rotates at 100MB for memory safety) |
+
+**JSON Outputs (Stage 4):**
+- `server/json/blocked_ips.json` - Current blocklist
+- `server/json/approval_requests.json` - Pending approval requests
+- *(All Stage 2 JSON files also receive response events)*
+
+**Multi-Surface Logging (Stage 4):**
+All threat and response events are logged to multiple JSON surfaces for different purposes:
+- `threat_log.json` - Primary threat log ✅ **auto-rotates at 100MB**
+- `comprehensive_audit.json` - All THREAT_DETECTED/INTEGRITY_VIOLATION/SYSTEM_ERROR events ✅ **auto-rotates at 100MB**
+- `attack_sequences.json` - LSTM progressions
+- `lateral_movement_alerts.json` - Graph hop chains
+- `behavioral_metrics.json` - Heuristic scores
+- `dns_security.json` - DNS findings
+- `tls_fingerprints.json` - TLS findings
+- `forensic_reports/` - Explainability outputs
+
+---
 
 ### Architecture Enhancement Files
 

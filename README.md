@@ -797,7 +797,7 @@ For auditors, engineers, and operators, the following documents serve as the aut
 - [AI instructions](documentation/architecture/Ai-instructions.md) — Developer implementation guide, validation flow, and dashboard/endpoint mapping
 - [Dashboard](documentation/mapping/Dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
 - [Architecture Enhancements & Compliance](documentation/architecture/Architecture_Enhancements.md) — 5 implemented features plus compliance verification of runtime code paths
-- [AI/ML pipeline proof](documentation/architecture/AI_ML_File_Proof.md) — Complete technical proof of AI/ML training pipeline with exact file paths, line numbers, and 758K+ training examples
+- [AI/ML pipeline proof](documentation/mapping/AI_ml_file_proof.md) — Complete technical proof of AI/ML training pipeline with exact file paths, line numbers, and 758K+ training examples
 - [Attack handling flow](documentation/architecture/Attack_handling_flow.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
 - [JSON File Rotation](documentation/JSON_file_rotation.md) — Automatic rotation system for JSON files to prevent bloat (threat logs, performance metrics, network state)
 

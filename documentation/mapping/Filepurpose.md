@@ -125,6 +125,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `AI/system_log_collector.py` — System log ingestion and normalization
 - `AI/pcap_capture.py` — PCAP saving for offline analysis and training (no in-product forensics console)
 - `AI/asset_inventory.py` — Asset inventory management
+- `AI/cloud_security.py` — Cloud API integration (AWS CloudTrail, Azure Activity, GCP Audit)
 
 ---
 
