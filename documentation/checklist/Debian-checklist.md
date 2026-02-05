@@ -16,6 +16,10 @@ These warnings appear during Windows EXE execution due to PyInstaller's frozen e
 
 **Linux/Debian:** These warnings do NOT appear in native Python or Debian package installations.
 
+### Geolocation API Rate Limits (All Platforms - 2026-02-06 Fix Applied)
+- ⚠️ `[GEO] Rate limit exceeded for ip-api.com (45 requests/min). Using fallback for X.X.X.X` - System has 24-hour geolocation cache to prevent this. Only appears during high-volume attack testing.
+- ✅ **Fix Applied:** IP geolocation data cached for 24 hours per IP to prevent rate limit errors. Failed lookups also cached to prevent retry storms.
+
 ---
 
 ## ✅ PYTHON 3.12 COMPATIBILITY (2026-02-04)

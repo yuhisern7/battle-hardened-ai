@@ -22,6 +22,11 @@
 - ✅ **Corrupted JSON Cleanup** - Deleted corrupted threat_log.json from user data directory
 - ✅ **Production Ready** - Zero critical warnings, all ML models load and train successfully
 
+### Recent Fixes Applied (2026-02-06)
+- ✅ **Geolocation API Caching** - Added 24-hour IP geolocation cache to prevent ip-api.com rate limit errors (45 requests/min). Cache prevents repeated lookups for same IPs and handles HTTP 403 gracefully
+- ✅ **Spec File Path Fix** - Corrected windows-firewall path from `server/windows-firewall` to `packaging/windows` in BattleHardenedAI.spec
+- ✅ **HTTPS Unified Paths** - Fixed server.py crypto_keys directory to use `get_crypto_keys_dir()` from path_helper (Windows: `%LOCALAPPDATA%\Battle-Hardened AI\server\crypto_keys`, Debian: `/var/lib/battle-hardened-ai/server/crypto_keys`)
+
 ### Expected Harmless Warnings (Cosmetic Only - Can Be Ignored)
 - ⚠️ `[RUNTIME HOOK] Failed to load skl2onnx: could not get source code` - PyInstaller build-time inspection limitation, skl2onnx works perfectly at runtime
 - ⚠️ `[AI WARNING] Failed to load ML models: could not get source code` - Same PyInstaller inspection issue, ML models initialize and train successfully immediately after
