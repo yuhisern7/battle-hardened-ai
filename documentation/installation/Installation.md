@@ -353,19 +353,78 @@ curl https://google.com  # Test full internet connectivity
 # Download .deb package (from vendor)
 sudo dpkg -i battle-hardened-ai_*.deb
 sudo apt-get install -f  # Fix any dependencies
+```
 
-# Configure
+**Step 8: Fix Permissions (CRITICAL - Required After Installation)**
+
+The .deb package creates the `bhai` service user, but you must fix ownership of runtime directories:
+
+```bash
+# Fix ownership of runtime directories
+sudo chown -R bhai:bhai /var/lib/battle-hardened-ai
+sudo chown -R bhai:bhai /var/log/battle-hardened-ai
+
+# Set correct permissions
+sudo chmod -R 750 /var/lib/battle-hardened-ai
+sudo chmod -R 750 /var/log/battle-hardened-ai
+sudo chmod 640 /var/lib/battle-hardened-ai/server/json/*.json
+
+# Verify permissions
+ls -la /var/lib/battle-hardened-ai
+# Expected: drwxr-x--- bhai bhai
+```
+
+**Step 9: Configure Network Settings**
+
+Identify your network configuration:
+
+```bash
+# Find your network interface
+ip addr show
+# Example output: wlo1 (Wi-Fi), eth0 (Ethernet), enp3s0 (Ethernet)
+
+# Find your IP address and subnet
+ip addr show wlo1  # Replace wlo1 with your interface
+# Example: inet 192.168.0.119/24 (subnet is 192.168.0.0/24)
+
+# Find default gateway
+ip route | grep default
+# Example: default via 192.168.0.1 dev wlo1
+```
+
+Edit the .env file and add network configuration:
+
+```bash
 sudo nano /etc/battle-hardened-ai/.env
+```
 
-# Set these variables:
+**Add/modify these critical variables:**
+
+```bash
+# Network Scanner Configuration - REQUIRED for device detection
+NETWORK_RANGE=192.168.0.0/24           # Your subnet (change to match your network)
+NETWORK_INTERFACE=wlo1                  # Your network interface name
+DEFAULT_GATEWAY=192.168.0.1             # Your gateway IP
+
+# Relay Configuration
 RELAY_URL=wss://YOUR_RELAY_VPS:60001
 RELAY_API_URL=https://YOUR_RELAY_VPS:60002
 CUSTOMER_ID=your-customer-id
 PEER_NAME=main-gateway
+
+# Security
 BATTLE_HARDENED_SECRET_KEY=your-long-random-secret-key
 ```
 
-**Step 8: Place Shared Secret Key**
+**Common Network Configurations:**
+
+| Network Type | NETWORK_RANGE | DEFAULT_GATEWAY | Interface Examples |
+|--------------|---------------|-----------------|-------------------|
+| Home Wi-Fi | 192.168.0.0/24 or 192.168.1.0/24 | 192.168.0.1 or 192.168.1.1 | wlo1, wlan0 |
+| Office Ethernet | 10.0.0.0/24 or 172.16.0.0/24 | 10.0.0.1 or 172.16.0.1 | eth0, enp3s0 |
+| Cloud VPC | 10.0.10.0/24 | 10.0.10.1 | eth0, ens160 |
+
+**Step 10: Place Shared Secret Key**
 
 ```bash
 # Obtain shared_secret.key from vendor
@@ -376,11 +435,22 @@ sudo chown bhai:bhai /etc/battle-hardened-ai/crypto_keys/shared_secret.key
 sudo chmod 600 /etc/battle-hardened-ai/crypto_keys/shared_secret.key
 ```
 
-**Step 9: Whitelist Gateway IP**
+**Step 10: Place Shared Secret Key**
+
+```bash
+# Obtain shared_secret.key from vendor
+# Copy to crypto directory
+sudo mkdir -p /etc/battle-hardened-ai/crypto_keys
+sudo cp shared_secret.key /etc/battle-hardened-ai/crypto_keys/
+sudo chown bhai:bhai /etc/battle-hardened-ai/crypto_keys/shared_secret.key
+sudo chmod 600 /etc/battle-hardened-ai/crypto_keys/shared_secret.key
+```
+
+**Step 11: Whitelist Gateway IP**
 
 ```bash
 # Edit whitelist to prevent blocking gateway itself
-sudo nano /var/lib/battle-hardened-ai/json/whitelist.json
+sudo nano /var/lib/battle-hardened-ai/server/json/whitelist.json
 ```
 
 Add:
@@ -391,18 +461,33 @@ Add:
 ]
 ```
 
-**Step 10: Start Services**
+**Step 12: Start Services**
 
 ```bash
-sudo systemctl enable battle-hardened-ai battle-hardened-ai-firewall-sync
-sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo systemctl enable battle-hardened-ai battle-hardened-ai-firewall-sync battle-hardened-ai-device-scanner
+sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync battle-hardened-ai-device-scanner
 
 # Check status
 sudo systemctl status battle-hardened-ai
+sudo systemctl status battle-hardened-ai-device-scanner
 sudo journalctl -u battle-hardened-ai -n 50 --no-pager
 ```
 
-**Step 11: Access Dashboard**
+**Verify device scanner is working:**
+
+```bash
+# Wait 10 seconds for initial scan
+sleep 10
+
+# Check connected devices API
+curl -k https://localhost:60000/api/connected-devices
+# Should show: {"devices":[...], "total_count":X} where X > 0
+
+# If devices array is empty, check scanner logs:
+sudo journalctl -u battle-hardened-ai-device-scanner -n 30 --no-pager
+```
+
+**Step 13: Access Dashboard**
 
 From any device on internal network:
 ```
@@ -411,7 +496,7 @@ https://192.168.1.1:60000
 
 Accept self-signed certificate and login.
 
-**Step 12: Final Verification**
+**Step 14: Final Verification**
 
 ```bash
 # Check firewall rules are being applied
@@ -875,6 +960,92 @@ Stop-Process -Id <PID> -Force  # If needed
 ```
 
 Stop or reconfigure any conflicting service before starting Battle-Hardened AI.
+
+#### 5. Linux (.deb): Permission denied errors in logs
+
+**Symptom:**
+```
+[NET-PERF] Failed to save performance metrics: [Errno 13] Permission denied
+[ERROR] Cannot write to /var/lib/battle-hardened-ai/server/json/connected_devices.json
+```
+
+**Cause:** Runtime directories not owned by `bhai` service user
+
+**Solution:**
+```bash
+# Fix ownership
+sudo chown -R bhai:bhai /var/lib/battle-hardened-ai
+sudo chown -R bhai:bhai /var/log/battle-hardened-ai
+
+# Fix permissions
+sudo chmod -R 750 /var/lib/battle-hardened-ai
+sudo chmod 640 /var/lib/battle-hardened-ai/server/json/*.json
+
+# Restart services
+sudo systemctl restart battle-hardened-ai battle-hardened-ai-device-scanner
+```
+
+#### 6. Linux (.deb): Section 2 (Network Devices) shows no devices
+
+**Symptom:** Dashboard Section 2 shows empty device list, API returns `{"devices":[],"total_count":0}`
+
+**Cause:** Device scanner missing network configuration in `/etc/battle-hardened-ai/.env`
+
+**Diagnosis:**
+```bash
+# Check scanner logs
+sudo journalctl -u battle-hardened-ai-device-scanner -n 30 --no-pager
+
+# Look for this error:
+# [ERROR] Gateway detection failed: [Errno 1] Operation not permitted
+```
+
+**Solution:**
+```bash
+# 1. Identify your network configuration
+ip addr show          # Find your interface (e.g., wlo1, eth0)
+ip route | grep default   # Find your gateway (e.g., 192.168.0.1)
+
+# 2. Edit .env and add network settings
+sudo nano /etc/battle-hardened-ai/.env
+
+# Add these lines (replace with YOUR network details):
+NETWORK_RANGE=192.168.0.0/24        # Your subnet
+NETWORK_INTERFACE=wlo1              # Your interface name
+DEFAULT_GATEWAY=192.168.0.1         # Your gateway IP
+
+# 3. Restart device scanner
+sudo systemctl restart battle-hardened-ai-device-scanner
+sudo systemctl restart battle-hardened-ai
+
+# 4. Wait 10 seconds, then verify
+sleep 10
+curl -k https://localhost:60000/api/connected-devices
+# Should now show devices
+```
+
+#### 7. Linux (.deb): Internal Server Error after login
+
+**Symptom:** Dashboard shows "Internal Server Error" or 500 errors
+
+**Cause:** Permission issues on JSON files or missing .env configuration
+
+**Solution:**
+```bash
+# Check service logs for specific error
+sudo journalctl -u battle-hardened-ai -n 100 --no-pager | grep -i error
+
+# Common fixes:
+# 1. Fix JSON file permissions
+sudo chown bhai:bhai /var/lib/battle-hardened-ai/server/json/*.json
+sudo chmod 640 /var/lib/battle-hardened-ai/server/json/*.json
+
+# 2. Verify .env exists
+ls -la /etc/battle-hardened-ai/.env
+
+# 3. Restart service
+sudo systemctl restart battle-hardened-ai
+```
 
 ---
 
@@ -1703,15 +1874,37 @@ git pull
 
 ### Quick Commands Reference (Packaged Installs)
 
-**Linux (.deb/.rpm):**
+**Linux (.deb/.rpm) - Post-Installation Setup:**
+```bash
+# Fix permissions (required after first install)
+sudo chown -R bhai:bhai /var/lib/battle-hardened-ai /var/log/battle-hardened-ai
+sudo chmod -R 750 /var/lib/battle-hardened-ai /var/log/battle-hardened-ai
+
+# Configure network settings (required for device scanner)
+# 1. Find your network details
+ip addr show                    # Find interface (e.g., wlo1, eth0)
+ip route | grep default         # Find gateway
+
+# 2. Edit .env
+sudo nano /etc/battle-hardened-ai/.env
+# Add: NETWORK_RANGE=192.168.0.0/24
+# Add: NETWORK_INTERFACE=wlo1
+# Add: DEFAULT_GATEWAY=192.168.0.1
+```
+
+**Linux (.deb/.rpm) - Service Control:**
 ```bash
 # Start / stop services
-sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync
-sudo systemctl stop battle-hardened-ai battle-hardened-ai-firewall-sync
+sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync battle-hardened-ai-device-scanner
+sudo systemctl stop battle-hardened-ai battle-hardened-ai-firewall-sync battle-hardened-ai-device-scanner
 
 # Check status and logs
 sudo systemctl status battle-hardened-ai
+sudo systemctl status battle-hardened-ai-device-scanner
 sudo journalctl -u battle-hardened-ai -n 50 --no-pager
+
+# Verify device scanner working
+curl -k https://localhost:60000/api/connected-devices
 ```
 
 **Windows (EXE installer):**
