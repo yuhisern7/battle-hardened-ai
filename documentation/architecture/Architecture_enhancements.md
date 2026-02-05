@@ -866,13 +866,13 @@ cat server/json/blocked_ips.json
 
 # 2. Trigger different attacks from Kali
 # SQL injection
-curl "http://TARGET_IP:60000/api/threats?id=1' OR '1'='1"
+curl -k "https://TARGET_IP:60000/api/threats?id=1' OR '1'='1"
 
 # XSS
-curl "http://TARGET_IP:60000/api/alerts?q=<script>alert(1)</script>"
+curl -k "https://TARGET_IP:60000/api/alerts?q=<script>alert(1)</script>"
 
 # Path traversal  
-curl "http://TARGET_IP:60000/api/reports?file=../../../../etc/passwd"
+curl -k "https://TARGET_IP:60000/api/reports?file=../../../../etc/passwd"
 
 # 3. Verify IP added to blocked_ips.json
 cat server/json/blocked_ips.json | grep "ATTACKER_IP"
