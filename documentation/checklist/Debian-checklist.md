@@ -186,12 +186,12 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
 
 ## ✅ UI / DASHBOARD FILES (LINUX)
 
-- [ ] HTML dashboard files copied to the path the server expects:
-  - [ ] `AI/inspector_ai_monitoring.html` (or server templates if moved)
-  - [ ] `AI/docs_portal.html`
-  - [ ] `AI/docs_viewer.html`
-  - [ ] `AI/swagger_ui.html`
-- [ ] If `server/templates/` or `server/static/` exist, include all `.html`, `.css`, `.js`, and assets needed for the dashboard.
+- [x] HTML dashboard files copied to the path the server expects:
+  - [x] `AI/inspector_ai_monitoring.html` (or server templates if moved)
+  - [x] `AI/docs_portal.html`
+  - [x] `AI/docs_viewer.html`
+  - [x] `AI/swagger_ui.html`
+- [x] If `server/templates/` or `server/static/` exist, include all `.html`, `.css`, `.js`, and assets needed for the dashboard.
 
 ## ✅ CONFIGURATION & ENVIRONMENT
 
@@ -509,6 +509,12 @@ On install (or first start), ensure the following exist with correct ownership a
 - [ ] `/api/threat/block-ip` - Block IP address
 - [ ] `/api/whitelist/add` - Add IP to whitelist
 - [ ] `/api/whitelist/remove` - Remove IP from whitelist
+- [ ] `/api/firewall/detect` - Firewall backend detection (NEW)
+- [ ] `/api/firewall/status` - Firewall sync status + IP counts (NEW)
+- [ ] `/api/firewall/sync` - Force immediate firewall sync (NEW)
+- [ ] `/api/firewall/test` - 3-step integration test (NEW)
+- [ ] `/api/firewall/rules` - View our rules vs customer rules (NEW)
+- [ ] `/api/firewall/backend` - Manual backend override (NEW)
 
 **JSON Files:**
 - [ ] `threat_log.json` - Threats with source IPs
@@ -523,6 +529,83 @@ On install (or first start), ensure the following exist with correct ownership a
 **Python Modules:**
 - [ ] `AI/pcs_ai.py`
 - [ ] `AI/reputation_tracker.py`
+- [ ] `AI/firewall_backend.py` (NEW - multi-distro backend abstraction)
+- [ ] `server/installation/bh_firewall_sync.py` (NEW - 5-second sync daemon)
+
+**Linux Firewall Commander Subsection (Tab 4 - NEW):**
+- [ ] **Backend Detection Panel:**
+  - [ ] Auto-detect firewall backend (iptables/firewalld/VyOS/OpenWRT/Alpine)
+  - [ ] Display detected backend with full name
+  - [ ] Show sync daemon status (Active/Inactive)
+  - [ ] Show last sync timestamp
+- [ ] **Sync Health Indicators:**
+  - [ ] Whitelist IP count (synced vs pending)
+  - [ ] Blocklist IP count (synced vs pending)
+  - [ ] Sync warning banner (hidden when synced)
+  - [ ] Visual sync status badges (✅ Synced / ⚠️ Pending)
+- [ ] **Action Buttons:**
+  - [ ] ⚡ Force Sync Now (immediate sync, bypasses 5s delay)
+  - [ ] 🧪 Test Integration (3-step non-destructive test)
+  - [ ] 📋 View Native Rules (customer's existing firewall rules)
+  - [ ] 🔄 Refresh Status (manual refresh)
+- [ ] **Our Firewall Rules Table:**
+  - [ ] Whitelist layer (Priority 1 ACCEPT)
+  - [ ] Blocklist layer (Priority 2 DROP)
+  - [ ] IP counts per layer
+  - [ ] Kernel sync status per layer
+  - [ ] Color-coded action badges (ACCEPT=green, DROP=red)
+- [ ] **Customer Rules Display:**
+  - [ ] Collapsible section
+  - [ ] Read-only native firewall rules
+  - [ ] Excludes Battle-Hardened AI rules
+  - [ ] Shows iptables/firewalld raw output
+- [ ] **Test Results Modal:**
+  - [ ] Step 1: Add test IP (show success/failure)
+  - [ ] Step 2: Verify in kernel firewall (show success/failure)
+  - [ ] Step 3: Remove test IP (show success/failure)
+  - [ ] Overall pass/fail indicator
+  - [ ] Detailed error messages for failures
+- [ ] **Auto-Refresh:**
+  - [ ] 30-second interval when tab is active
+  - [ ] Only refreshes if tab is visible (prevents unnecessary API calls)
+
+**Firewall Backend Support:**
+- [ ] **iptables-nft (Debian/Ubuntu):**
+  - [ ] ipset creation (bh_whitelist, bh_blocked)
+  - [ ] iptables rule insertion (Priority 1/2)
+  - [ ] netfilter-persistent save
+  - [ ] Stats collection (Number of entries parsing)
+- [ ] **firewalld (RHEL/Rocky/Alma/SUSE):**
+  - [ ] ipset creation via firewall-cmd
+  - [ ] rich-rule creation (ipset-based ACCEPT/DROP)
+  - [ ] Permanent rule save
+  - [ ] Stats collection via firewall-cmd --info-ipset
+- [ ] **VyOS (Partial Support):**
+  - [ ] address-group creation
+  - [ ] firewall rule creation
+  - [ ] Basic sync (no advanced stats)
+- [ ] **OpenWRT (Partial Support):**
+  - [ ] UCI ipset configuration
+  - [ ] /etc/config/firewall rule creation
+  - [ ] uci commit + firewall reload
+- [ ] **Alpine Linux (Partial Support):**
+  - [ ] awall JSON config generation
+  - [ ] awall rule application
+  - [ ] Basic sync (no advanced stats)
+
+**Safety Guarantees:**
+- [ ] Whitelist wins conflicts (IP in both lists = ACCEPTED)
+- [ ] Safety check in sync daemon (removes whitelisted IPs from blocklist before syncing)
+- [ ] Non-destructive testing (preserves production blocklist)
+- [ ] Startup script creates dual-layer ipsets + rules
+- [ ] Uninstall script removes both layers cleanly
+
+**Systemd Service:**
+- [ ] `battle-hardened-ai-firewall-sync.service` created
+- [ ] Runs `server/installation/bh_firewall_sync.py`
+- [ ] 5-second sync loop
+- [ ] Auto-restart on failure
+- [ ] Logs to journalctl
 
 ---
 

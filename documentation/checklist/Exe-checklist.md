@@ -180,43 +180,43 @@
 ## ✅ UI/DASHBOARD FILES
 
 ### HTML Templates
-- [ ] inspector_ai_monitoring.html
-- [ ] docs_portal.html
-- [ ] docs_viewer.html
-- [ ] swagger_ui.html
+- [x] inspector_ai_monitoring.html
+- [x] docs_portal.html
+- [x] docs_viewer.html
+- [x] swagger_ui.html
 
 ### Flask Templates (if any in server/templates/)
-- [ ] Check server/templates/ directory
-- [ ] Include all .html files
+- [x] Check server/templates/ directory
+- [x] Include all .html files
 
 ### Static Assets (if any in server/static/)
-- [ ] CSS files
-- [ ] JavaScript files
-- [ ] Images/icons
+- [x] CSS files
+- [x] JavaScript files
+- [x] Images/icons
 
 ## ✅ CONFIGURATION
 
 ### Environment Files
-- [ ] server/.env (Linux/Docker runtime configuration)
-- [ ] packaging/windows/dist/.env.windows (Windows EXE runtime configuration copied from `packaging/windows/.env.windows` by the EXE build script)
+- [x] server/.env (Linux/Docker runtime configuration)
+- [x] packaging/windows/dist/.env.windows (Windows EXE runtime configuration copied from `packaging/windows/.env.windows` by the EXE build script)
 
 ### Runtime Directories (auto-create on startup; for Windows EXE these live under `%LOCALAPPDATA%/Battle-Hardened AI/server/`)
-- [ ] logs/
-- [ ] pcap/
-- [ ] json/ (if not exists)
+- [x] logs/
+- [x] pcap/
+- [x] json/ (if not exists)
 
 ## ✅ WINDOWS-SPECIFIC
 
 ### Firewall Scripts
-— [ ] packaging/windows/windows-firewall/ directory contents
+- [x] packaging/windows/windows-firewall/ directory contents
 
 ### Installation Scripts
-- [ ] server/installation/ directory contents
+- [x] server/installation/ directory contents
 
 ### Packaging
-- [ ] packaging/windows/ directory contents (build scripts, .iss, local dist/)
-- [ ] packaging/windows/distutils_compat.py (Python 3.12 distutils compatibility shim)
-- [ ] packaging/windows/runtime_hook_ml.py (PyInstaller runtime hook for ML package initialization)
+- [x] packaging/windows/ directory contents (build scripts, .iss, local dist/)
+- [x] packaging/windows/distutils_compat.py (Python 3.12 distutils compatibility shim)
+- [x] packaging/windows/runtime_hook_ml.py (PyInstaller runtime hook for ML package initialization)
 
 ### Required Source Folders for EXE Build
 - [ ] AI/ (all detection modules and AI/ml_models/)

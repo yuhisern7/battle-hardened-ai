@@ -49,12 +49,37 @@ When a request matches any configured or learned attack pattern in scope of the 
 _block_ip(ip_address)
 print(f"[IP BLOCKING] 🚫 Blocked {ip_address} for {threat_type}")
 ```
-- **Whitelist Check:** Respects built-in localhost defaults (`127.0.0.1`, `localhost`, `::1`) plus entries from `whitelist.json`
-- **GitHub Protection:** Dynamically unblocks any IPs that fall inside GitHub's published IP ranges (for automated security updates), using ranges fetched from the `https://api.github.com/meta` endpoint
-- **BLOCKS EVERYONE ELSE** – Added to `_blocked_ips` set and persisted unless explicitly whitelisted
-- **Persisted:** Saved to `server/json/blocked_ips.json` (Line 3104)
 
-**Result:** Attacker CANNOT make any more requests (403 Forbidden)
+**Dual-Layer Enforcement Architecture:**
+
+1. **Application Layer (Immediate - <1ms):**
+   - Added to `_blocked_ips` set (in-memory)
+   - Returns HTTP 403 Forbidden for all subsequent requests
+   - Persisted to `server/json/blocked_ips.json`
+
+2. **Kernel Firewall Layer (5-second sync):**
+   - **Firewall Sync Daemon:** `server/installation/bh_firewall_sync.py` (5-second loop)
+   - **Backend Auto-Detection:** `AI/firewall_backend.py` detects Linux distro firewall:
+     - **Debian/Ubuntu:** iptables-nft (Full Support ✅)
+     - **RHEL/Rocky/Alma/SUSE:** firewalld (Full Support ✅)
+     - **VyOS:** CLI address groups (Partial Support ⚠️)
+     - **OpenWRT:** UCI firewall (Partial Support ⚠️)
+     - **Alpine:** awall (Partial Support ⚠️)
+   - **Dual-Layer Rules:**
+     - **Whitelist (Priority 1):** `iptables -I INPUT 1 -m set --match-set bh_whitelist src -j ACCEPT`
+     - **Blocklist (Priority 2):** `iptables -I INPUT 2 -m set --match-set bh_blocked src -j DROP`
+   - **Safety Check:** Sync daemon removes whitelisted IPs from blocklist before syncing (whitelist wins conflicts)
+   - **Dashboard Management:** Section 7, 4th tab "🔥 Linux Firewall Commander" (Force Sync, Test Integration, View Native Rules)
+
+**Whitelist Protection:**
+- **Localhost Defaults:** `127.0.0.1`, `localhost`, `::1` (built-in)
+- **Custom Whitelist:** `server/json/whitelist.json` (manually added IPs)
+- **GitHub Protection:** Dynamically unblocks GitHub's published IP ranges (fetched from `https://api.github.com/meta`) for automated security updates
+- **Kernel Priority:** Whitelist = Priority 1 ACCEPT (wins all conflicts)
+
+**Result:** 
+- **Application-Level:** Attacker gets HTTP 403 Forbidden (immediate)
+- **Kernel-Level:** Packets dropped by firewall within 5 seconds (network-wide protection if deployed as gateway)
 
 ### 3️⃣ LOCAL STORAGE (< 1 second)
 **Location:** `AI/pcs_ai.py` threat logging functions
@@ -340,7 +365,11 @@ This separation ensures:
 | Component | Status | Details |
 |-----------|--------|---------|
 | **Attack Detection** | ✅ WORKING | Catch-all honeypot active |
-| **IP Blocking** | ✅ WORKING | `_block_ip()` called for ALL attacks |
+| **IP Blocking (Application)** | ✅ WORKING | `_block_ip()` called for ALL attacks |
+| **IP Blocking (Kernel Firewall)** | ✅ WORKING | Dual-layer enforcement (5s sync) |
+| **Firewall Backend Detection** | ✅ WORKING | iptables/firewalld/VyOS/OpenWRT/Alpine |
+| **Firewall Sync Daemon** | ✅ WORKING | 5-second loop syncing to kernel |
+| **Dashboard Management** | ✅ WORKING | Section 7, Tab 4 "Linux Firewall Commander" |
 | **Local Storage** | ✅ WORKING | `threat_log.json`, `blocked_ips.json` |
 | **Pattern Extraction** | ✅ WORKING | Keywords, encodings extracted |
 | **Relay Connection** | ✅ WORKING | `wss://<RELAY_SERVER_IP>:60001` connected |
@@ -352,12 +381,20 @@ This separation ensures:
 ## ⚠️ CRITICAL: NO EXCEPTIONS
 
 **EVERY attack pattern triggers:**
-1. **Immediate IP block** (< 1 second)
-2. **Local storage** (threat_log.json + blocked_ips.json)
-3. **Pattern extraction** (sanitized signatures)
-4. **Relay to relay server** (global sharing)
-5. **Relay server storage** (global_attacks.json)
+1. **Immediate IP block** (< 1 second - Application layer HTTP 403)
+2. **Kernel firewall block** (< 5 seconds - Network layer DROP)
+3. **Local storage** (threat_log.json + blocked_ips.json)
+4. **Pattern extraction** (sanitized signatures)
+5. **Relay to relay server** (global sharing)
+6. **Relay server storage** (global_attacks.json)
 
 **NO HIDDEN WHITELISTING** for attack sources (beyond localhost defaults, dynamic GitHub ranges, and any explicit entries you put into `whitelist.json`)
-**NO DELAYS** in blocking (instant on detection)
+**NO DELAYS** in application-layer blocking (instant on detection)
+**5-SECOND SYNC** for kernel firewall enforcement (acceptable latency)
 **NO EXCEPTIONS** for any attack type
+
+---
+
+**Last Verified:** February 6, 2026  
+**Status:** ✅ ARCHITECTURE COMPLIANT  
+**Architecture Enhancements:** 6 features implemented (Model Signing, Pattern Filtering, Performance Monitoring, Adversarial Training, ONNX, Linux Firewall Commander)

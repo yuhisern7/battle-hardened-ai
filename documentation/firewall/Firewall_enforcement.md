@@ -34,6 +34,97 @@ Battle-Hardened AI **auto-detects** your Linux firewall backend and uses the app
 
 ---
 
+## 📦 Implementation File Manifest
+
+This section lists all files involved in the Linux Firewall Commander subsection implementation (Section 7, Phase 1-6).
+
+### ✅ New Files Created
+
+| File Path | Purpose | Phase | Lines | Status |
+|-----------|---------|-------|-------|--------|
+| `AI/firewall_backend.py` | Multi-distro firewall backend abstraction layer | Phase 1 | 654 | ✅ Created |
+| `server/api/firewall_routes.py` | API endpoints for firewall management | Phase 3 | ~300 | ❌ Not needed (routes added directly to server.py) |
+| `AI/inspector_ai_monitoring.html` | Section 7 Linux Firewall Commander UI (Tab 4) | Phase 4 | ~200 | ✅ Complete |
+| `documentation/firewall/Multi_distro_support.md` | Per-backend configuration examples | Phase 5 | ~200 | ⚠️ Optional (examples in this file) |
+
+**Total new files:** 2 created, 1 not needed, 1 optional
+
+### 🔧 Existing Files Modified
+
+| File Path | Changes Made | Phase | Status |
+|-----------|--------------|-------|--------|
+| `server/installation/bh_firewall_sync.py` | Added dual-layer sync (whitelist + blocklist), backend detection, logging | Phase 1 | ✅ Complete |
+| `packaging/debian-startup.sh` | Create both ipsets (bh_whitelist + bh_blocked), dual-layer iptables rules | Phase 2 | ✅ Complete |
+| `packaging/debian-uninstall.sh` | Destroy both ipsets, remove dual-layer rules | Phase 2 | ✅ Complete |
+| `packaging/systemd/battle-hardened-ai-firewall-sync.service` | Service definition for firewall sync daemon (no changes needed) | Phase 2 | ✅ Verified |
+| `server/server.py` | Added 6 firewall API routes (detect, status, sync, test, rules, backend) | Phase 3 | ✅ Complete |
+| `server/json/blocked_ips.json` | Schema unchanged (existing) | N/A | ✅ Existing |
+| `server/json/whitelist.json` | Schema unchanged (existing) | N/A | ✅ Existing |
+| `AI/inspector_ai_monitoring.html` | Added Section 7 Tab 4 (Firewall Commander UI with status, actions, tables) | Phase 4 | ✅ Complete |
+| `documentation/installation/Installation.md` | Added Step 8b (firewall verification with backend testing) | Phase 5 | ✅ Complete |
+| `documentation/checklist/Debian-checklist.md` | Added Linux Firewall subsection verification (Tab 4 components) | Phase 5 | ✅ Complete |
+| `documentation/architecture/Attack_handling_flow.md` | Updated IP blocking to document dual-layer enforcement | Phase 5 | ✅ Complete |
+| `documentation/architecture/Architecture_enhancements.md` | Added Feature #6 (Linux Firewall Commander) | Phase 5 | ✅ Complete |
+| `README.md` | Updated firewall documentation paths | Phase 1 | ✅ Complete |
+| `documentation/firewall/Firewall_enforcement.md` | This file (comprehensive rewrite with dual-layer architecture) | Phase 1 | ✅ Complete |
+
+**Total modified files:** 14 (all complete)
+
+### 🎯 Implementation Phases Summary
+
+**Phase 1: Backend Abstraction Layer** ✅ COMPLETE
+- Created: `AI/firewall_backend.py` (654 lines, multi-distro detection & sync)
+- Modified: `server/installation/bh_firewall_sync.py` (dual-layer enforcement)
+- Modified: `README.md` (documentation path updates)
+- Modified: `documentation/firewall/Firewall_enforcement.md` (this file)
+
+**Phase 2: Startup Script Updates** ✅ COMPLETE
+- Modified: `packaging/debian-startup.sh` (create both ipsets with dual-layer rules)
+- Modified: `packaging/debian-uninstall.sh` (cleanup both ipsets)
+- Verified: `packaging/systemd/battle-hardened-ai-firewall-sync.service` (systemd service - no changes needed)
+
+**Phase 3: API Endpoints** ✅ COMPLETE
+- Modified: `server/server.py` (added 6 firewall API routes directly)
+- Routes implemented:
+  * `GET /api/firewall/detect` - Returns detected backend + capabilities
+  * `GET /api/firewall/status` - Returns sync status, IP counts, firewall stats
+  * `POST /api/firewall/sync` - Force immediate sync (bypasses 5s delay)
+  * `POST /api/firewall/test` - Test integration (add/verify/remove test IP)
+  * `GET /api/firewall/rules` - Returns our rules vs customer rules
+  * `POST /api/firewall/backend` - Override backend detection
+
+**Phase 4: Frontend UI** ✅ COMPLETE
+- Modified: `AI/inspector_ai_monitoring.html` (added Section 7, Tab 4 "Linux Firewall Commander")
+- Components: 
+  * Status panel (backend detection, sync daemon health)
+  * Sync health indicators (whitelist/blocklist IP counts)
+  * Our rules table (dual-layer priority display)
+  * Customer rules table (collapsible, read-only)
+  * Action buttons (Force Sync, Test Integration, View Native Rules, Refresh)
+  * Test results modal (3-step validation display)
+  * Auto-refresh (30s interval when tab active)
+- JavaScript functions:
+  * `fetchFirewallStatus()` - Load status from API
+  * `forceFirewallSync()` - Immediate sync via API
+  * `testFirewallIntegration()` - Run 3-step test
+  * `viewNativeRules()` - Display customer firewall rules
+  * `toggleCustomerRules()` - Show/hide customer rules
+  * `closeTestResults()` - Close test modal
+  * Auto-refresh interval
+
+**Phase 5: Documentation** ✅ COMPLETE
+- Modified: `documentation/installation/Installation.md` (Step 8b verification with backend testing)
+- Modified: `documentation/checklist/Debian-checklist.md` (Linux Firewall subsection verification)
+- Modified: `documentation/architecture/Attack_handling_flow.md` (dual-layer enforcement documentation)
+- Modified: `documentation/architecture/Architecture_enhancements.md` (added Feature #6)
+- Optional: `documentation/firewall/Multi_distro_support.md` (examples included in this file instead)
+
+**Phase 6: Testing** ⏳ PENDING
+- Test on Debian 12 (iptables-nft), Rocky Linux 9 (firewalld)
+- Verify dual-layer enforcement, automatic sync, Force Sync, Test Integration
+
+---
+
 ## 🎯 Deployment Role Determines Firewall Enforcement Scope
 
 **What firewall enforcement protects depends on deployment mode:**

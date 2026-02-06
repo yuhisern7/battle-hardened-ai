@@ -396,6 +396,98 @@ Firewall Status:
 
 **If you prefer manual configuration** instead of running the script, see **Troubleshooting Section** at the end of this document for step-by-step commands.
 
+**Step 8b: Verify Linux Firewall Commander Integration (NEW - February 2026)**
+
+Battle-Hardened AI now includes **dual-layer kernel firewall enforcement** across multiple Linux distributions:
+
+```bash
+# Check firewall backend detection
+sudo journalctl -u battle-hardened-ai-firewall-sync -n 20
+
+# Expected output:
+# [FIREWALL] Detected backend: iptables (or firewalld/VyOS/OpenWRT/Alpine)
+# [FIREWALL] Syncing whitelist: X IPs
+# [FIREWALL] Syncing blocklist: Y IPs (after safety check)
+```
+
+**Verify dual-layer rule creation:**
+
+```bash
+# For iptables-based systems (Debian/Ubuntu):
+sudo ipset list bh_whitelist  # Should show whitelist IPs
+sudo ipset list bh_blocked    # Should show blocked IPs
+sudo iptables -L INPUT -n --line-numbers | grep bh_
+
+# Expected:
+# 1    ACCEPT     all  --  0.0.0.0/0     0.0.0.0/0     match-set bh_whitelist src
+# 2    DROP       all  --  0.0.0.0/0     0.0.0.0/0     match-set bh_blocked src
+
+# For firewalld-based systems (RHEL/Rocky/Alma):
+sudo firewall-cmd --permanent --get-ipsets | grep bh_
+sudo firewall-cmd --list-rich-rules | grep bh_
+
+# Expected:
+# bh_whitelist
+# bh_blocked
+# rule family="ipv4" source ipset="bh_whitelist" accept
+# rule family="ipv4" source ipset="bh_blocked" drop
+```
+
+**Dashboard Verification (Section 7, Tab 4):**
+
+1. Open dashboard: `https://YOUR_SERVER_IP:60000`
+2. Navigate to **Section 7 - IP Management**
+3. Click the **🔥 Linux Firewall Commander** tab (4th tab)
+4. Verify:
+   - ✅ Backend Detected: `iptables` or `firewalld` (or other)
+   - ✅ Sync Daemon: Active (5s interval)
+   - ✅ Whitelist: X IPs synced ✅
+   - ✅ Blocklist: Y IPs synced ✅
+5. Click **🧪 Test Integration** to run 3-step validation
+6. Verify all 3 steps pass (Add Test IP → Verify → Remove)
+
+**Supported Backends:**
+
+| Linux Distro | Backend | Status |
+|--------------|---------|--------|
+| Debian/Ubuntu | iptables-nft | ✅ Full Support |
+| RHEL/Rocky/Alma/SUSE | firewalld | ✅ Full Support |
+| VyOS | CLI address groups | ⚠️ Partial Support |
+| OpenWRT | UCI firewall | ⚠️ Partial Support |
+| Alpine Linux | awall | ⚠️ Partial Support |
+
+**Priority System:**
+- **Layer 1 (Priority 1):** Whitelist = ACCEPT (wins all conflicts)
+- **Layer 2 (Priority 2):** Blocklist = DROP (only if not whitelisted)
+- **Safety Check:** Sync daemon removes whitelisted IPs from blocklist before syncing
+
+**Manual Backend Override (if auto-detection fails):**
+
+```bash
+# Set environment variable in .env
+sudo nano /etc/battle-hardened-ai/.env
+
+# Add line:
+BH_FIREWALL_BACKEND=iptables  # or firewalld, vyos, openwrt, alpine
+
+# Restart firewall sync daemon
+sudo systemctl restart battle-hardened-ai-firewall-sync
+```
+
+**Troubleshooting:**
+
+```bash
+# Check sync daemon logs
+sudo journalctl -u battle-hardened-ai-firewall-sync -f
+
+# Test backend detection manually
+cd /opt/battle-hardened-ai
+sudo -u bhai python3 -c "from AI.firewall_backend import detect_firewall_backend; print(detect_firewall_backend())"
+
+# Force immediate sync (bypass 5-second delay)
+curl -X POST https://localhost:60000/api/firewall/sync -H "Authorization: Bearer YOUR_TOKEN"
+```
+
 **Step 9: Configure Network Settings (If Not Auto-Detected)**
 
 The setup script attempts to auto-detect your network. If detection fails, manually configure:

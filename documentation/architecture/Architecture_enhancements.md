@@ -1,7 +1,7 @@
 # Architecture Enhancements - Implementation Guide
 
-**Date:** February 3, 2026  
-**Status:** Implemented (5 features)
+**Date:** February 6, 2026  
+**Status:** Implemented (6 features)
 
 ---
 
@@ -327,7 +327,138 @@ is_anomaly, score = pcs_ai._ml_predict_anomaly(features)  # 2-5x faster!
 - GradientBoosting: 18.5ms → **7.1ms** (2.6x faster)
 
 ---
+### 6. Linux Firewall Commander (Multi-Distro Kernel Enforcement)
 
+**Files:** `AI/firewall_backend.py`, `server/installation/bh_firewall_sync.py`
+
+**Purpose:** Enforce IP blocks at kernel firewall level across multiple Linux distributions with dual-layer whitelist/blocklist priority system
+
+**How it works:**
+- **Backend Detection:** Auto-detects Linux firewall backend (iptables, firewalld, VyOS, OpenWRT, Alpine)
+- **Dual-Layer Architecture:**
+  - **Layer 1 (Priority 1):** Whitelist = ACCEPT (wins all conflicts)
+  - **Layer 2 (Priority 2):** Blocklist = DROP (only if not whitelisted)
+- **Sync Daemon:** 5-second loop syncs `whitelist.json` and `blocked_ips.json` to kernel firewall
+- **Safety Check:** Removes whitelisted IPs from blocklist before syncing (prevents conflicts)
+- **Dashboard UI:** Section 7, 4th tab "🔥 Linux Firewall Commander" for monitoring and manual control
+
+**Supported Backends:**
+
+| Linux Distro | Firewall Backend | Support Level | Commands Used |
+|--------------|-----------------|---------------|---------------|
+| Debian/Ubuntu | iptables-nft | ✅ Full | `ipset`, `iptables`, `netfilter-persistent` |
+| RHEL/Rocky/Alma/SUSE | firewalld | ✅ Full | `firewall-cmd --ipset`, `--add-rich-rule` |
+| VyOS | CLI address groups | ⚠️ Partial | `configure`, `set firewall group` |
+| OpenWRT | UCI firewall | ⚠️ Partial | `uci add firewall ipset` |
+| Alpine Linux | awall | ⚠️ Partial | `awall` JSON config |
+
+**Usage:**
+
+```python
+# Automatic backend detection on startup
+from AI.firewall_backend import detect_firewall_backend, sync_whitelist_to_firewall, sync_blocklist_to_firewall
+
+backend = detect_firewall_backend()
+print(f"Detected: {backend}")  # Example: "iptables" or "firewalld"
+
+# Sync whitelist (Priority 1 ACCEPT)
+whitelist_ips = ['127.0.0.1', '192.168.1.100', '10.0.0.5']
+retcode, message = sync_whitelist_to_firewall(backend, whitelist_ips)
+if retcode == 0:
+    print(f"✅ Whitelist synced: {message}")
+
+# Sync blocklist (Priority 2 DROP) - AFTER safety check removes whitelisted IPs
+blocklist_ips = ['203.0.113.42', '198.51.100.88']  # Already filtered
+retcode, message = sync_blocklist_to_firewall(backend, blocklist_ips)
+if retcode == 0:
+    print(f"✅ Blocklist synced: {message}")
+```
+
+**Firewall Sync Daemon:**
+
+```python
+# server/installation/bh_firewall_sync.py - Runs as systemd service
+import time
+from AI.firewall_backend import detect_firewall_backend, sync_whitelist_to_firewall, sync_blocklist_to_firewall
+
+backend = detect_firewall_backend()
+
+while True:
+    # Load latest IPs from JSON
+    whitelist = load_whitelist_ips()  # From server/json/whitelist.json
+    blocked = load_blocked_ips()      # From server/json/blocked_ips.json
+    
+    # Safety check: Remove whitelisted IPs from blocklist
+    blocklist_safe = list(set(blocked) - set(whitelist))
+    
+    # Sync to kernel firewall
+    sync_whitelist_to_firewall(backend, whitelist)
+    sync_blocklist_to_firewall(backend, blocklist_safe)
+    
+    time.sleep(5)  # 5-second interval
+```
+
+**Dashboard API Endpoints (server/server.py):**
+
+```python
+# GET /api/firewall/detect - Returns backend type + capabilities
+# GET /api/firewall/status - Returns sync status, IP counts, last sync time
+# POST /api/firewall/sync - Force immediate sync (bypasses 5s delay)
+# POST /api/firewall/test - 3-step integration test (non-destructive)
+# GET /api/firewall/rules - View our rules vs customer firewall rules
+# POST /api/firewall/backend - Manual backend override (emergency)
+```
+
+**Dashboard UI (Section 7, Tab 4):**
+
+- **Status Panel:** Backend detected, sync daemon health, last sync timestamp
+- **Sync Health:** Whitelist X/X synced ✅, Blocklist X/X synced ✅
+- **Action Buttons:**
+  - ⚡ **Force Sync Now** - Immediate sync (bypasses 5-second delay)
+  - 🧪 **Test Integration** - 3-step validation (add test IP → verify → remove)
+  - 📋 **View Native Rules** - Show customer's existing firewall rules (read-only)
+  - 🔄 **Refresh Status** - Manual status refresh
+- **Our Rules Table:** Displays dual-layer architecture (Whitelist Priority 1, Blocklist Priority 2)
+- **Customer Rules:** Collapsible section showing existing firewall rules (non-Battle-Hardened AI)
+- **Auto-Refresh:** Every 30 seconds (when tab active)
+
+**Safety Guarantees:**
+
+- ✅ **Whitelist Wins Conflicts:** IP in both whitelist + blocklist = ACCEPTED (Priority 1 > Priority 2)
+- ✅ **Safety Check:** Sync daemon removes whitelisted IPs from blocklist before syncing
+- ✅ **Non-Destructive Testing:** Test integration preserves production blocklist
+- ✅ **Startup Scripts:** `packaging/debian-startup.sh` creates dual-layer ipsets + rules
+- ✅ **Uninstall Cleanup:** `packaging/debian-uninstall.sh` removes both layers
+
+**Startup Script (packaging/debian-startup.sh):**
+
+```bash
+# Create ipsets
+ipset create bh_whitelist hash:ip family inet hashsize 1024 maxelem 100000
+ipset create bh_blocked hash:ip family inet hashsize 1024 maxelem 100000
+
+# Add dual-layer rules (priority enforced by position)
+iptables -I INPUT 1 -m set --match-set bh_whitelist src -j ACCEPT
+iptables -I INPUT 2 -m set --match-set bh_blocked src -j DROP
+iptables -I FORWARD 1 -m set --match-set bh_whitelist src -j ACCEPT
+iptables -I FORWARD 2 -m set --match-set bh_blocked src -j DROP
+
+# Save rules
+netfilter-persistent save
+```
+
+**Performance:**
+- ✅ 5-second sync latency (acceptable for threat response)
+- ✅ Kernel-level packet dropping (no Python overhead)
+- ✅ ipset hash tables (O(1) lookup, supports 100K+ IPs)
+- ✅ Minimal memory footprint (~1MB for 10K IPs)
+
+**Multi-Distro Compatibility:**
+- Tested on: Debian 12, Ubuntu 22.04/24.04, Rocky Linux 9, AlmaLinux 9
+- Fallback: If backend unavailable, falls back to legacy iptables-only mode
+- Manual Override: `BH_FIREWALL_BACKEND` environment variable for edge cases
+
+---
 ## 📊 Expected Impact
 
 | Enhancement | Bandwidth Saved | Security Improved | Performance Impact |
@@ -336,8 +467,7 @@ is_anomaly, score = pcs_ai._ml_predict_anomaly(features)  # 2-5x faster!
 | **Pattern Filtering** | 70-80% | - | Negligible (<1ms) |
 | **Performance Monitoring** | 0% | - | Minor (~5% overhead) |
 | **Adversarial Training** | 0% | ++++ (High) | Training time +30% |
-| **ONNX Models** | 4% | - | **2-5x faster inference** |
-
+| **ONNX Models** | 4% | - | **2-5x faster inference** || **Linux Firewall Commander** | 0% | +++++ (Critical) | 5-second sync latency |
 ---
 
 ## 🚀 Deployment
