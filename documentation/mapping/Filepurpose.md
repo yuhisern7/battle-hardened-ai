@@ -62,7 +62,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 | **4** | 🤖 Real AI/ML Models - Machine Learning Intelligence | Core ML models: RandomForest, IsolationForest, GradientBoosting, LSTM | `AI/ml_models/*.pkl`, `AI/ml_models/sequence_lstm.keras`, `AI/pcs_ai.py` (Signals #3-5, #7) |
 | **5** | 📊 Security Overview - Live Statistics | Real-time threat counters, attack summaries, blocked IPs | `server/json/threat_log.json`, `server/json/blocked_ips.json`, `AI/pcs_ai.py` |
 | **6** | 🎯 Threat Analysis by Type | Attack type breakdown, threat categories | `server/json/threat_log.json`, `AI/behavioral_heuristics.py` |
-| **7** | 🛡️ IP Management & Threat Monitoring | IP blocking, whitelisting, threat filtering | `server/json/blocked_ips.json`, `server/json/whitelist.json`, `server/device_blocker.py` |
+| **7** | 🛡️ IP Management & Threat Monitoring | IP blocking, whitelisting, threat filtering, Linux Firewall Commander (Tab 4: dual-layer kernel firewall enforcement across 5 distributions) | `server/json/blocked_ips.json`, `server/json/whitelist.json`, `server/device_blocker.py`, `AI/firewall_backend.py`, `server/installation/bh_firewall_sync.py` |
 | **8** | 🔐 Failed Login Attempts (Battle-Hardened AI Server) | Dashboard login failures, brute-force attempts | `server/server.py`, `server/json/admin_users.json` |
 | **9** | 📈 Attack Type Breakdown (View) | Visual attack type distribution, trend analysis | `server/json/threat_log.json`, `AI/advanced_visualization.py` |
 | **10** | 📦 Automated Signature Extraction - Attack Pattern Analysis | Attack pattern learning, signature generation | `AI/signature_extractor.py`, `relay/ai_training_materials/ai_signatures/learned_signatures.json` |
@@ -344,10 +344,12 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 **Server Files:**
 - `server/device_blocker.py` — Firewall blocking (iptables/nftables)
+- `server/installation/bh_firewall_sync.py` — Linux kernel firewall sync daemon (5-second sync loop with safety checks, multi-distro support)
 - `server/json/blocked_ips.json` — Current blocklist
 - `server/json/threat_log.json` — Primary threat log
 
 **AI Files:**
+- `AI/firewall_backend.py` — Multi-distribution firewall backend abstraction (iptables-nft/firewalld/VyOS/OpenWRT/Alpine auto-detection, dual-layer enforcement: Priority 1 ACCEPT whitelist + Priority 2 DROP blocklist)
 - `AI/alert_system.py` — Email/SMS alerting (SMTP/Twilio) for critical system events (system failure, kill-switch changes, integrity breaches; not general threat alerts)
 - `AI/policy_governance.py` — Approval workflows
 - `AI/emergency_killswitch.py` — SAFE_MODE override
@@ -507,6 +509,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - `server/requirements.txt` — Python dependencies
 
 **Installation & Startup (server/installation/):**
+- `server/installation/bh_firewall_sync.py` — Linux kernel firewall sync daemon (5-second sync loop with safety checks, multi-distro support)
 - `server/installation/init_json_files.py` — Creates all 35+ required JSON files at startup
 - `server/installation/watchdog.py` — Production auto-restart monitor (crash protection)
 - `server/installation/gunicorn_config.py` — Production Gunicorn config (sync workers)
@@ -633,6 +636,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - AI/explainability_engine.py — Builds human-readable explanations and feature attributions for AI decisions and threat scores, maintains decision history, and emits forensic_reports JSON plus optional explainability_data for training.
 - AI/exploitdb — Placeholder directory for future local ExploitDB cache (currently, ExploitDB data is only stored on relay server at `relay/ai_training_materials/exploitdb/`).
 - AI/false_positive_filter.py — Filters noisy detections using heuristics and metadata to reduce false positives before reaching the dashboard.
+- AI/firewall_backend.py — Multi-distribution firewall backend abstraction layer supporting iptables-nft (Debian/Ubuntu), firewalld (RHEL/Rocky/Alma/SUSE), VyOS, OpenWRT, and Alpine Linux; implements dual-layer enforcement with Priority 1 ACCEPT whitelist rules and Priority 2 DROP blocklist rules, auto-detects backend on startup, and provides unified API for firewall operations across distributions.
 - AI/file_analyzer.py — Analyzes files and artifacts (hashing, type, basic features) for use in malware/intel workflows.
 - AI/file_rotation.py — ML training log rotation utility that auto-rotates large log files (threat_log.json, comprehensive_audit.json, global_attacks.json) at 100MB to prevent unbounded growth on memory-constrained servers.
 - AI/formal_threat_model.py — Encodes a higher-level formal threat model, mapping signals and components into structured attack scenarios.
@@ -684,6 +688,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 	- Windows runs natively via `server/installation/watchdog.py` during development; production Windows deployments typically use the packaged `BattleHardenedAI.exe` installer. Docker deployment is Linux-only via `server/docker-compose.yml`.
 - server/Dockerfile — Builds the server container image, installing dependencies, copying AI code, and wiring HTTPS/gunicorn.
 - server/entrypoint.sh — Container entrypoint that launches server.py and gunicorn with TLS certificates from crypto_keys/ directory.
+- server/installation/bh_firewall_sync.py — Linux kernel firewall synchronization daemon that runs as a systemd service (battle-hardened-ai-firewall-sync.service); syncs blocked_ips.json and whitelist.json to native Linux firewall every 5 seconds with safety checks to prevent whitelisted IPs from being blocked, supports multiple firewall backends via AI/firewall_backend.py, and logs sync operations to journalctl.
 - server/installation/init_json_files.py — Python script that creates all 35+ required JSON files at server startup with proper initialization.
 - server/installation/watchdog.py — Production auto-restart monitor that wraps Gunicorn with crash detection and recovery (recommended for production deployments).
 - server/installation/gunicorn_config.py — Production Gunicorn configuration with sync workers optimized for 4k-8k concurrent connections.

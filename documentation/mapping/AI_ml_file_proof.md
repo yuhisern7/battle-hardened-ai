@@ -87,6 +87,10 @@ For complete documentation, see [Architecture_Enhancements.md](Architecture_Enha
 │  STAGE 4: RESPONSE EXECUTION (POLICY-GOVERNED)                         │
 │     ├─ server/device_blocker.py                                         │
 │     │  └─ Firewall blocking (iptables/nftables + TTL)                  │
+│     ├─ AI/firewall_backend.py                                           │
+│     │  └─ Multi-distro abstraction (iptables/firewalld/VyOS/etc.)     │
+│     ├─ server/installation/bh_firewall_sync.py                          │
+│     │  └─ Kernel firewall sync daemon (5-second loop with safety)     │
 │     ├─ AI/alert_system.py                                               │
 │     │  └─ Email/SMS alerts (SMTP/Twilio) - critical events only        │
 │     ├─ AI/policy_governance.py                                          │
@@ -1034,11 +1038,13 @@ def verify_customer_message(message: Dict) -> tuple[bool, str]:
 
 ---
 
-### STAGE 4: Response Execution Files (5 files)
+### STAGE 4: Response Execution Files (7 files)
 
 | File | Lines | Purpose |
 |------|-------|---------|
 | **server/device_blocker.py** | ~400 | Firewall blocking (iptables/nftables + TTL management) |
+| **AI/firewall_backend.py** | 496 | Multi-distro firewall backend abstraction (iptables-nft/firewalld/VyOS/OpenWRT/Alpine auto-detection, dual-layer enforcement: Priority 1 ACCEPT whitelist + Priority 2 DROP blocklist) |
+| **server/installation/bh_firewall_sync.py** | 264 | Linux kernel firewall sync daemon (5-second sync loop with safety checks, removes whitelisted IPs from blocklist before syncing to prevent conflicts) |
 | **AI/alert_system.py** | ~350 | Email/SMS alerting (SMTP/Twilio) - **critical system events only** (system failure, kill-switch changes, integrity breaches; NOT general threat alerts) |
 | **AI/policy_governance.py** | ~450 | Approval workflows for policy changes |
 | **AI/emergency_killswitch.py** | ~200 | SAFE_MODE override and emergency shutdown |

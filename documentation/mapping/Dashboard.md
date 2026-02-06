@@ -339,7 +339,7 @@ print(stats.get("threats_by_type", {}))
 ## Section 7 – IP Management & Threat Monitoring (Stage 3: Decision Outcomes)
 
 **Pipeline Stage:** Ensemble Decision Engine (block/log/allow outcomes)
-**Purpose:** Per-IP threat history, block/whitelist management
+**Purpose:** Per-IP threat history, block/whitelist management, dual-layer kernel firewall enforcement (Tab 4: Linux Firewall Commander)
 
 **APIs:**
 - `/api/threat_log` — Complete threat log with ensemble decisions
@@ -348,11 +348,20 @@ print(stats.get("threats_by_type", {}))
 - `/api/whitelist/add`, `/api/whitelist/remove` — Whitelist management
 - `/api/threat/block-ip` — Manual block trigger
 - `/api/stats` — Includes `blocked_ips_count`
+- **Firewall Commander APIs (Tab 4):**
+  - `/api/firewall/detect` — Auto-detect firewall backend (iptables/firewalld/VyOS/OpenWRT/Alpine)
+  - `/api/firewall/status` — Sync daemon health, IP counts, last sync timestamp
+  - `/api/firewall/sync` — Force immediate firewall sync (bypasses 5s delay)
+  - `/api/firewall/test` — 3-step integration test (non-destructive)
+  - `/api/firewall/rules` — View our rules (dual-layer) vs customer rules (read-only)
+  - `/api/firewall/backend` — Manual backend override
 
 **Backend Modules:**
 - `AI/pcs_ai.py` — `_threat_log`, `get_blocked_ips()`, `get_whitelisted_ips()`
 - `AI/meta_decision_engine.py` — Final block/log/allow decisions
 - `AI/reputation_tracker.py` — Signal #14 (cross-session reputation)
+- `AI/firewall_backend.py` — Multi-distro firewall backend abstraction (iptables-nft/firewalld/VyOS/OpenWRT/Alpine auto-detection, dual-layer enforcement: Priority 1 ACCEPT whitelist + Priority 2 DROP blocklist)
+- `server/installation/bh_firewall_sync.py` — Kernel firewall sync daemon (5-second sync loop with safety checks, removes whitelisted IPs from blocklist before syncing)
 
 **Test Script:**
 ```python

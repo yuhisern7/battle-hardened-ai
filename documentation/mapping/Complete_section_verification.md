@@ -198,10 +198,12 @@ For complete documentation, see [Architecture_Enhancements.md](../architecture/A
 - **Section ID:** `section-7`
 - **Title:** `📍 Section 7 | 🛡️ IP Management & Threat Monitoring`
 - **HTML Line:** 2198
+- **Tab 4:** Linux Firewall Commander (lines 2577-2711) - Dual-layer kernel firewall enforcement
 
 ### JavaScript Functions
 - **Main Loaders:** `unblockIP()` (line 6992), `whitelistIP()` (line 7035), `blockThreatIP()` (line 7121), `manualBlockIP()` (line 7291), `manualWhitelistIP()` (line 7333)
 - **Bulk Operations:** `bulkUnblockIPs()` (line 7204), `bulkRemoveWhitelistedIPs()` (line 7251)
+- **Firewall Commander (Tab 4):** `fetchFirewallStatus()` (line 8962), `forceFirewallSync()` (line 9042), `testFirewallIntegration()` (line 9059), `viewNativeRules()` (line 9118), `toggleCustomerRules()` (line 9143), `closeTestResults()` (line 9155), `refreshFirewallStatus()` (line 9159), `updateOurRulesTable()` (line 9009)
 
 ### API Endpoints
 - `/api/blocked-ips` (GET) - List blocked IPs
@@ -210,6 +212,13 @@ For complete documentation, see [Architecture_Enhancements.md](../architecture/A
 - `/api/whitelist/remove` (POST) - Remove from whitelist
 - `/api/threat/block-ip` (POST) - Block IP from threat
 - `/api/block-ip` (POST) - Manual IP block
+- **Firewall Commander APIs:**
+  - `/api/firewall/detect` (GET) - Auto-detect firewall backend (iptables/firewalld/VyOS/OpenWRT/Alpine)
+  - `/api/firewall/status` (GET) - Sync daemon health, IP counts, last sync timestamp
+  - `/api/firewall/sync` (POST) - Force immediate firewall sync (bypasses 5s delay)
+  - `/api/firewall/test` (POST) - 3-step integration test (non-destructive, preserves production blocklist)
+  - `/api/firewall/rules` (GET) - View our rules (dual-layer) vs customer rules (read-only)
+  - `/api/firewall/backend` (POST) - Manual backend override (BH_FIREWALL_BACKEND env var)
 
 ### JSON Files
 - `server/json/blocked_ips.json` - Active blocks
@@ -217,9 +226,11 @@ For complete documentation, see [Architecture_Enhancements.md](../architecture/A
 
 ### Python Modules
 - `server/device_blocker.py` - Firewall integration (iptables/nftables/Windows Firewall)
+- `AI/firewall_backend.py` - Multi-distro firewall backend abstraction (496 lines, supports 5 backends)
+- `server/installation/bh_firewall_sync.py` - Kernel firewall sync daemon (264 lines, 5-second loop with safety checks)
 
 ### Verification Status
-✅ **VERIFIED** - Matches Filepurpose.md Stage 4 (Response Execution)
+✅ **VERIFIED** - Matches Filepurpose.md Stage 4 (Response Execution) + Linux Firewall Commander (Phases 1-5 complete)
 
 ---
 

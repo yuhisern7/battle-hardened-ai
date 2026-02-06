@@ -58,12 +58,14 @@ This document maps each dashboard section (1-24) to its loader functions and ver
 - **Status**: ✅ MATCHES Filepurpose.md Stage 4 (Logging)
 
 ### Section 7: IP Management & Threat Monitoring
-- **Function**: Multiple (unblockIP, whitelistIP, blockThreatIP)
-- **APIs**: `/api/blocked-ips`, `/api/whitelist`, `/api/block-ip`, `/api/unblock-ip`
-- **Files**: `server/device_blocker.py`
+- **Function**: Multiple (unblockIP, whitelistIP, blockThreatIP, manualBlockIP, manualWhitelistIP, bulkUnblockIPs, bulkRemoveWhitelistedIPs)
+- **Firewall Commander Functions (Tab 4)**: fetchFirewallStatus, forceFirewallSync, testFirewallIntegration, viewNativeRules, toggleCustomerRules, closeTestResults, refreshFirewallStatus, updateOurRulesTable
+- **APIs**: `/api/blocked-ips`, `/api/whitelist`, `/api/block-ip`, `/api/unblock-ip`, `/api/threat/block-ip`
+- **Firewall Commander APIs**: `/api/firewall/detect`, `/api/firewall/status`, `/api/firewall/sync`, `/api/firewall/test`, `/api/firewall/rules`, `/api/firewall/backend`
+- **Files**: `server/device_blocker.py`, `AI/firewall_backend.py`, `server/installation/bh_firewall_sync.py`
 - **JSON**: `server/json/blocked_ips.json`, `server/json/whitelist.json`
-- **Purpose**: IP blocking and whitelisting management
-- **Status**: ✅ MATCHES Filepurpose.md Stage 4 (Response Execution)
+- **Purpose**: IP blocking and whitelisting management, dual-layer kernel firewall enforcement (Application Layer HTTP 403 immediate + Kernel Firewall Layer DROP within 5s)
+- **Status**: ✅ MATCHES Filepurpose.md Stage 4 (Response Execution) + Linux Firewall Commander (Phases 1-5 complete)
 
 ### Section 8: Failed Login Attempts (Battle-Hardened AI Server)
 - **Function**: Embedded in stats
