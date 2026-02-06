@@ -355,76 +355,85 @@ sudo dpkg -i battle-hardened-ai_*.deb
 sudo apt-get install -f  # Fix any dependencies
 ```
 
-**Step 8: Fix Permissions (CRITICAL - Required After Installation)**
+**Step 8: Run Post-Installation Setup Script (REQUIRED)**
 
-The .deb package creates the `bhai` service user, but you must fix ownership of runtime directories:
-
-```bash
-# Fix ownership of runtime directories
-sudo chown -R bhai:bhai /var/lib/battle-hardened-ai
-sudo chown -R bhai:bhai /var/log/battle-hardened-ai
-
-# Set correct permissions
-sudo chmod -R 750 /var/lib/battle-hardened-ai
-sudo chmod -R 750 /var/log/battle-hardened-ai
-sudo chmod 640 /var/lib/battle-hardened-ai/server/json/*.json
-
-# Verify permissions
-ls -la /var/lib/battle-hardened-ai
-# Expected: drwxr-x--- bhai bhai
-```
-
-**Step 9: Configure Network Settings**
-
-Identify your network configuration:
+The package ships with an automated setup script that configures permissions, firewall rules, and starts all services:
 
 ```bash
-# Find your network interface
-ip addr show
-# Example output: wlo1 (Wi-Fi), eth0 (Ethernet), enp3s0 (Ethernet)
+# Run the post-installation script (installed with the .deb package)
+sudo bash /opt/battle-hardened-ai/packaging/debian-startup.sh
 
-# Find your IP address and subnet
-ip addr show wlo1  # Replace wlo1 with your interface
-# Example: inet 192.168.0.119/24 (subnet is 192.168.0.0/24)
-
-# Find default gateway
-ip route | grep default
-# Example: default via 192.168.0.1 dev wlo1
+# Or if you downloaded the package separately:
+# sudo bash ./debian-startup.sh
 ```
 
-Edit the .env file and add network configuration:
+**What the script does automatically:**
+- ✅ Fixes permissions (bhai:bhai ownership, 750/640 modes)
+- ✅ Verifies .env configuration
+- ✅ Installs iptables-persistent
+- ✅ Creates ipset blocklist (bh_blocked)
+- ✅ Adds iptables DROP rules (INPUT + FORWARD chains)
+- ✅ Saves firewall rules (persists across reboots)
+- ✅ Restarts all services (main, device-scanner, firewall-sync)
+- ✅ Verifies installation
+
+**Expected output:**
+```
+======================================================
+Setup Complete!
+======================================================
+
+Service Status:
+   ✅ battle-hardened-ai: active
+   ✅ battle-hardened-ai-device-scanner: active
+   ✅ battle-hardened-ai-firewall-sync: active
+
+Firewall Status:
+   Blocked IPs in ipset: X
+   ✅ iptables INPUT rule: active
+   ✅ iptables FORWARD rule: active
+```
+
+**If you prefer manual configuration** instead of running the script, see **Troubleshooting Section** at the end of this document for step-by-step commands.
+
+**Step 9: Configure Network Settings (If Not Auto-Detected)**
+
+The setup script attempts to auto-detect your network. If detection fails, manually configure:
+
+```bash
+# Find your network interface and gateway
+ip addr show          # Find interface (e.g., wlo1, eth0)
+ip route | grep default   # Find gateway
+
+# Edit .env
+sudo nano /etc/battle-hardened-ai/.env
+
+# Add these lines at the end:
+NETWORK_RANGE=192.168.0.0/24       # Your subnet
+NETWORK_INTERFACE=wlo1              # Your interface
+DEFAULT_GATEWAY=192.168.0.1         # Your gateway
+
+# Save and restart device scanner
+sudo systemctl restart battle-hardened-ai-device-scanner
+```
+
+**Step 10: Configure Relay and Security Settings**
 
 ```bash
 sudo nano /etc/battle-hardened-ai/.env
-```
 
-**Add/modify these critical variables:**
-
-```bash
-# Network Scanner Configuration - REQUIRED for device detection
-NETWORK_RANGE=192.168.0.0/24           # Your subnet (change to match your network)
-NETWORK_INTERFACE=wlo1                  # Your network interface name
-DEFAULT_GATEWAY=192.168.0.1             # Your gateway IP
-
-# Relay Configuration
+# Add/modify these variables:
 RELAY_URL=wss://YOUR_RELAY_VPS:60001
 RELAY_API_URL=https://YOUR_RELAY_VPS:60002
 CUSTOMER_ID=your-customer-id
 PEER_NAME=main-gateway
-
-# Security
 BATTLE_HARDENED_SECRET_KEY=your-long-random-secret-key
+
+# Save and restart main service
+sudo systemctl restart battle-hardened-ai
 ```
 
-**Common Network Configurations:**
-
-| Network Type | NETWORK_RANGE | DEFAULT_GATEWAY | Interface Examples |
-|--------------|---------------|-----------------|-------------------|
-| Home Wi-Fi | 192.168.0.0/24 or 192.168.1.0/24 | 192.168.0.1 or 192.168.1.1 | wlo1, wlan0 |
-| Office Ethernet | 10.0.0.0/24 or 172.16.0.0/24 | 10.0.0.1 or 172.16.0.1 | eth0, enp3s0 |
-| Cloud VPC | 10.0.10.0/24 | 10.0.10.1 | eth0, ens160 |
-
-**Step 10: Place Shared Secret Key**
+**Step 11: Place Shared Secret Key**
 
 ```bash
 # Obtain shared_secret.key from vendor
@@ -446,7 +455,7 @@ sudo chown bhai:bhai /etc/battle-hardened-ai/crypto_keys/shared_secret.key
 sudo chmod 600 /etc/battle-hardened-ai/crypto_keys/shared_secret.key
 ```
 
-**Step 11: Whitelist Gateway IP**
+**Step 12: Whitelist Gateway IP**
 
 ```bash
 # Edit whitelist to prevent blocking gateway itself
@@ -461,33 +470,27 @@ Add:
 ]
 ```
 
-**Step 12: Start Services**
+**Step 13: Verify Installation**
+
+All services should already be running from the debian-startup.sh script. Verify:
 
 ```bash
-sudo systemctl enable battle-hardened-ai battle-hardened-ai-firewall-sync battle-hardened-ai-device-scanner
-sudo systemctl start battle-hardened-ai battle-hardened-ai-firewall-sync battle-hardened-ai-device-scanner
-
-# Check status
+# Check all services are active
 sudo systemctl status battle-hardened-ai
 sudo systemctl status battle-hardened-ai-device-scanner
-sudo journalctl -u battle-hardened-ai -n 50 --no-pager
-```
+sudo systemctl status battle-hardened-ai-firewall-sync
 
-**Verify device scanner is working:**
-
-```bash
-# Wait 10 seconds for initial scan
+# Verify device scanner detected devices (wait 10 seconds for first scan)
 sleep 10
-
-# Check connected devices API
 curl -k https://localhost:60000/api/connected-devices
 # Should show: {"devices":[...], "total_count":X} where X > 0
 
-# If devices array is empty, check scanner logs:
-sudo journalctl -u battle-hardened-ai-device-scanner -n 30 --no-pager
+# Check firewall is blocking IPs
+sudo ipset list bh_blocked
+# Should show blocked IPs and References: 2
 ```
 
-**Step 13: Access Dashboard**
+**Step 14: Access Dashboard**
 
 From any device on internal network:
 ```
@@ -496,12 +499,12 @@ https://192.168.1.1:60000
 
 Accept self-signed certificate and login.
 
-**Step 14: Final Verification**
+**Step 15: Final Verification**
 
 ```bash
 # Check firewall rules are being applied
-sudo iptables -L -n -v
-sudo ipset list
+sudo iptables -L -n -v | head -20
+sudo ipset list bh_blocked
 
 # Monitor live threats
 sudo journalctl -u battle-hardened-ai -f

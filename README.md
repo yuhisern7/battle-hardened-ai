@@ -612,13 +612,13 @@ You never modify Battle-Hardened AI code—you wire your tools to the Battle-Har
 - Download the latest Linux package (`.deb`/`.rpm`) or Windows `.exe` installer from the distribution channel provided by the project.
 - Install following [documentation/installation/Installation.md](documentation/installation/Installation.md).
 - Open the dashboard documented in [Dashboard](documentation/mapping/Dashboard.md) to verify live telemetry and decision traces.
-- Wire your local firewall using [documentation/architecture/Firewall_enforcement.md](documentation/architecture/Firewall_enforcement.md) and confirm that blocked IPs appear both in the dashboard and in JSON outputs.
+- Wire your local firewall using [documentation/firewall/Firewall_enforcement.md](documentation/firewall/Firewall_enforcement.md) and confirm that blocked IPs appear both in the dashboard and in JSON outputs.
 
 **Enterprise / SOC**
 
 - Select one gateway or choke point per protected segment, and install Battle-Hardened AI there using [documentation/installation/Installation.md](documentation/installation/Installation.md).
 - Follow [Installation guide](documentation/installation/Installation.md) to start services, then integrate with SIEM/SOAR as described in [Dashboard](documentation/mapping/Dashboard.md) and [Attack handling flow](documentation/architecture/Attack_handling_flow.md).
-- Enable firewall synchronization using [documentation/architecture/Firewall_enforcement.md](documentation/architecture/Firewall_enforcement.md) so auto-block decisions propagate to `iptables`/`ipset` (Linux) or Windows Defender Firewall.
+- Enable firewall synchronization using [documentation/firewall/Firewall_enforcement.md](documentation/firewall/Firewall_enforcement.md) so auto-block decisions propagate to `iptables`/`ipset` (Linux) or Windows Defender Firewall.
 - Run a controlled test from [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md) to validate end-to-end detection, blocking, and logging before broad rollout.
 
 ### What Battle-Hardened AI Offers (Capabilities & Roadmap)
@@ -768,7 +768,7 @@ Firewall enforcement paths (Linux vs Windows EXE):
 
 - **Step 21 seems too aggressive (false positives):** Use the Governance & Emergency Controls section (23) to move from fully autonomous deny into observe or approval modes, then adjust the Step 21 policy bundle under `policies/step21` (for example, HTTP method and trust-threshold settings) and reload. For detailed guidance, see `documentation/architecture/Architecture_Enhancements.md` and `documentation/architecture/Attack_handling_flow.md`.
 - **Relay/central training status is unhealthy:** Check Section 1 on the dashboard and the `/api/relay/status` endpoint for detailed error messages (DNS, TLS, authentication). Verify relay settings in the environment or in the installed `.env.windows` file next to `BattleHardenedAI.exe` (for EXE deployments), and ensure outbound firewall rules permit the configured relay URL/port.
-- **Blocked IPs are not reflected in Windows Firewall:** Confirm that `blocked_ips.json` is being updated in the runtime JSON directory (for EXE builds this is under `%LOCALAPPDATA%/Battle-Hardened AI/server/json`), and that Task Scheduler is invoking `{app}/windows-firewall/configure_bh_windows_firewall.ps1` with `-SkipBaselineRules` and the correct `-JsonPath`. See `documentation/architecture/Firewall_enforcement.md` for examples.
+- **Blocked IPs are not reflected in Windows Firewall:** Confirm that `blocked_ips.json` is being updated in the runtime JSON directory (for EXE builds this is under `%LOCALAPPDATA%/Battle-Hardened AI/server/json`), and that Task Scheduler is invoking `{app}/windows-firewall/configure_bh_windows_firewall.ps1` with `-SkipBaselineRules` and the correct `-JsonPath`. See `documentation/firewall/Firewall_enforcement.md` for examples.
 - **Dashboard shows data but enforcement appears inactive:** On Linux, verify iptables/ipset rules were created and are still present; on Windows, inspect the "Battle-Hardened AI Blocked IPs" rule and ensure no third-party software has overridden it. In both cases, check the watchdog/service status and the Security Overview (Section 5) for recent block events.
 - **General startup and health issues:** Follow the `documentation/installation/Installation.md` checklist, paying special attention to permissions, NIC binding, and JSON directory configuration. The System Health & Network Performance section (11) is the primary runtime surface for spotting resource and integrity problems.
 
@@ -843,7 +843,7 @@ If you're starting from source as a developer or auditor, begin with [Filepurpos
 
 #### Enforcement Requires Firewall Integration
 
-To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [documentation/architecture/Firewall_enforcement.md](documentation/architecture/Firewall_enforcement.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
+To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [documentation/firewall/Firewall_enforcement.md](documentation/firewall/Firewall_enforcement.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
 
 ### Hardware Deployment Checklists
 
@@ -924,7 +924,7 @@ Actual requirements depend on traffic volume, retention, and enabled modules; se
 | Packet capture & eBPF | ✅ | ⚠️ Requires administrator privileges |
 | Scalability | 10,000+ connections (scalable) | ~500 connections (OS limits) |
 
-See [documentation/installation/Installation.md](documentation/installation/Installation.md) and [Windows-testing-checklist.md](documentation/checklist/Windows-testing-checklist.md) for detailed setup instructions. For production firewall synchronization, see [documentation/architecture/Firewall_enforcement.md](documentation/architecture/Firewall_enforcement.md).
+See [documentation/installation/Installation.md](documentation/installation/Installation.md) and [Windows-testing-checklist.md](documentation/checklist/Windows-testing-checklist.md) for detailed setup instructions. For production firewall synchronization, see [documentation/firewall/Firewall_enforcement.md](documentation/firewall/Firewall_enforcement.md).
 
 ---
 
