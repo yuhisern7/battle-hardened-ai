@@ -210,7 +210,7 @@ show_json("/api/visualization/topology")  # Network graph
 
 ---
 
-## Section 3 – VPN/Tor De-Anonymization (Stage 2: Signal #11)
+## Section 3 – Attackers VPN/Tor De-Anonymization Statistics (Stage 2: Signal #11)
 
 **Pipeline Stage:** Parallel Multi-Signal Detection
 **Detection Signal:** #11 VPN/Tor Fingerprinting
@@ -504,7 +504,7 @@ show_json("/api/explainability/decisions")
 
 ---
 
-## Section 15 – Real Honeypot Services (Stage 5: Training Source)
+## Section 15 – Adaptive Honeypot - AI Training Sandbox (Stage 5: Training Source)
 
 **Pipeline Stage:** Training Material Extraction (100% confirmed attacks)
 **Detection Signal:** Feeds Signal #2 (Signature Matching) with high-quality training data
@@ -705,7 +705,7 @@ show_json("/api/sandbox/stats")
 # import requests; requests.post(BASE_URL+"/api/sandbox/detonate", files={"file": open("sample.bin","rb")})
 ```
 
-## Section 21 – Email/SMS Alerts (Critical System Events)
+## Section 21 – Email/SMS Alerts (Critical Only)
 
 Backed by: `/api/alerts/stats` and `AI/alert_system.py`.
 
@@ -864,7 +864,7 @@ show_json("/api/system-status")            # underlying node health
 # - /cluster/config/snapshot – active-node-only snapshot for config synchronization
 ```
 
-## Section 24 – Enterprise Security Integrations (Outbound)
+## Section 24 – Enterprise Security Integrations
 
 **Plane:** Enterprise Integration (visibility & coordination only)
 
