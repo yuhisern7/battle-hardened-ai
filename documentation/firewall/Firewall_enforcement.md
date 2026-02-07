@@ -19,18 +19,24 @@ This guide shows how to **enforce these decisions at OS firewall level** on:
 
 Battle-Hardened AI **auto-detects** your Linux firewall backend and uses the appropriate commands:
 
-| Distribution | Default Firewall | Detection Method | Support Status |
-|--------------|------------------|------------------|----------------|
-| **Debian/Ubuntu** | iptables-nft (nftables backend) | `update-alternatives --query iptables` | ✅ Full (Primary platform) |
-| **RHEL/Rocky/Alma** | firewalld | `systemctl is-active firewalld` | ✅ Full (ipset via firewalld) |
-| **SUSE** | firewalld | `systemctl is-active firewalld` | ✅ Full (same as RHEL) |
-| **VyOS** | VyOS CLI | `which vbash`, `/opt/vyatta` | ⚠️ Partial (requires manual setup) |
-| **OpenWRT** | UCI firewall | `which uci`, `/etc/config/firewall` | ⚠️ Partial (config reload required) |
-| **Alpine Linux** | awall | `which awall`, `/etc/awall` | ⚠️ Partial (file-based config) |
+| Distribution | Firewall Backend | Core Technology | Detection Method | Support Status |
+|--------------|------------------|-----------------|------------------|----------------|
+| **Debian/Ubuntu** | iptables + ipset | `ipset` (hash:ip type) | `which iptables` | ✅ **FULL** - Auto-sync every 5s |
+| **RHEL/Rocky/Alma** | firewalld | `firewalld ipset` feature | `systemctl is-active firewalld` | ✅ **FULL** - Auto-sync every 5s |
+| **SUSE** | firewalld | `firewalld ipset` feature | `systemctl is-active firewalld` | ✅ **FULL** - Auto-sync every 5s |
+| **VyOS** | VyOS CLI | Address groups | `which vbash`, `/opt/vyatta` | ✅ **FULL** - Auto-sync every 5s |
+| **OpenWRT** | UCI firewall | UCI config files | `which uci`, `/etc/config/firewall` | ❌ **DETECTED ONLY** - Manual setup required |
+| **Alpine Linux** | awall | awall config files | `which awall`, `/etc/awall` | ❌ **DETECTED ONLY** - Manual setup required |
 
 **Auto-detection:** The firewall sync daemon (`bh_firewall_sync.py`) detects your backend at startup and uses the correct commands automatically.
 
 **Manual override:** Set `BH_FIREWALL_BACKEND` in `.env` to force a specific backend (e.g., `BH_FIREWALL_BACKEND=firewalld`).
+
+**Core Technology:**
+- **iptables backend:** Uses `ipset` (type: hash:ip) for efficient IP list management. Two ipsets created: `bh_whitelist` (ACCEPT) and `bh_blocked` (DROP).
+- **firewalld backend:** Uses firewalld's built-in ipset feature via `firewall-cmd --ipset=...` commands.
+- **VyOS backend:** Uses VyOS firewall address groups (`BH_WHITELIST`, `BH_BLOCKED`) managed via `vbash` CLI.
+- **OpenWRT/Alpine:** Backend detection implemented, but automatic sync NOT implemented. Returns "requires manual setup" error.
 
 ---
 
@@ -154,10 +160,22 @@ This section lists all files involved in the Linux Firewall Commander subsection
 
 **Why two layers?** If an IP is in BOTH lists, whitelist wins. This protects critical infrastructure from accidental blocking.
 
-**Linux implementation:**
-- `ipset` named `bh_whitelist` (ACCEPT rules, priority 1)
-- `ipset` named `bh_blocked` (DROP rules, priority 2)
-- Firewall rules reference these ipsets
+**Linux implementation (iptables backend - Debian/Ubuntu):**
+- `ipset create bh_whitelist hash:ip` → ACCEPT rules at priority 1
+- `ipset create bh_blocked hash:ip` → DROP rules at priority 2
+- iptables rules: `-m set --match-set bh_whitelist src -j ACCEPT` (processed first)
+- iptables rules: `-m set --match-set bh_blocked src -j DROP` (processed second)
+
+**Linux implementation (firewalld backend - RHEL/Rocky/Alma/SUSE):**
+- `firewall-cmd --new-ipset=bh_whitelist --type=hash:ip`
+- `firewall-cmd --new-ipset=bh_blocked --type=hash:ip`
+- Rich rules: `rule source ipset=bh_whitelist accept priority=-1` (processed first)
+- Rich rules: `rule source ipset=bh_blocked drop priority=0` (processed second)
+
+**VyOS implementation:**
+- Address groups: `set firewall group address-group BH_WHITELIST`
+- Address groups: `set firewall group address-group BH_BLOCKED`
+- Firewall rules reference these groups with ACCEPT (rule 1) and DROP (rule 2) actions
 
 **Windows implementation:**
 - Windows Firewall rule "Battle-Hardened AI Whitelist" (ACCEPT, priority higher)
@@ -188,23 +206,45 @@ In tightly controlled environments, these ports are normally opened on **securit
 
 ### 1.1. Overview
 
-Battle-Hardened AI syncs **two types** of firewall rules to Linux:
+Battle-Hardened AI syncs **two types** of firewall rules to Linux using the **ipset** data structure (for iptables and firewalld backends) or **address groups** (for VyOS):
 
 1. **Whitelist (Priority 1)** - ACCEPT rules for trusted IPs from `whitelist.json`
 2. **Blocklist (Priority 2)** - DROP rules for malicious IPs from `blocked_ips.json`
 
-**Rule processing order ensures whitelist wins:**
+**Core Technology:** For Debian/Ubuntu and RHEL/Rocky, the implementation uses **ipset** (IP sets with hash:ip type) for O(1) lookup performance. This allows efficient management of thousands of IPs without performance degradation.
+
+**Rule processing order ensures whitelist wins (iptables backend):**
 ```bash
-# Processed FIRST (highest priority)
+# Step 1: Create ipsets (hash:ip type for O(1) lookups)
+ipset create bh_whitelist hash:ip
+ipset create bh_blocked hash:ip
+
+# Step 2: Add iptables rules (processed FIRST = highest priority)
 iptables -I INPUT 1 -m set --match-set bh_whitelist src -j ACCEPT
 iptables -I FORWARD 1 -m set --match-set bh_whitelist src -j ACCEPT
 
-# Processed SECOND (lower priority)
+# Step 3: Add blocklist rules (processed SECOND = lower priority)
 iptables -I INPUT 2 -m set --match-set bh_blocked src -j DROP
 iptables -I FORWARD 2 -m set --match-set bh_blocked src -j DROP
 ```
 
-**Result:** If IP is in both lists, it will be ACCEPTED (whitelisted).
+**Rule processing order (firewalld backend):**
+```bash
+# Step 1: Create ipsets via firewalld
+firewall-cmd --permanent --new-ipset=bh_whitelist --type=hash:ip
+firewall-cmd --permanent --new-ipset=bh_blocked --type=hash:ip
+
+# Step 2: Add rich rules (priority -1 = processed FIRST)
+firewall-cmd --permanent --add-rich-rule='rule source ipset=bh_whitelist accept priority=-1'
+
+# Step 3: Add blocklist rule (priority 0 = processed SECOND)
+firewall-cmd --permanent --add-rich-rule='rule source ipset=bh_blocked drop priority=0'
+
+# Step 4: Reload firewalld to apply changes
+firewall-cmd --reload
+```
+
+**Result:** If IP is in both lists, it will be ACCEPTED (whitelisted) because whitelist rules are processed first.
 
 ### 1.2. Enable Automatic Firewall Sync
 
@@ -278,13 +318,27 @@ sudo systemctl status battle-hardened-ai-firewall-sync
 **Check ipsets exist and have correct IPs:**
 
 ```bash
-# Whitelist ipset
+# Whitelist ipset (iptables backend)
 sudo ipset list bh_whitelist
-# Output shows: Number of entries: 8
+# Expected output:
+#   Name: bh_whitelist
+#   Type: hash:ip
+#   Number of entries: 8
+#   Members:
+#   127.0.0.1
+#   165.22.108.8
+#   ...
 
-# Blocklist ipset  
+# Blocklist ipset (iptables backend)
 sudo ipset list bh_blocked
-# Output shows: Number of entries: 24
+# Expected output:
+#   Name: bh_blocked
+#   Type: hash:ip
+#   Number of entries: 24
+#   Members:
+#   13.107.5.93
+#   192.168.0.105
+#   ...
 ```
 
 **Check iptables rules reference both ipsets:**
