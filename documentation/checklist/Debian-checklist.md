@@ -22,6 +22,18 @@ These warnings appear during Windows EXE execution due to PyInstaller's frozen e
 
 ---
 
+## ✅ RECENT UPDATES (2026-02-09)
+
+**Health Check Implementation:**
+- ✅ Created `packaging/health-check.sh` (265 lines) - Comprehensive 7-step diagnostics
+- ✅ Enhanced `packaging/debian-startup.sh` (267 lines) - Windows installer-style 8-step progress output
+- ✅ Added dashboard banner in `AI/inspector_ai_monitoring.html` - Auto-detects installation issues
+- ✅ Integrated health check into `packaging/debian/battle-hardened-ai.postinst` - Calls debian-startup.sh after setup
+- ✅ Added API endpoints: `/api/health/status` (quick status), `/api/health/check` (full diagnostics)
+- ✅ All 3 systemd services verified: battle-hardened-ai, firewall-sync, device-scanner
+- ✅ Fixed `.env` template path in debian/rules (../../server/.env → ../server/.env)
+- ✅ Created comprehensive verification checklist: `documentation/Debian-packaging-verification.md`
+
 ## ✅ PYTHON 3.12 COMPATIBILITY (2026-02-04)
 
 **Distutils Compatibility:**
@@ -241,11 +253,13 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
   - [x] Resource and security options planned:
     - [x] `LimitNOFILE=65535`.
     - [x] `CapabilityBoundingSet`/`AmbientCapabilities` set for the firewall sync unit to grant only `CAP_NET_ADMIN` (see `battle-hardened-ai-firewall-sync.service`).
-- [x] Debian package installs this unit to `/lib/systemd/system/battle-hardened-ai.service`.
+- [x] `packaging/systemd/battle-hardened-ai-firewall-sync.service` created (5-second sync daemon for ipset/iptables).
+- [x] `packaging/systemd/battle-hardened-ai-device-scanner.service` created (separate daemon for ARP/raw socket device scanning with CAP_NET_ADMIN and CAP_NET_RAW capabilities).
+- [x] Debian package installs all 3 systemd units to `/lib/systemd/system/`.
 - [x] `postinst` (or debhelper) calls:
   - [x] `systemctl daemon-reload`
-  - [x] `systemctl enable`/`restart` `battle-hardened-ai` and `battle-hardened-ai-firewall-sync`.
-- [x] `prerm`/`postrm` handle stop/disable cleanly.
+  - [x] `systemctl enable`/`restart` all 3 services: `battle-hardened-ai`, `battle-hardened-ai-firewall-sync`, `battle-hardened-ai-device-scanner`.
+- [x] `prerm`/`postrm` handle stop/disable cleanly for all 3 services.
 
 ## ✅ DEBIAN PACKAGING FILES (`packaging/debian/`)
 

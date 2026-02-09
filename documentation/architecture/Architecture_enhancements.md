@@ -467,7 +467,8 @@ netfilter-persistent save
 | **Pattern Filtering** | 70-80% | - | Negligible (<1ms) |
 | **Performance Monitoring** | 0% | - | Minor (~5% overhead) |
 | **Adversarial Training** | 0% | ++++ (High) | Training time +30% |
-| **ONNX Models** | 4% | - | **2-5x faster inference** || **Linux Firewall Commander** | 0% | +++++ (Critical) | 5-second sync latency |
+| **ONNX Models** | 4% | - | **2-5x faster inference** |
+| **Linux Firewall Commander** | 0% | +++++ (Critical) | 5-second sync latency |
 ---
 
 ## 🚀 Deployment

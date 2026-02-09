@@ -22,6 +22,12 @@
 - ✅ **Corrupted JSON Cleanup** - Deleted corrupted threat_log.json from user data directory
 - ✅ **Production Ready** - Zero critical warnings, all ML models load and train successfully
 
+### Recent Fixes Applied (2026-02-09)
+- ✅ **Windows Health Check Script** - Created `packaging/windows/health-check.ps1` (285 lines, 7-step diagnostics) matching Debian health-check.sh functionality
+- ✅ **Health Check Bundled in EXE** - Added health-check.ps1 to BattleHardenedAI.spec datas section (installed to root of installation directory)
+- ✅ **Installer Integration** - Updated BattleHardenedAI.iss to include health-check.ps1 and show verification step in post-install message
+- ✅ **Requirements Cleanup** - Removed unused pandas from relay/requirements.txt (saves ~100MB in Docker image)
+
 ### Recent Fixes Applied (2026-02-06)
 - ✅ **Geolocation API Caching** - Added 24-hour IP geolocation cache to prevent ip-api.com rate limit errors (45 requests/min). Cache prevents repeated lookups for same IPs and handles HTTP 403 gracefully
 - ✅ **Spec File Path Fix** - Corrected windows-firewall path from `server/windows-firewall` to `packaging/windows` in BattleHardenedAI.spec
@@ -58,6 +64,11 @@
 ### Server Modules (Critical - Bundled via .spec)
 - [ ] server/device_scanner.py (cross-platform network detection: Linux via ip route/addr, Windows via ipconfig parsing, fallback via socket trick)
 - [ ] server/network_monitor.py (live traffic analysis, feeds all detection signals)
+
+### Windows-Specific Files (Bundled via .spec)
+- [ ] windows-firewall/configure_bh_windows_firewall.ps1 (firewall rule management)
+- [ ] health-check.ps1 (7-step post-installation diagnostics matching Debian health-check.sh)
+- [ ] .env.windows (environment template for Windows deployments)
 
 ### 21-Layer Detection System
 1. [ ] step21_gate.py
