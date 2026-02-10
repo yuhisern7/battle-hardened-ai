@@ -23,10 +23,14 @@
 - ✅ **Production Ready** - Zero critical warnings, all ML models load and train successfully
 
 ### Recent Fixes Applied (2026-02-09)
-- ✅ **Windows Health Check Script** - Created `packaging/windows/health-check.ps1` (285 lines, 7-step diagnostics) matching Debian health-check.sh functionality
+- ✅ **Windows Health Check Script** - Created `packaging/windows/health-check.ps1` (159 lines, 7-step diagnostics) matching Debian health-check.sh functionality
+- ✅ **Port 60001 Removed from Health Check** - Windows uses single port 60000 for dashboard+API (Linux uses separate 60000/60001 services)
+- ✅ **Installation Directory Path Fixed** - Health check now uses correct "Battle-Hardened AI" (hyphenated) installation path
+- ✅ **Firewall Script PowerShell Compatibility** - Fixed Set-NetFirewallAddressFilter cmdlet syntax for Windows PowerShell 5.1
 - ✅ **Health Check Bundled in EXE** - Added health-check.ps1 to BattleHardenedAI.spec datas section (installed to root of installation directory)
 - ✅ **Installer Integration** - Updated BattleHardenedAI.iss to include health-check.ps1 and show verification step in post-install message
 - ✅ **Requirements Cleanup** - Removed unused pandas from relay/requirements.txt (saves ~100MB in Docker image)
+- ✅ **Docker Build Optimization** - Added .dockerignore to exclude 931MB Windows EXE from Docker context (prevents "no space left on device" errors)
 
 ### Recent Fixes Applied (2026-02-06)
 - ✅ **Geolocation API Caching** - Added 24-hour IP geolocation cache to prevent ip-api.com rate limit errors (45 requests/min). Cache prevents repeated lookups for same IPs and handles HTTP 403 gracefully

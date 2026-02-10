@@ -1,0 +1,38 @@
+# Exclude Windows build artifacts (huge 931MB EXE files)
+server/dist/
+server/build/
+packaging/windows/dist/
+packaging/windows/build/
+
+# Exclude macOS build artifacts
+server/build_macos/
+*.pkg
+*.dmg
+
+# Exclude Python cache
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Exclude Git
+.git/
+.gitignore
+
+# Exclude IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Exclude logs
+logs/
+*.log
+
+# Exclude node_modules
+**/node_modules/
+
+# Exclude test files
+**/test/
+**/tests/
