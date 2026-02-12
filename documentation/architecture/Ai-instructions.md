@@ -1326,3 +1326,50 @@ Use this as a quick cross-check when validating that a given stage's detections 
 ---
 
 **For architecture overview, see:** `README.md` (7-stage pipeline with diagrams)
+
+---
+
+## Governance, Change Control & Step 21 Policy Management
+
+Step 21 semantic policies are governed configuration, not ad-hoc code. This section defines how to manage policy changes safely.
+
+- **Roles & Responsibility:** Step 21 semantic policies (roles, actions, structural rules) are treated as governed configuration, not ad-hoc code. Only designated security owners should modify these policies via approved change-control processes.
+- **Monitor-Only vs Enforce:** Environments can operate Step 21 in monitor-only mode (log semantic violations without blocking) during initial rollout or policy updates, then transition to full enforcement after validation.
+- **Staged Rollouts:** Policy changes should be staged (test -> pre-production -> production) with audit trails in configuration management and clear rollback procedures to avoid accidental denial of legitimate traffic.
+- **Auditability:** Each semantic decision is explainable and logged; this allows reviewers to see which policy dimension (state, intent, structure, trust) caused a block and adjust policies accordingly.
+
+**Governed Step 21 Flow:**
+
+```text
+     +-------------------+
+     | policies/step21/*.json     |
+     | (roles, actions, schemas,  |
+     |  trust thresholds)         |
+     +---------+---------+
+               |
+               v
+     +-------------------+
+     | Step 21 Semantic Gate       |
+     | (enforced in AI/step21_*.py)|
+     +---------+---------+
+               |
+     +---------+---------+
+     |                   |
+     v                   v
+  Monitor-only       Enforce mode
+  (log semantic      (log + block invalid
+   violations)       execution requests)
+```
+
+---
+
+## Known System Limitations & Edge Cases
+
+While Battle-Hardened AI provides robust defense-in-depth detection, certain attack scenarios remain challenging:
+
+- **Ultra-Low-and-Slow Attacks:** Extremely slow campaigns (e.g., one request per day) may require longer observation windows for clear statistical separation; detection still improves over time through trust degradation and graph intelligence but can be delayed.
+- **Insiders with Strong Privileges:** Fully trusted insiders with valid credentials who behave very similarly to normal workloads are inherently hard to distinguish; network behavior is still monitored, but intent may be ambiguous.
+- **Partial Visibility / Encrypted Traffic:** When deployed without access to decrypted application traffic, certain payload-centric techniques rely more heavily on behavioral, graph, and reputation signals rather than deep content inspection.
+- **Degraded Signal Set:** If some models or signals are disabled, missing, or misconfigured, ensemble robustness decreases; the system degrades gracefully but with reduced redundancy. Operators should treat missing signals as a misconfiguration to fix, not a normal state.
+- **Misconfigured Mirroring / SPAN:** Incorrect SPAN/TAP or routing can create blind spots; Battle-Hardened AI assumes that the traffic it sees is representative of the environment it is defending.
+

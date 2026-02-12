@@ -360,6 +360,19 @@ ab -n 1000000 -c 100000 https://localhost:60000/
 | < 640,000 | Extreme single server | `gunicorn --config installation/gunicorn_config_extreme.py server:app` (16-core) |
 | > 640,000 | Extreme multi-server | Multiple extreme servers + nginx |
 
+
+---
+
+## 💡 Deployment Pattern Recommendations
+
+### Operational Guidance & Reference Deployment Patterns
+
+- **Home / Lab:** Single-node deployment at the home router or gateway mirror port; modest CPU (4 cores), 8–16 GB RAM, and SSD storage are typically sufficient for thousands of concurrent flows.
+- **SMB / Branch Office:** Inline or tap-based deployment at the site gateway, with 8–16 cores, 32 GB RAM, and NVMe storage to sustain higher connection rates and full audit logging.
+- **Enterprise / Data Center:** One Battle-Hardened AI node per major segment (e.g., DC edge, user access, cloud egress), potentially clustered behind a load balancer or distribution layer for scale-out; sizing depends on peak connections and desired retention period.
+- **ISP / High-Throughput:** Requires careful capacity planning, hardware acceleration (where available), and potentially multiple nodes sharded by customer or prefix; in these environments, aggressive log rotation and selective telemetry are critical.
+- **Overload Behavior:** When resource pressure increases, operators should prioritize maintaining detection and logging fidelity by scaling vertically/horizontally rather than accepting packet loss; standard OS and network QoS controls apply.
+
 ---
 
 See [Startup guide](Startup_guide.md) for detailed startup instructions.

@@ -25,6 +25,24 @@
 ✅ **Firewall integration required for enforcement** - Gateway/router mode requires iptables/nftables integration (see [Firewall_enforcement.md](../Firewall_enforcement.md)).
 
 ---
+---
+
+## 📚 Key Terms (For Non-Specialists)
+
+If you're new to network security or AI-based threat detection, these terms will help you understand the installation process and system capabilities:
+
+- **eBPF/XDP:** Linux kernel technologies that let the system observe and filter packets directly in the OS with very low overhead.
+- **PCAP:** Packet capture format used to record raw network traffic for analysis and replay in lab testing.
+- **LSTM:** A type of recurrent neural network specialized for understanding sequences over time (for example, multi-step attack campaigns).
+- **Autoencoder:** An unsupervised neural network used here to spot "never-seen-before" traffic patterns and potential zero-day attacks.
+- **MITRE ATT&CK:** A community-maintained catalog of real-world attacker tactics and techniques; this system provides documented coverage for 43 techniques.
+- **Gateway/Router Mode:** Deployment where Battle-Hardened AI sits between your network and the internet, protecting all devices.
+- **Host-only Mode:** Deployment where Battle-Hardened AI protects a single machine (server or workstation).
+- **Observer Mode:** Detection-only mode that analyzes traffic without blocking (useful for testing and compliance).
+- **Firewall Integration:** Connection between Battle-Hardened AI's detection logic and your OS-level firewall (iptables, nftables, Windows Defender Firewall) for enforcement.
+- **HMAC:** Cryptographic authentication method used to secure communication between nodes and the relay server.
+
+
 
 ## ✅ Gateway Pre-Flight Checklist
 
@@ -104,7 +122,90 @@ Place the `shared_secret.key` file in:
 
 ---
 
-## 🚀 Quick Start - Choose Your Deployment
+## � Hardware Deployment Checklists
+
+These checklists describe hardware setups for gateway and inline bridge roles. Linux is the primary OS for routing and enforcement. Windows is supported for host-only or appliance-style deployments.
+
+### ✓ Option A — Battle-Hardened AI as Edge Gateway Router (Recommended for Full Control)
+
+**Network Topology**
+
+```text
+Modem/ONT → Battle-Hardened AI → Switch → Internal Network
+```
+
+**Required Hardware**
+
+- Modem/ONT in bridge mode (disables NAT and firewall)
+- Dedicated Linux appliance (2 NICs: WAN + LAN)
+- Intel-class NICs (for example, i210/i350)
+- AES-NI capable CPU
+- 16–32 GB RAM
+- SSD/NVMe storage
+- Layer-2 switch (VLAN-capable preferred)
+- Wi-Fi AP in bridge mode (no DHCP/NAT)
+
+**What This Delivers**
+
+- Battle-Hardened AI becomes the default gateway
+- All traffic flows through Battle-Hardened AI (no bypass without physical change)
+- Full control over NAT, routing, firewall, and semantic validation
+
+### ✓ Option B — Battle-Hardened AI as Transparent Inline Bridge (No Routing Changes)
+
+**Network Topology**
+
+```text
+Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
+```
+
+**Required Hardware**
+
+- Modem/ONT in bridge mode
+- Battle-Hardened AI Linux node with 2 NICs (WAN-side + LAN-side)
+- Existing router handling NAT, DHCP, and Wi-Fi
+
+**What This Delivers**
+
+- No router reconfiguration needed
+- Battle-Hardened AI still sees and filters traffic before router interaction
+- Minimal architectural disruption
+
+### ⚠️ What You Don't Need
+
+- ✗ SD-WAN or cloud-managed routers
+- ✗ Proprietary routers or expensive chassis
+- ✗ Agents on endpoints
+- ✗ Cloud connectivity for core detection
+
+### System Requirements & Platform Support
+
+Minimum suggested specs for lab/small deployments (per node):
+
+- Linux gateway/appliance: 4 CPU cores, 8–16 GB RAM, SSD/NVMe storage.
+- Windows host-only/appliance: 4 CPU cores, 8–16 GB RAM, SSD storage.
+- Network: 2 NICs for inline/gateway roles; 1 NIC for host-only or SPAN/TAP deployments.
+
+Actual requirements depend on traffic volume, retention, and enabled modules; see detailed deployment scenarios below.
+
+#### Platform & OS Support Summary
+
+| Feature | Linux (Recommended) | Windows / macOS (Host-Only) |
+|---------|---------------------|-----------------------------|
+| Deployment mode | Gateway / router / bridge | Host-level / appliance |
+| GUI dashboard | ✓ | ✓ |
+| Docker support | ✓ Full (with NET_ADMIN) | ✗ Limited (bridge-mode isolation) |
+| Native firewall integration | ✓ `iptables`/`ipset` | ✓ Windows Defender Firewall |
+| Package format | `.deb` / `.rpm` | `.exe` installer |
+| Auto-restart | `systemd` + Docker policies | Watchdog / Windows service |
+| Packet capture & eBPF | ✓ | ⚠️ Requires administrator privileges |
+| Scalability | 10,000+ connections (scalable) | ~500 connections (OS limits) |
+
+For production firewall synchronization, see [Firewall_enforcement.md](../firewall/Firewall_enforcement.md).
+
+---
+
+## �🚀 Quick Start - Choose Your Deployment
 
 > **Primary architecture:** Battle-Hardened AI is designed first and foremost for **Linux gateway/edge deployments** (physical or virtual appliances in front of a segment). Windows and macOS installs are supported as **host/appliance** tiers for specific servers or branches, but the canonical 7-stage, 21-layer architecture and firewall enforcement story assume a Linux node at the network boundary.
 
@@ -526,17 +627,6 @@ sudo systemctl restart battle-hardened-ai
 ```
 
 **Step 11: Place Shared Secret Key**
-
-```bash
-# Obtain shared_secret.key from vendor
-# Copy to crypto directory
-sudo mkdir -p /etc/battle-hardened-ai/crypto_keys
-sudo cp shared_secret.key /etc/battle-hardened-ai/crypto_keys/
-sudo chown bhai:bhai /etc/battle-hardened-ai/crypto_keys/shared_secret.key
-sudo chmod 600 /etc/battle-hardened-ai/crypto_keys/shared_secret.key
-```
-
-**Step 10: Place Shared Secret Key**
 
 ```bash
 # Obtain shared_secret.key from vendor
@@ -2036,3 +2126,23 @@ Stop-Service -Name "BattleHardenedAI" -ErrorAction SilentlyContinue
 **Compatibility:**
 - Docker 20.10+, Docker Compose v2.0+
 - Python 3.10+, Npcap 1.70+ (Windows), libpcap (macOS)
+
+---
+
+## ❓ FAQ & Common Objections
+
+**"What if the models are wrong?"**  
+The ensemble is intentionally conservative, supported by causal inference and trust modulation. All actions are logged with explainable traces so operators can tune thresholds and override decisions when needed.
+
+**"How do I roll back a bad update?"**  
+Model and policy updates can be versioned and rolled back via configuration management and deployment tooling; emergency kill-switch and monitor-only modes provide additional safety nets during incident response.
+
+**"What if the relay is compromised?"**  
+Relay participation is optional and uses anonymized, pattern-level data. Byzantine defenses and integrity checks reduce the risk of poisoned updates; in high-assurance environments, relay can be fully disabled.
+
+**"How does this coexist with my existing NDR/EDR/Firewall?"**  
+Battle-Hardened AI is typically deployed as a complementary layer (gateway, sensor, or proxy), feeding additional intelligence into existing controls and automation/orchestration pipelines rather than replacing them.
+
+**"What happens if Step 21 blocks a critical request by mistake?"**  
+Semantic decisions are fully logged and explainable; operators can switch to monitor-only mode, adjust the offending policy, and replay or safely reissue the legitimate request through normal change processes.
+

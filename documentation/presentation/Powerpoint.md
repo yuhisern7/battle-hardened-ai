@@ -271,6 +271,111 @@ ATTACKER REQUEST
 
 ---
 
+## Operational Loop: Continuous Defense Improvement
+
+*Copied from "Operational Loop: Continuous Defense Improvement" in README.md*
+
+```
+┌───────────────────────────────┐
+│  1. DETECT                                                  │
+│  └─→ 21 layers analyze traffic (signatures, ML, behavioral) │
+└──────────┬────────────────────┘
+                     ↓
+┌───────────────────────────────┐
+│  2. DECIDE (Deny/Allow)                                     │
+│  └─→ Ensemble voting + semantic gate + trust modulation     │
+│     Block ≥75% | Log ≥50% | Allow <50%                     │
+└──────────┬────────────────────┘
+                     ↓
+┌───────────────────────────────┐
+│  3. ENFORCE                                                 │
+│  └─→ Command OS firewall (iptables/nftables/Windows FW)     │
+│     Drop packets, terminate connections, apply TTL          │
+└──────────┬────────────────────┘
+                     ↓
+┌───────────────────────────────┐
+│  4. LOG & EXPORT                                            │
+│  └→ Local: threat_log.json, comprehensive_audit.json       │
+│  └→ Dashboard: Real-time WebSocket updates                 │
+│  └─→ SIEM/SOAR: Outbound JSON export (optional)             │
+└──────────┬────────────────────┘
+                     ↓
+┌───────────────────────────────┐
+│  5. LEARN & MEASURE                                         │
+│  └→ Extract attack signatures (sanitized patterns only)    │
+│  └→ Update reputation tracker (IP trust scores)            │
+│  └→ Monitor ML performance (accuracy, drift detection)     │
+│  └→ Collect behavioral metrics (anonymized statistics)     │
+│  └─→ Validate model integrity (Byzantine defense)           │
+└──────────┬────────────────────┘
+                     ↓
+┌───────────────────────────────┐
+│  6. UPDATE (Continuous Improvement)                         │
+│  └→ Hourly: New signatures merged into detection database  │
+│  └→ Every 6 hours: Pull updated models from relay          │
+│  └→ Weekly: Retrain ML models with labeled attack data     │
+│  └→ Monthly: Refresh drift baseline (adapt to environment) │
+│  └─→ On degradation: Auto-retrain if accuracy <92%          │
+└──────────┬────────────────────┘
+                     │
+                     └─→ Loop back to DETECT with improved defenses
+```
+
+---
+
+## Network Deployment Topologies
+
+*Copied from "Topologies" section in README.md*
+
+### Router Mode (Production Default)
+
+```
+Internet ─→ BH-AI Gateway ─→ Protected Systems
+              (Decision +         (receive only
+              Enforcement)         pre-approved traffic)
+```
+
+### Transparent Bridge Mode (Planned)
+
+```
+Internet ─→ BH-AI Bridge ─→ Router ─→ Protected Systems
+              (transparent        (existing gateway)
+               inspection)
+```
+
+### Tap/Mirror Mode (Observer Only)
+
+```
+Internet ─→ Router ─→ Protected Systems
+               │
+               └─→ SPAN/TAP ─→ BH-AI Observer
+                                  (monitor-only)
+```
+
+---
+
+## Federated Relay Architecture (Optional)
+
+*Copied from "Federated Relay Architecture" in README.md*
+
+Privacy-preserving global intelligence sharing through relay server:
+
+- **Privacy-Preserving:** Only abstract patterns shared; full data sovereignty maintained
+- **Model Cryptographic Signing:** Ed25519 signatures prevent malicious model injection
+- **Byzantine Validation:** 94% malicious update rejection rate
+- **Smart Pattern Filtering:** Bloom filter deduplication (70-80% bandwidth savings)
+
+| Data Type | Shared with Relay? | Why Safe? |
+|-----------|-------------------|-----------|
+| Attack patterns | ✓ Yes (sanitized) | Abstract signatures only, no payloads |
+| Behavioral metrics | ✓ Yes (anonymized) | Statistical aggregates, no identifiable data |
+| ML models | ⬇️ Downloaded only | Relay trains and distributes |
+| Customer traffic | ❌ Never | Stays local; only pattern hashes leave site |
+| User credentials | ❌ Never | Local analysis only |
+| Raw logs/PII | ❌ Never | Full data sovereignty |
+
+---
+
 ## Hardware Network Topologies
 
 *Copied from "Hardware Deployment Checklists" in README.md*

@@ -1,4 +1,4 @@
-# Battle-Hardened AI
+﻿# Battle-Hardened AI
 ### The Details Here Are ANTI-MARKETING 
 
 This document is written for people who understand first-layer enforcement, gateways, and control planes. It assumes familiarity with firewalls, routing, kernel telemetry, and pre-execution decision systems.
@@ -7,7 +7,7 @@ Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21
 
 ---
 
-### 🔑 Summary Highlights
+### 🛡️ Summary Highlights
 
 - Blocks malicious actions **before execution** using a 21-layer AI ensemble and a final semantic execution-denial gate.
 - Acts as a **first-layer firewall commander** for gateways and routers, deciding what should be blocked while delegating actual enforcement to the local firewall control plane.
@@ -58,24 +58,24 @@ This architecture creates a clear separation of concerns:
 ### Control-Plane Split: Decision vs Enforcement
 
 ```
-┌──────────────────────────────────────────────────────────┐
+┌─────────────────────────────┐
 │                    DECISION PLANE                        │
 │  Battle-Hardened AI (21 detection layers + semantic gate)│
 │  - Analyzes traffic via mirror/tap/inline observation    │
 │  - Evaluates trust, causality, semantics                 │
 │  - Makes block/allow decisions                           │
 │  - Emits JSON decisions to enforcement plane             │
-└────────────────────┬─────────────────────────────────────┘
+└──────────┬───────────────────┘
                      │ Commands (JSON + firewall API)
-                     ↓
-┌──────────────────────────────────────────────────────────┐
+                     →“
+┌─────────────────────────────┐
 │                   ENFORCEMENT PLANE                      │
 │  OS Firewall (iptables/nftables/Windows Defender)       │
 │  - Receives IP block/unblock commands                    │
 │  - Applies rules at kernel level                         │
 │  - Drops packets, terminates connections                 │
 │  - No analysis—purely enforcement                        │
-└──────────────────────────────────────────────────────────┘
+└─────────────────────────────┘
 ```
 
 **This ensures:**
@@ -89,9 +89,9 @@ Battle-Hardened AI supports three primary deployment roles:
 
 | Role | Description | Enforcement | Use Case |
 |------|-------------|-------------|----------|
-| **Gateway/Router** | Inline at network boundary; all protected traffic routes through BH-AI VM | ✅ Full (commands firewall to block before execution) | Enterprise networks, SOC first-layer defense, critical infrastructure |
-| **Host-only** | Endpoint protection on individual servers/workstations | ✅ Full (local firewall blocking) | Critical servers, Windows/macOS assets, zero-trust endpoints |
-| **Observer** | Monitor-only mode via SPAN/TAP; no routing changes | ❌ None (log-only, no blocking) | PoC validation, compliance auditing, testing before production |
+| **Gateway/Router** | Inline at network boundary; all protected traffic routes through BH-AI VM | ✓ Full (commands firewall to block before execution) | Enterprise networks, SOC first-layer defense, critical infrastructure |
+| **Host-only** | Endpoint protection on individual servers/workstations | ✓ Full (local firewall blocking) | Critical servers, Windows/macOS assets, zero-trust endpoints |
+| **Observer** | Monitor-only mode via SPAN/TAP; no routing changes | 'Œ None (log-only, no blocking) | PoC validation, compliance auditing, testing before production |
 
 **Recommended:** Gateway/Router mode for first-layer enforcement. Host-only mode for critical assets that need defense-in-depth beyond network controls.
 
@@ -102,7 +102,7 @@ Battle-Hardened AI supports three primary deployment roles:
 Battle-Hardened AI VM acts as the **default gateway** for protected systems:
 
 ```
-Internet ──→ BH-AI Gateway ──→ Protected Systems
+Internet ─→’ BH-AI Gateway ─→’ Protected Systems
               (Decision +         (receive only
               Enforcement)         pre-approved traffic)
 ```
@@ -118,7 +118,7 @@ Internet ──→ BH-AI Gateway ──→ Protected Systems
 BH-AI operates inline **without becoming the default gateway**:
 
 ```
-Internet ──→ BH-AI Bridge ──→ Router ──→ Protected Systems
+Internet ─→’ BH-AI Bridge ─→’ Router ─→’ Protected Systems
               (transparent        (existing gateway)
                inspection)
 ```
@@ -134,9 +134,9 @@ Internet ──→ BH-AI Bridge ──→ Router ──→ Protected Systems
 BH-AI receives copy of traffic via **SPAN port or network TAP**:
 
 ```
-Internet ──→ Router ──→ Protected Systems
+Internet ─→’ Router ─→’ Protected Systems
                │
-               └──→ SPAN/TAP ──→ BH-AI Observer
+               └─→’ SPAN/TAP ─→’ BH-AI Observer
                                   (monitor-only)
 ```
 
@@ -146,56 +146,26 @@ Internet ──→ Router ──→ Protected Systems
 
 **Use case:** Pre-production testing, regulatory compliance validation.
 
-### Federated Relay Architecture
+### Federated Relay Architecture (Optional)
 
-When the **optional relay** is enabled, Battle-Hardened AI nodes share intelligence globally while preserving privacy:
+Battle-Hardened AI supports **optional global intelligence sharing** through a relay server. Customers upload only sanitized attack patterns (NO raw payloads, NO PII) and download trained ML models, signatures, and reputation scores. Key features:
 
-#### Patterns-Only Sharing (Customer → Relay)
-
-```
-Customer Node ──→ Relay Server
-Uploads:
-  ✅ Attack signatures (sanitized patterns: keywords, encodings, attack types)
-  ✅ Behavioral metrics (anonymized statistics)
-  ✅ Reputation updates (IP hashes, not raw IPs)
-  
-  ❌ NO raw payloads
-  ❌ NO customer data or PII
-  ❌ NO training data
-```
-
-- **Smart Pattern Filtering (Enhancement #2):** Bloom filter deduplicates patterns before upload (70-80% bandwidth savings)
-- **Privacy:** Only abstract signatures shared, never customer content
-
-#### Models-Only Pull (Relay → Customer)
-
-```
-Relay Server ──→ Customer Node
-Downloads:
-  ✅ Trained ML models (.pkl, .onnx formats)
-  ✅ Updated signatures (global attack database)
-  ✅ Reputation scores (aggregated intelligence)
-  
-  ❌ NO raw training data leaves relay
-  ❌ NO other customers' data exposed
-```
-
-- **Model Cryptographic Signing (Enhancement #1):** Ed25519 signatures prevent model injection (MITRE T1574.012)
-- **Byzantine Validation:** 94% malicious update rejection rate (AI/byzantine_federated_learning.py)
-- **ONNX Optimization (Enhancement #5):** Models distributed in ONNX format (2-5x faster CPU inference)
-
-#### Privacy-Preserving Architecture
+- **Privacy-Preserving:** Only abstract patterns shared; full data sovereignty maintained  
+- **Model Cryptographic Signing:** Ed25519 signatures prevent malicious model injection (MITRE T1574.012)  
+- **Byzantine Validation:** 94% malicious update rejection rate  
+- **Smart Pattern Filtering:** Bloom filter deduplication (70-80% bandwidth savings)
 
 | Data Type | Shared with Relay? | Why Safe? |
 |-----------|-------------------|-----------|
-| Attack patterns | ✅ Yes (sanitized) | Abstract signatures only, no payloads |
-| Behavioral metrics | ✅ Yes (anonymized) | Statistical aggregates, no identifiable data |
-| ML models | ⬇️ Downloaded only | Relay trains and distributes, customer never uploads raw data |
-| Customer traffic | ❌ Never | Stays local; only pattern hashes leave site |
-| User credentials | ❌ Never | Local analysis only |
-| Raw logs/PII | ❌ Never | Full data sovereignty |
+| Attack patterns | ✓ Yes (sanitized) | Abstract signatures only, no payloads |
+| Behavioral metrics | ✓ Yes (anonymized) | Statistical aggregates, no identifiable data |
+| ML models | '¬‡ï¸ Downloaded only | Relay trains and distributes, customer never uploads raw data |
+| Customer traffic | 'Œ Never | Stays local; only pattern hashes leave site |
+| User credentials | 'Œ Never | Local analysis only |
+| Raw logs/PII | 'Œ Never | Full data sovereignty |
 
-**Result:** Global threat intelligence **without** exposing customer data or violating sovereignty requirements.
+For complete technical details including Stages 1-7 pipeline, privacy architecture, and ONNX optimization, see [Federated AI Training & Relay Architecture](#-federated-ai-training--relay-architecture) below.
+
 
 See [Federated AI Training & Relay Architecture](#-federated-ai-training--relay-architecture) below for Stage 6-7 technical flow.
 
@@ -227,49 +197,49 @@ Beyond the 21 detection layers, Battle-Hardened AI implements **5 production sec
 Battle-Hardened AI operates in a **continuous improvement cycle** that ensures defenses adapt to evolving threats:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
+┌───────────────────────────────┐
 │  1. DETECT                                                  │
-│  └─ 21 layers analyze traffic (signatures, ML, behavioral) │
-└────────────────────┬────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
+│  └'”€ 21 layers analyze traffic (signatures, ML, behavioral) │
+└──────────┬────────────────────┘
+                     →“
+┌───────────────────────────────┐
 │  2. DECIDE (Deny/Allow)                                     │
-│  └─ Ensemble voting + semantic gate + trust modulation     │
-│     Block ≥75% | Log ≥50% | Allow <50%                     │
-└────────────────────┬────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
+│  └'”€ Ensemble voting + semantic gate + trust modulation     │
+│     Block '‰¥75% | Log '‰¥50% | Allow <50%                     │
+└──────────┬────────────────────┘
+                     →“
+┌───────────────────────────────┐
 │  3. ENFORCE                                                 │
-│  └─ Command OS firewall (iptables/nftables/Windows FW)     │
+│  └'”€ Command OS firewall (iptables/nftables/Windows FW)     │
 │     Drop packets, terminate connections, apply TTL          │
-└────────────────────┬────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
+└──────────┬────────────────────┘
+                     →“
+┌───────────────────────────────┐
 │  4. LOG & EXPORT                                            │
-│  ├─ Local: threat_log.json, comprehensive_audit.json       │
-│  ├─ Dashboard: Real-time WebSocket updates                 │
-│  └─ SIEM/SOAR: Outbound JSON export (optional)             │
-└────────────────────┬────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
+│  └”€ Local: threat_log.json, comprehensive_audit.json       │
+│  └”€ Dashboard: Real-time WebSocket updates                 │
+│  └'”€ SIEM/SOAR: Outbound JSON export (optional)             │
+└──────────┬────────────────────┘
+                     →“
+┌───────────────────────────────┐
 │  5. LEARN & MEASURE                                         │
-│  ├─ Extract attack signatures (sanitized patterns only)    │
-│  ├─ Update reputation tracker (IP trust scores)            │
-│  ├─ Monitor ML performance (accuracy, drift detection)     │
-│  ├─ Collect behavioral metrics (anonymized statistics)     │
-│  └─ Validate model integrity (Byzantine defense)           │
-└────────────────────┬────────────────────────────────────────┘
-                     ↓
-┌─────────────────────────────────────────────────────────────┐
+│  └”€ Extract attack signatures (sanitized patterns only)    │
+│  └”€ Update reputation tracker (IP trust scores)            │
+│  └”€ Monitor ML performance (accuracy, drift detection)     │
+│  └”€ Collect behavioral metrics (anonymized statistics)     │
+│  └'”€ Validate model integrity (Byzantine defense)           │
+└──────────┬────────────────────┘
+                     →“
+┌───────────────────────────────┐
 │  6. UPDATE (Continuous Improvement)                         │
-│  ├─ Hourly: New signatures merged into detection database  │
-│  ├─ Every 6 hours: Pull updated models from relay          │
-│  ├─ Weekly: Retrain ML models with labeled attack data     │
-│  ├─ Monthly: Refresh drift baseline (adapt to environment) │
-│  └─ On degradation: Auto-retrain if accuracy <92%          │
-└────────────────────┬────────────────────────────────────────┘
+│  └”€ Hourly: New signatures merged into detection database  │
+│  └”€ Every 6 hours: Pull updated models from relay          │
+│  └”€ Weekly: Retrain ML models with labeled attack data     │
+│  └”€ Monthly: Refresh drift baseline (adapt to environment) │
+│  └'”€ On degradation: Auto-retrain if accuracy <92%          │
+└──────────┬────────────────────┘
                      │
-                     └──→ Loop back to DETECT with improved defenses
+                     └─→’ Loop back to DETECT with improved defenses
 ```
 
 **Key feedback mechanisms:**
@@ -298,90 +268,90 @@ See [Stage 7: Continuous Learning Loop](#stage-7-continuous-learning-loop) below
 *Visual Attack Detection & Response Flow*
 
 ```
-📥 PACKET ARRIVES
-    ↓
+🔥 PACKET ARRIVES
+    →“
 📊 Pre-processing (metadata extraction, normalization)
-    ↓
-⚡ 20 PARALLEL DETECTIONS (Primary Signals 1-18 + Strategic Intelligence 19-20)
-    ├─ Kernel Telemetry (eBPF/XDP syscall correlation)
-    ├─ Signatures (3,066+ attack patterns)
-    ├─ RandomForest ML (supervised classification)
-    ├─ IsolationForest ML (unsupervised anomaly detection)
-    ├─ GradientBoosting ML (reputation modeling)
-    ├─ Behavioral (15 metrics + APT: low-and-slow, off-hours, credential reuse)
-    ├─ LSTM Sequences (6 attack states + APT campaign patterns)
-    ├─ Autoencoder (zero-day via reconstruction error)
-    ├─ Drift Detection (model degradation monitoring)
-    ├─ Graph Intelligence (lateral movement, C2, hop chains)
-    ├─ VPN/Tor Fingerprint (de-anonymization)
-    ├─ Threat Intel (VirusTotal, AbuseIPDB, ExploitDB, etc.)
-    ├─ False Positive Filter (5-gate consensus validation)
-   ├─ Historical Reputation (cross-session recidivism ~94%, internal lab evaluation; see "Validation & Testing" below)
-    ├─ Explainability Engine (human-readable decisions)
-    ├─ Predictive Modeling (24-48h threat forecasting)
-    ├─ Byzantine Defense (poisoned update rejection)
-    ├─ Integrity Monitoring (tampering detection)
-    ├─ 🧠 Causal Inference Engine (root cause: why did this happen?)
-    └─ 🔐 Trust Degradation Graph (zero-trust: entity trust scoring 0-100)
-   ↓
+    →“
+💡 20 PARALLEL DETECTIONS (Primary Signals 1-18 + Strategic Intelligence 19-20)
+    └”€ Kernel Telemetry (eBPF/XDP syscall correlation)
+    └”€ Signatures (3,066+ attack patterns)
+    └”€ RandomForest ML (supervised classification)
+    └”€ IsolationForest ML (unsupervised anomaly detection)
+    └”€ GradientBoosting ML (reputation modeling)
+    └”€ Behavioral (15 metrics + APT: low-and-slow, off-hours, credential reuse)
+    └”€ LSTM Sequences (6 attack states + APT campaign patterns)
+    └”€ Autoencoder (zero-day via reconstruction error)
+    └”€ Drift Detection (model degradation monitoring)
+    └”€ Graph Intelligence (lateral movement, C2, hop chains)
+    └”€ VPN/Tor Fingerprint (de-anonymization)
+    └”€ Threat Intel (VirusTotal, AbuseIPDB, ExploitDB, etc.)
+    └”€ False Positive Filter (5-gate consensus validation)
+   └”€ Historical Reputation (cross-session recidivism ~94%, internal lab evaluation; see "Validation & Testing" below)
+    └”€ Explainability Engine (human-readable decisions)
+    └”€ Predictive Modeling (24-48h threat forecasting)
+    └”€ Byzantine Defense (poisoned update rejection)
+    └”€ Integrity Monitoring (tampering detection)
+    └”€ 🧠 Causal Inference Engine (root cause: why did this happen?)
+    └'”€ 🔐 Trust Degradation Graph (zero-trust: entity trust scoring 0-100)
+   →“
 🎯 ENSEMBLE VOTING (weighted consensus + causal adjustment + trust modulation)
-    ├─ Calculate weighted score (0.65-0.98 per signal)
-    ├─ Apply authoritative boosting (honeypot, threat intel override)
-    ├─ Causal inference adjustment (downgrade if legitimate, boost if malicious)
-    ├─ Trust state modulation (stricter thresholds if trust <40, quarantine if <20)
-    ├─ Check consensus strength (unanimous / strong / divided)
-   └─ Decision: Block (≥75%) / Log (≥50%) / Allow (<50%)
-   │   └─ APT Mode: Block threshold lowered to ≥70%
-   │   └─ Low Trust (<40): Block threshold lowered to ≥60%
-   ↓
+    └”€ Calculate weighted score (0.65-0.98 per signal)
+    └”€ Apply authoritative boosting (honeypot, threat intel override)
+    └”€ Causal inference adjustment (downgrade if legitimate, boost if malicious)
+    └”€ Trust state modulation (stricter thresholds if trust <40, quarantine if <20)
+    └”€ Check consensus strength (unanimous / strong / divided)
+   └'”€ Decision: Block ('‰¥75%) / Log ('‰¥50%) / Allow (<50%)
+   │   └'”€ APT Mode: Block threshold lowered to '‰¥70%
+   │   └'”€ Low Trust (<40): Block threshold lowered to '‰¥60%
+   →“
 🧩 STEP 21: SEMANTIC EXECUTION-DENIAL GATE
-   ├─ Evaluate state legitimacy (lifecycle, sequence, authentication)
-   ├─ Evaluate intent legitimacy (role vs requested action)
-   ├─ Validate structural legitimacy (payload/schema/encoding safety)
-   ├─ Check trust sufficiency (trust_graph thresholds per entity; thresholds are customizable per organization policy)
-   ├─ If SEMANTICALLY_INVALID → deny execution meaning (no state change, no backend call)
-   └─ If SEMANTICALLY_VALID → proceed to response execution
-   ↓
+   └”€ Evaluate state legitimacy (lifecycle, sequence, authentication)
+   └”€ Evaluate intent legitimacy (role vs requested action)
+   └”€ Validate structural legitimacy (payload/schema/encoding safety)
+   └”€ Check trust sufficiency (trust_graph thresholds per entity; thresholds are customizable per organization policy)
+   └”€ If SEMANTICALLY_INVALID →’ deny execution meaning (no state change, no backend call)
+   └'”€ If SEMANTICALLY_VALID →’ proceed to response execution
+   →“
 🛡️ RESPONSE EXECUTION (policy-governed)
-    ├─ Firewall block (iptables/nftables + TTL)
-    ├─ Connection drop (active session termination)
-    ├─ Rate limiting (if 50-74% confidence)
-    ├─ Local logging → threat_log.json (rotates at 100MB) + 10+ audit surfaces
-    ├─ Dashboard update (real-time WebSocket push)
-   └─ Alerts (SIEM integration; email/SMS only for critical SYSTEM events like kill-switch/integrity violations)
-    ↓
+    └”€ Firewall block (iptables/nftables + TTL)
+    └”€ Connection drop (active session termination)
+    └”€ Rate limiting (if 50-74% confidence)
+    └”€ Local logging →’ threat_log.json (rotates at 100MB) + 10+ audit surfaces
+    └”€ Dashboard update (real-time WebSocket push)
+   └'”€ Alerts (SIEM integration; email/SMS only for critical SYSTEM events like kill-switch/integrity violations)
+    →“
 🧬 TRAINING MATERIAL EXTRACTION (privacy-preserving, customer-side)
-   ├─ Extract to local staging: honeypot_patterns.json under the JSON directory returned by AI.path_helper.get_json_dir()
-    ├─ Signatures (patterns only, zero exploit code)
-    ├─ Statistics (anonymized: connection rate, port entropy, fan-out)
-   ├─ Reputation (SHA-256 hashed IPs → reputation.db, not raw addresses)
-    ├─ Graph patterns (topology labels A→B→C → network_graph.json)
-    └─ Model weight deltas (RandomForest/LSTM/Autoencoder adjustments)
-    ↓
+   └”€ Extract to local staging: honeypot_patterns.json under the JSON directory returned by AI.path_helper.get_json_dir()
+    └”€ Signatures (patterns only, zero exploit code)
+    └”€ Statistics (anonymized: connection rate, port entropy, fan-out)
+   └”€ Reputation (SHA-256 hashed IPs →’ reputation.db, not raw addresses)
+    └”€ Graph patterns (topology labels A→’B→’C →’ network_graph.json)
+    └'”€ Model weight deltas (RandomForest/LSTM/Autoencoder adjustments)
+    →“
 🌍 RELAY SHARING (optional, authenticated)
-    ├─ Push: Local findings → Relay Server (every hour)
-    ├─ Pull: Global intel ← Relay Server (every 6 hours)
-   │   ├─ 3,000+ new signatures from worldwide nodes *(lab-measured, relay training corpus)*
-    │   ├─ Known bad IP/ASN reputation feed
-    │   ├─ Model updates (Byzantine-validated)
-    │   └─ Emerging threat statistics (CVEs, attack trends)
-    └─ Merge: Integrate global knowledge into local detection
-    ↓
-🔄 CONTINUOUS LEARNING (feedback-driven improvement)
-    ├─ Signature database auto-updated (hourly)
-    ├─ ML models retrained (weekly with labeled data)
-   ├─ Reputation tracker updated (with decay, half-life 30 days)
-    ├─ Drift baseline refreshed (monthly adaptation)
-   └─ Byzantine validation (94% malicious update rejection, measured on adversarial lab simulations; see "Validation & Testing" below)
-    ↓
-🔁 LOOP: Next packet processed with improved defenses
+    └”€ Push: Local findings →’ Relay Server (every hour)
+    └”€ Pull: Global intel → Relay Server (every 6 hours)
+   │   └”€ 3,000+ new signatures from worldwide nodes *(lab-measured, relay training corpus)*
+    │   └”€ Known bad IP/ASN reputation feed
+    │   └”€ Model updates (Byzantine-validated)
+    │   └'”€ Emerging threat statistics (CVEs, attack trends)
+    └'”€ Merge: Integrate global knowledge into local detection
+    →“
+🛡„ CONTINUOUS LEARNING (feedback-driven improvement)
+    └”€ Signature database auto-updated (hourly)
+    └”€ ML models retrained (weekly with labeled data)
+   └”€ Reputation tracker updated (with decay, half-life 30 days)
+    └”€ Drift baseline refreshed (monthly adaptation)
+   └'”€ Byzantine validation (94% malicious update rejection, measured on adversarial lab simulations; see "Validation & Testing" below)
+    →“
+🛡 LOOP: Next packet processed with improved defenses
 
-🔒 ARCHITECTURE ENHANCEMENTS (5 Production Security Features)
-   ├─ Model Cryptographic Signing (Ed25519) - Prevents model injection attacks
-   ├─ Smart Pattern Filtering (Bloom filter) - 70-80% bandwidth savings
-   ├─ Model Performance Monitoring - Production accuracy tracking, auto-retrain triggers
-   ├─ Adversarial Training (FGSM) - ML evasion resistance
-   └─ ONNX Model Format - 2-5x faster CPU inference (no GPU needed)
+🛡’ ARCHITECTURE ENHANCEMENTS (5 Production Security Features)
+   └”€ Model Cryptographic Signing (Ed25519) - Prevents model injection attacks
+   └”€ Smart Pattern Filtering (Bloom filter) - 70-80% bandwidth savings
+   └”€ Model Performance Monitoring - Production accuracy tracking, auto-retrain triggers
+   └”€ Adversarial Training (FGSM) - ML evasion resistance
+   └'”€ ONNX Model Format - 2-5x faster CPU inference (no GPU needed)
    See: Architecture Enhancements section for full details
 ```
 
@@ -403,30 +373,20 @@ Implementation-wise, customer nodes:
 In the standard shipping profiles:
 
 - The **Linux gateway container** and the **Windows EXE** both include the persistent reputation tracker by default (backed by `reputation.db` under the JSON directory), so repeat offenders and long-lived bad actors are remembered across sessions.
-- Core OSINT threat crawlers (hash/URL/score–only feeds such as MalwareBazaar, URLhaus, and CVE scores) are enabled by default and feed the threat intelligence and DNS/geo sections, while heavier text-based feeds remain optional and operator-controlled.
+- Core OSINT threat crawlers (hash/URL/score—“only feeds such as MalwareBazaar, URLhaus, and CVE scores) are enabled by default and feed the threat intelligence and DNS/geo sections, while heavier text-based feeds remain optional and operator-controlled.
 - Advanced TensorFlow-based autoencoder and sequence models are available as an optional, environment-specific profile for customers that explicitly want the full ML stack and are prepared for the larger footprint.
 
 ### Canonical Deployment
 
 In its standard form, Battle-Hardened AI runs on a **Linux gateway or edge appliance** (physical or virtual), directly in front of the protected segment. Optional Windows/macOS nodes act as **host-level defenders** for specific assets or branches. It is designed to integrate without disrupting existing stacks—SIEM, SOAR, IAM, EDR/XDR, NGFW—acting solely as the execution-control authority and gateway commander.
 
-#### Deployment Context: Gateway vs Host vs Observer
+#### Deployment Context
 
-**Protection scope varies by deployment role:**
+Battle-Hardened AI supports three deployment roles (Gateway/Router, Host-only, Observer). For the full deployment role comparison table and use cases, see [Architecture Understanding § Deployment Roles](#deployment-roles) above.
 
-| Deployment Role | What Gets Protected | When to Use |
-|----------------|---------------------|-------------|
-| **Gateway/Router** | Entire network segment (all devices behind gateway) | Primary deployment for network-wide protection |
-| **Host-only** | Single machine + services it terminates | Windows/macOS endpoints, specific servers |
-| **Observer** | Detection-only (no direct enforcement) | SPAN/mirror traffic analysis, SOC sensors |
+**Installation reference:** For detailed setup, see [Installation.md § Deployment Role](documentation/installation/Installation.md#🎯-deployment-role-read-first).
 
-**Installation reference:** For detailed setup by deployment role, see:
-- [Installation.md § Deployment Role](documentation/installation/Installation.md#🎯-deployment-role-read-first)
-- [Installation.md § Gateway Pre-Flight Checklist](documentation/installation/Installation.md#✅-gateway-pre-flight-checklist)
-- [Installation.md § Linux Gateway Setup](documentation/installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
-- [Installation.md § Cloud Gateway Setup](documentation/installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
-
-**Cloud deployment:** Battle-Hardened AI works identically on cloud VMs (AWS/Azure/GCP) using virtual NICs. Physical hardware not required.
+**Cloud deployment:** Works identically on cloud VMs (AWS/Azure/GCP) using virtual NICs. Physical hardware not required.
 
 ### Semantic Enforcement Model
 
@@ -447,103 +407,12 @@ This ensemble determines when trust, structure, or semantics are invalid, and ca
 
 > Attacks are observed, understood, and remembered—yet denied at origin.
 
-### Not an Incremental Add-On
+### How Battle-Hardened AI Fits in Your Stack
 
-This is not an incremental NDR/XDR feature enhancement. Battle-Hardened AI is a **stateful, pre-execution control class**—a new layer that:
+Battle-Hardened AI is a **first-layer pre-execution control system**, not an incremental add-on to existing NDR/XDR platforms. It makes autonomous allow/deny decisions **before** attacks execute, then integrates seamlessly with your existing security stack.
 
-- Resists probing and iterative evasion
-- Degrades adversary trust over time
-- Prevents coercion by malicious inputs
-- Covers 43 MITRE ATT&CK techniques
-- Operates independently of alert volume or SIEM bloat
+For detailed competitive positioning and architectural comparisons with commercial NDR/XDR platforms, see [Competitive Positioning vs NDR/XDR Platforms](#competitive-positioning-vs-ndrxdr-platforms).
 
-### What Makes Us Different
-
-Most platforms react **after** execution. Battle-Hardened AI intervenes **before**.
-
-#### Comparison: Execution Timing
-
-Traditional security flow:
-
-```text
-Attack → Execute → Detect → Investigate → Respond
-          ↑
-     (Other tools operate here)
-```
-
-Battle-Hardened AI flow:
-
-```text
-Attack → Validate → ❌ DENY (no execution)
-      or
-      → ✅ ALLOW → Execute → [Traditional stack]
-           ↑
-   (BH-AI operates exclusively at this pre-execution decision point)
-```
-
-#### Stack Enforcement by Layer
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│                 FIRST-LAYER POSITIONING                 │
-├─────────────────────────────────────────────────────────┤
-│  App Layer (L7)   → Step 21 Semantic Execution-Denial Gate │
-│  Transport (L4)   → Flow validation                     │
-│  Network (L3)     → IP & route context                  │
-│  Link Layer (L2)  → Frame/MAC insights                  │
-│  Kernel Telemetry → Syscall/socket correlation          │
-└─────────────────────────────────────────────────────────┘
-```
-
-#### What Battle-Hardened AI Is Not
-
-To remain strictly focused as a first-layer decision system, Battle-Hardened AI does **not**:
-
-- Act as a SIEM (log aggregator)
-- Act as a SOAR (workflow orchestrator)
-- Act as an EDR (host process monitor)
-- Act as an IAM (identity manager)
-- Act as a threat intel aggregator
-
-It makes **execution decisions only**.
-
-#### First-Layer Decision Flow
-
-```text
-ATTACKER REQUEST
-   ↓
-[ Battle-Hardened AI ]
-   ├─ Step 1: Semantic Validity
-   ├─ Step 2: Trust Graph
-   ├─ Step 3: Causal Reasoning
-   └─ Step 4: Consensus (21 layers)
-   ↓
-✅ ALLOW  or  ❌ DENY
-```
-
-### 🧪 Example: SSH Credential Stuffing
-
-- **Traditional flow:** Attackers perform high-volume or distributed SSH login attempts. Sessions are established, and only then do downstream tools detect anomalies and raise alerts.
-- **With Battle-Hardened AI:** Behavioral, sequence, and trust signals flag abnormal SSH login patterns. Trust for the source degrades, and the semantic execution-denial gate determines that the login attempts are not legitimate for the entity.
-- **Outcome:** Connections are blocked **before** successful session establishment, and the attacker cannot meaningfully interact with protected systems.
-
-#### Data Handling & Privacy Principles
-
-Battle-Hardened AI follows strict data-handling principles at the first layer:
-
-- Observes all traffic, retains only patterns
-- Validates structure and semantics, not full payloads
-- Makes allow/deny decisions, but does not investigate
-- Maintains trust models without exposing raw content externally
-
-## Competitive Landscape
-
-Battle-Hardened AI is designed to sit in front of, and alongside, existing controls rather than replace them.
-
-- **Versus firewalls (NGFW/WAF):** Traditional firewalls enforce static or signature-based rules on packets and sessions. Battle-Hardened AI acts as a semantic commander in front of them, deciding *whether* an interaction should be allowed at all and then driving firewall rules accordingly.
-- **Versus NDR/XDR:** NDR/XDR platforms aggregate telemetry and raise alerts *after* execution. Battle-Hardened AI operates at the execution gate, using 21 documented layers plus the semantic execution-denial gate to reject malicious actions before they reach those systems.
-- **Versus SD-WAN and routing gear:** SD-WAN optimizes paths and connectivity between sites. Battle-Hardened AI focuses purely on security semantics and trust, determining which flows should exist at all and leaving path selection to the network layer.
-- **Versus EDR (agent-based):** EDR agents live on individual endpoints and watch local processes. Battle-Hardened AI typically runs as a gateway node with no agents, protecting many devices at once and exporting decisions that EDR/XDR tools can still consume.
 
 ### Integration with Enterprise Security
 
@@ -568,21 +437,21 @@ The JSON format is **identical across Linux (Docker) and Windows**. Enforcement 
 - JSON feeds consumed by SIEM/SOAR/NGFW/EDR integrations
 
 ```text
-      ┌────────────────────────────┐
+      ┌──────────────┐
       │   Battle-Hardened AI       │
       │   (Decision Engine)        │
-      └────────────┬───────────────┘
+      └──────┬────────┘
          │
          │ JSON decisions
          ▼
-      ┌────────────────────────────┐
+      ┌──────────────┐
       │   OS Firewall / Gateway    │
       │ (iptables/ipset or WDFW)   │
-      └────────────┬───────────────┘
+      └──────┬────────┘
          │
       Enforced traffic
          │
-   ┌───────────────┴────────────────┐
+   ┌────────┴────────┐
    │                                │
    ▼                                ▼
   SIEM / SOAR / NGFW                Optional Relay
@@ -646,32 +515,32 @@ These 24 sections correspond to the main dashboard surfaces shipped in the curre
 
 | # | Section | Description |
 |---|---------|-------------|
-| 1 | AI Training Network – Shared Machine Learning | Full view of the optional P2P/federated training mesh: which nodes are participating, what sanitized attack signatures and statistical patterns have been shared, current model versions and lineage, training job status, and whether the relay is operating in fully offline/air‑gapped, local‑only, or collaborative mode (no raw payloads or customer data ever leave the deployment). |
-| 2 | Network Devices – Live Monitor, Ports & History | Live asset and device inventory across observed subnets: active hosts, open ports and services, role classification, per‑device trust/risk posture, and 7‑day historical view of appearance, disappearance, and behavior changes so operators can see how the protected environment is evolving over time. |
-| 3 | Attackers VPN/Tor De-Anonymization Statistics | Aggregated view of anonymization infrastructure hitting the system: VPN/Tor/proxy detection, upstream ASN/region breakdowns, recurrence and campaign statistics, de‑anonymization heuristics, and how these signals feed into reputation/trust degradation so you can see which remote infrastructures are persistently hostile. |
-| 4 | Real AI/ML Models – Machine Learning Intelligence | Inventory and operational status of the ML stack that powers the 21 detection layers: which models are deployed, their roles in the ensemble, training datasets and provenance, Byzantine/federated defenses, deterministic evaluation results, cryptographic lineage, and drift/integrity health so you can see exactly what AI is running and how trustworthy it is. |
-| 5 | Security Overview – Live Statistics | One-page, live security posture summary: total connections, blocked vs allowed decisions, active attacks and campaigns, kill‑switch state, SLA envelope status, and high‑level KPIs so leadership and operators can understand overall risk without drilling into individual signals or flows. |
-| 6 | Threat Analysis by Type | Aggregated view of observed threats over time, grouped by category, tactic, severity, and confidence; highlights top attack types, trending behaviors, and MITRE‑aligned coverage, and feeds Section 9’s visual breakdown for rapid exploration of where the system is spending defensive effort. |
-| 7 | IP Management & Threat Monitoring | Per‑IP and per‑entity risk console: live reputation/trust scores, historical incidents, recidivism flags, geographic/ASN context, and management actions (temporary quarantine, escalation, documentation) so defenders can quickly see which sources are persistently hostile and how the system is responding. |
-| 8 | Failed Login Attempts (Battle-Hardened AI Server) | Focused analytics on authentication abuse against the platform itself: failed logins by source, account, method, and time; brute‑force and password‑spray patterns; off‑hours abuse; and correlations back to trust and reputation layers to ensure the control plane is not being quietly attacked. |
-| 9 | Attack Type Breakdown (View) | Visual drill‑down of the ensemble’s threat classifications from Section 6: charts and timelines of attack families, severities, and confidence bands, designed purely for understanding and reporting (it introduces no new detection logic beyond what the 21 layers already decided). |
-| 10 | Automated Signature Extraction – Attack Pattern Analysis | Workspace for deterministic, privacy‑respecting signature generation: shows which patterns have been extracted from malicious traffic, how they map to protocol/field locations and attack families, their promotion status into local rules, and what will be exported to the relay as pattern‑only intelligence (no payloads, no customer data). |
-| 11 | System Health & Network Performance | Deep operational health view for the Battle‑Hardened AI node(s): CPU, memory, disk, NIC utilization, queue depths, latency budgets, network performance, watchdog/failover status, and integrity/self‑protection signals so operators know when to scale out, investigate hardware issues, or respond to attempted tampering. |
-| 12 | Audit Evidence & Compliance Mapping | Curated audit evidence extracted from detections, decisions, and runbooks, mapped to external frameworks (PCI‑DSS, HIPAA, GDPR, SOC 2, MITRE, etc.); provides exportable JSON/CSV bundles and narrative summaries for auditors while deliberately avoiding becoming a policy or GRC engine itself. |
-| 13 | Attack Chain Visualization (Phase 4 - Graph Intelligence) | Interactive graph view of multi‑step attacks and campaigns: nodes for hosts, users, and services; edges for reconnaissance, exploitation, lateral movement, and exfiltration; and overlays for tactics/severity so defenders can see how an intrusion is unfolding across the environment in real time. |
-| 14 | Decision Explainability Engine (Phase 7 - Transparency) | Per‑decision forensic surface that exposes which of the 21 layers fired, their confidence scores, trust changes, causal reasoning, and final Step 21 semantic gate outcome, along with human‑readable narratives so SOC and IR teams can understand and defend every autonomous block or allow. |
-| 15 | Adaptive Honeypot - AI Training Sandbox | Live view of the integrated honeypot environment: which services are exposed, which ports are active or auto‑skipped due to conflicts, attack traffic and payload patterns hitting decoy services, and how those interactions are being converted into new training material and signatures without risking production assets. |
-| 16 | AI Security Crawlers & Threat Intelligence Sources | Status board for security crawlers and external intelligence: crawl schedules and last‑run times, coverage of external sources (exploit databases, OSINT, dark‑web indicators), error conditions, and how many indicators have been promoted into local reputation/threat‑intel layers. In the standard builds (Linux container and Windows EXE), hash/URL/score‑only OSINT crawlers are enabled by default, while heavier text‑based feeds remain optional and operator‑controlled. |
+| 1 | AI Training Network —“ Shared Machine Learning | Full view of the optional P2P/federated training mesh: which nodes are participating, what sanitized attack signatures and statistical patterns have been shared, current model versions and lineage, training job status, and whether the relay is operating in fully offline/air—‘gapped, local—‘only, or collaborative mode (no raw payloads or customer data ever leave the deployment). |
+| 2 | Network Devices —“ Live Monitor, Ports & History | Live asset and device inventory across observed subnets: active hosts, open ports and services, role classification, per—‘device trust/risk posture, and 7—‘day historical view of appearance, disappearance, and behavior changes so operators can see how the protected environment is evolving over time. |
+| 3 | Attackers VPN/Tor De-Anonymization Statistics | Aggregated view of anonymization infrastructure hitting the system: VPN/Tor/proxy detection, upstream ASN/region breakdowns, recurrence and campaign statistics, de—‘anonymization heuristics, and how these signals feed into reputation/trust degradation so you can see which remote infrastructures are persistently hostile. |
+| 4 | Real AI/ML Models —“ Machine Learning Intelligence | Inventory and operational status of the ML stack that powers the 21 detection layers: which models are deployed, their roles in the ensemble, training datasets and provenance, Byzantine/federated defenses, deterministic evaluation results, cryptographic lineage, and drift/integrity health so you can see exactly what AI is running and how trustworthy it is. |
+| 5 | Security Overview —“ Live Statistics | One-page, live security posture summary: total connections, blocked vs allowed decisions, active attacks and campaigns, kill—‘switch state, SLA envelope status, and high—‘level KPIs so leadership and operators can understand overall risk without drilling into individual signals or flows. |
+| 6 | Threat Analysis by Type | Aggregated view of observed threats over time, grouped by category, tactic, severity, and confidence; highlights top attack types, trending behaviors, and MITRE—‘aligned coverage, and feeds Section 9's visual breakdown for rapid exploration of where the system is spending defensive effort. |
+| 7 | IP Management & Threat Monitoring | Per—‘IP and per—‘entity risk console: live reputation/trust scores, historical incidents, recidivism flags, geographic/ASN context, and management actions (temporary quarantine, escalation, documentation) so defenders can quickly see which sources are persistently hostile and how the system is responding. |
+| 8 | Failed Login Attempts (Battle-Hardened AI Server) | Focused analytics on authentication abuse against the platform itself: failed logins by source, account, method, and time; brute—‘force and password—‘spray patterns; off—‘hours abuse; and correlations back to trust and reputation layers to ensure the control plane is not being quietly attacked. |
+| 9 | Attack Type Breakdown (View) | Visual drill—‘down of the ensemble's threat classifications from Section 6: charts and timelines of attack families, severities, and confidence bands, designed purely for understanding and reporting (it introduces no new detection logic beyond what the 21 layers already decided). |
+| 10 | Automated Signature Extraction —“ Attack Pattern Analysis | Workspace for deterministic, privacy—‘respecting signature generation: shows which patterns have been extracted from malicious traffic, how they map to protocol/field locations and attack families, their promotion status into local rules, and what will be exported to the relay as pattern—‘only intelligence (no payloads, no customer data). |
+| 11 | System Health & Network Performance | Deep operational health view for the Battle—‘Hardened AI node(s): CPU, memory, disk, NIC utilization, queue depths, latency budgets, network performance, watchdog/failover status, and integrity/self—‘protection signals so operators know when to scale out, investigate hardware issues, or respond to attempted tampering. |
+| 12 | Audit Evidence & Compliance Mapping | Curated audit evidence extracted from detections, decisions, and runbooks, mapped to external frameworks (PCI—‘DSS, HIPAA, GDPR, SOC 2, MITRE, etc.); provides exportable JSON/CSV bundles and narrative summaries for auditors while deliberately avoiding becoming a policy or GRC engine itself. |
+| 13 | Attack Chain Visualization (Phase 4 - Graph Intelligence) | Interactive graph view of multi—‘step attacks and campaigns: nodes for hosts, users, and services; edges for reconnaissance, exploitation, lateral movement, and exfiltration; and overlays for tactics/severity so defenders can see how an intrusion is unfolding across the environment in real time. |
+| 14 | Decision Explainability Engine (Phase 7 - Transparency) | Per—‘decision forensic surface that exposes which of the 21 layers fired, their confidence scores, trust changes, causal reasoning, and final Step 21 semantic gate outcome, along with human—‘readable narratives so SOC and IR teams can understand and defend every autonomous block or allow. |
+| 15 | Adaptive Honeypot - AI Training Sandbox | Live view of the integrated honeypot environment: which services are exposed, which ports are active or auto—‘skipped due to conflicts, attack traffic and payload patterns hitting decoy services, and how those interactions are being converted into new training material and signatures without risking production assets. |
+| 16 | AI Security Crawlers & Threat Intelligence Sources | Status board for security crawlers and external intelligence: crawl schedules and last—‘run times, coverage of external sources (exploit databases, OSINT, dark—‘web indicators), error conditions, and how many indicators have been promoted into local reputation/threat—‘intel layers. In the standard builds (Linux container and Windows EXE), hash/URL/score—‘only OSINT crawlers are enabled by default, while heavier text—‘based feeds remain optional and operator—‘controlled. |
 | 17 | Traffic Analysis & Inspection | Deep packet and flow analysis for live traffic: protocol and application breakdowns, encrypted vs cleartext ratios, unusual ports and methods, inspection verdicts from relevant detection layers, and enforcement summaries so operators can verify that network controls match policy and understand what is being blocked. |
-| 18 | DNS & Geo Security | Dedicated surface for DNS and geographic‑risk analytics: DGA and tunneling heuristics, suspicious query patterns, NXDOMAIN and entropy metrics, geo‑IP risk zoning, and how those signals feed blocking, reputation, and trust so defenders can spot command‑and‑control, staging, and reconnaissance activity. This view is enriched by the OSINT crawlers and the local reputation tracker, so repeated bad infrastructure is treated more aggressively over time. |
-| 19 | User & Identity Trust Signals | Identity‑centric view of entities the system observes: behavioral risk scores, unusual login and session patterns, device/location changes, Zero‑Trust trust deltas, and how identity signals are influencing execution decisions—explicitly without acting as IAM, lifecycle, or policy administration tooling. |
+| 18 | DNS & Geo Security | Dedicated surface for DNS and geographic—‘risk analytics: DGA and tunneling heuristics, suspicious query patterns, NXDOMAIN and entropy metrics, geo—‘IP risk zoning, and how those signals feed blocking, reputation, and trust so defenders can spot command—‘and—‘control, staging, and reconnaissance activity. This view is enriched by the OSINT crawlers and the local reputation tracker, so repeated bad infrastructure is treated more aggressively over time. |
+| 19 | User & Identity Trust Signals | Identity—‘centric view of entities the system observes: behavioral risk scores, unusual login and session patterns, device/location changes, Zero—‘Trust trust deltas, and how identity signals are influencing execution decisions—explicitly without acting as IAM, lifecycle, or policy administration tooling. |
 | 20 | Sandbox Detonation | Overview of file detonation and sandboxing results: how many artifacts have been detonated, verdict classifications, extracted indicators (domains, hashes, behaviors), and how those outcomes inform signatures, reputation, and causal reasoning, all while keeping payload inspection local to the protected environment. |
-| 21 | Email/SMS Alerts (Critical Only) | Configuration and runtime status for critical system event alerts: which destinations are configured, which SYSTEM events (system failure, kill‑switch changes, integrity breaches) will trigger email/SMS notifications, recent send history, and failure diagnostics—positioned as a narrow safety‑of‑operation channel for system health only, not general threat alerting. |
-| 22 | Cryptocurrency Mining Detection | Specialized analytics for crypto‑mining behavior: detection of mining pools and protocols (Stratum), anomalous resource usage (sustained 80%+ CPU), long‑lived connections to known mining pool IPs, associated entities and campaigns, and enforcement outcomes so operators can quickly confirm that cryptojacking/mining malware is being identified and blocked. Mining detections are strengthened by network traffic analysis, process monitoring, and the persistent reputation tracker. |
-| 23 | Governance & Emergency Controls | Command surface for high‑assurance governance: current kill‑switch mode and approval workflow, pending and historical decisions in the approval queue, policy governance and Step 21 policy bundle status, secure‑deployment/tamper health, and audit/log integrity so operators can safely move between observe, approval, and fully autonomous deny modes. |
-| 24 | Enterprise Security Integrations | Configuration and status view for outbound adapters that export first‑layer decisions into SIEM, SOAR, and IT‑operations platforms using the enterprise_integration.json surface, keeping this integration plane strictly export‑only and separate from the local firewall enforcement path. |
+| 21 | Email/SMS Alerts (Critical Only) | Configuration and runtime status for critical system event alerts: which destinations are configured, which SYSTEM events (system failure, kill—‘switch changes, integrity breaches) will trigger email/SMS notifications, recent send history, and failure diagnostics—positioned as a narrow safety—‘of—‘operation channel for system health only, not general threat alerting. |
+| 22 | Cryptocurrency Mining Detection | Specialized analytics for crypto—‘mining behavior: detection of mining pools and protocols (Stratum), anomalous resource usage (sustained 80%+ CPU), long—‘lived connections to known mining pool IPs, associated entities and campaigns, and enforcement outcomes so operators can quickly confirm that cryptojacking/mining malware is being identified and blocked. Mining detections are strengthened by network traffic analysis, process monitoring, and the persistent reputation tracker. |
+| 23 | Governance & Emergency Controls | Command surface for high—‘assurance governance: current kill—‘switch mode and approval workflow, pending and historical decisions in the approval queue, policy governance and Step 21 policy bundle status, secure—‘deployment/tamper health, and audit/log integrity so operators can safely move between observe, approval, and fully autonomous deny modes. |
+| 24 | Enterprise Security Integrations | Configuration and status view for outbound adapters that export first—‘layer decisions into SIEM, SOAR, and IT—‘operations platforms using the enterprise_integration.json surface, keeping this integration plane strictly export—‘only and separate from the local firewall enforcement path. |
 
-The **Enterprise Security Integrations** section (24) provides configuration and status for outbound adapters that stream first‑layer decisions into SIEM, SOAR, and IT‑operations platforms. This integrations surface focuses on visibility and coordination only; primary blocking remains on the local firewall enforcement plane. Note: The section title in technical documentation may include "(Outbound)" for clarity, but the dashboard displays it as "Enterprise Security Integrations".
+The **Enterprise Security Integrations** section (24) provides configuration and status for outbound adapters that stream first—‘layer decisions into SIEM, SOAR, and IT—‘operations platforms. This integrations surface focuses on visibility and coordination only; primary blocking remains on the local firewall enforcement plane. Note: The section title in technical documentation may include "(Outbound)" for clarity, but the dashboard displays it as "Enterprise Security Integrations".
 
 ##### Example: Minimal `enterprise_integration.json`
 
@@ -717,48 +586,48 @@ This table summarizes major capability areas, where they live in the repository,
 | Step 21 semantic gate & policy governance | `AI/step21_semantic_gate.py`, `AI/policy_governance.py` | Implemented; refinement planned | Core semantic gate is active; additional policy bundles and hardening are listed under "Future Enhancements". |
 | Compliance reporting & governance | `AI/compliance_reporting.py`, `AI/policy_governance.py` | Partial / roadmap | Baseline evidence surfaces exist; deeper framework mappings will grow with customer usage. |
 
-#### Example: End-to-End Block Flow (Attack → Decision → Firewall)
+#### Example: End-to-End Block Flow (Attack →’ Decision →’ Firewall)
 
 The typical flow for a network attack looks like this:
 
-1. **Packet observed** – Traffic hits the protected interface; kernel telemetry and packet capture modules record the flow.
-2. **21-layer evaluation** – `AI/pcs_ai.py` orchestrates the detection pipeline (20 signals + Step 21 semantic gate) and produces a `SecurityAssessment` with `should_block`, `threat_level`, and `threats`.
-3. **Decision export** – The assessment is written to JSON surfaces such as `threat_log.json` and `blocked_ips.json` in the configured JSON directory.
-4. **Firewall sync** – On Windows, the `packaging/windows/windows-firewall/configure_bh_windows_firewall.ps1` script (installed as `{app}/windows-firewall/configure_bh_windows_firewall.ps1` and typically invoked by Task Scheduler with `-SkipBaselineRules` and an explicit `-JsonPath`) reads `blocked_ips.json` and updates the "Battle-Hardened AI Blocked IPs" rule. On Linux, iptables/ipset are updated via the server’s enforcement layer.
-5. **Operator view** – The dashboard surfaces the same decision and context in Sections 5 (Security Overview), 7 (IP Management), 14 (Decision Explainability), and 23 (Governance & Emergency Controls).
+1. **Packet observed** —“ Traffic hits the protected interface; kernel telemetry and packet capture modules record the flow.
+2. **21-layer evaluation** —“ `AI/pcs_ai.py` orchestrates the detection pipeline (20 signals + Step 21 semantic gate) and produces a `SecurityAssessment` with `should_block`, `threat_level`, and `threats`.
+3. **Decision export** —“ The assessment is written to JSON surfaces such as `threat_log.json` and `blocked_ips.json` in the configured JSON directory.
+4. **Firewall sync** —“ On Windows, the `packaging/windows/windows-firewall/configure_bh_windows_firewall.ps1` script (installed as `{app}/windows-firewall/configure_bh_windows_firewall.ps1` and typically invoked by Task Scheduler with `-SkipBaselineRules` and an explicit `-JsonPath`) reads `blocked_ips.json` and updates the "Battle-Hardened AI Blocked IPs" rule. On Linux, iptables/ipset are updated via the server's enforcement layer.
+5. **Operator view** —“ The dashboard surfaces the same decision and context in Sections 5 (Security Overview), 7 (IP Management), 14 (Decision Explainability), and 23 (Governance & Emergency Controls).
 
 This model keeps enforcement local to the OS firewalls, with the AI engine responsible for making high-quality, explainable allow/block decisions and exporting them in a machine-consumable form.
 
 Firewall enforcement paths (Linux vs Windows EXE):
 
 ```text
-    ┌─────────────────────────────┐
+    ┌───────────────┐
     │  Battle-Hardened AI Engine │
     │  (AI/ + server/)           │
-    └────────────┬────────────────┘
+    └──────┬────────┘
          │
          │ JSON decisions
          ▼
-    ┌─────────────────────────────┐
+    ┌───────────────┐
     │  blocked_ips.json,         │
     │  threat_log.json, etc.    │
-    └────────────┬────────────────┘
+    └──────┬────────┘
          │
-     ┌───────────────┴─────────────────────────────┐
+     ┌────────┴───────────────┐
      │                                             │
      ▼                                             ▼
-┌───────────────┐                        ┌────────────────────────────┐
+┌────────┐                        ┌──────────────┐
 │ Linux Gateway │                        │ Windows EXE Installation   │
 │  (Docker/bare │                        │  {app}\BattleHardenedAI.exe│
 │   metal)      │                        │  {app}\.env.windows        │
-└──────┬────────┘                        └──────────────┬─────────────┘
+└───┬────┘                        └───────┬───────┘
    │ iptables/ipset updates                        │ Task Scheduler
-   ▼                                               ▼ (JSON path → script)
-┌───────────────┐                        ┌────────────────────────────┐
+   ▼                                               ▼ (JSON path →’ script)
+┌────────┐                        ┌──────────────┐
 │ OS Firewall   │                        │ {app}\windows-firewall\    │
 │ (iptables/    │                        │ configure_bh_windows_      │
 │  nftables)    │                        │ firewall.ps1               │
-└──────┬────────┘                        └──────────────┬─────────────┘
+└───┬────┘                        └───────┬───────┘
    │                                                   │
    ▼                                                   ▼
    Enforced traffic (blocks, TTL)                 Windows Defender Firewall
@@ -789,146 +658,148 @@ This is not a feature gap — **it is a paradigm gap**.
 
 While isolated forms of semantic validation exist in narrow domains, to our knowledge no NDR or XDR platform implements system-wide semantic execution denial integrated with learning, trust memory, and causal reasoning. Battle-Hardened AI closes that gap by design.
 
-### Normative References (Source-of-Truth Documents)
+### Documentation
 
-For auditors, engineers, and operators, the following documents serve as the authoritative technical references for this system:
+**Core Technical References:**
 
-- [Filepurpose](documentation/mapping/Filepurpose.md) — Maps every core file and JSON surface to the 7-stage pipeline and 21 detection layers
-- [AI instructions](documentation/architecture/Ai-instructions.md) — Developer implementation guide, validation flow, and dashboard/endpoint mapping
-- [Dashboard](documentation/mapping/Dashboard.md) — Dashboard and API reference tied directly to pipeline stages and JSON surfaces
-- [Architecture Enhancements & Compliance](documentation/architecture/Architecture_Enhancements.md) — 5 implemented features plus compliance verification of runtime code paths
-- [AI/ML pipeline proof](documentation/mapping/AI_ml_file_proof.md) — Complete technical proof of AI/ML training pipeline with exact file paths, line numbers, and 758K+ training examples
-- [Attack handling flow](documentation/architecture/Attack_handling_flow.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
-- [JSON File Rotation](documentation/JSON_file_rotation.md) — Automatic rotation system for JSON files to prevent bloat (threat logs, performance metrics, network state)
+- [Filepurpose](documentation/mapping/Filepurpose.md) — Maps every file to the 7-stage pipeline and 21 layers (start here for source code navigation)
+- [AI Instructions](documentation/architecture/Ai-instructions.md) — Developer implementation guide and validation flow
+- [Dashboard](documentation/mapping/Dashboard.md) — Dashboard and API reference
+- [Architecture Enhancements](documentation/architecture/Architecture_Enhancements.md) — 5 implemented ML security features with compliance verification
+- [Attack Handling Flow](documentation/architecture/Attack_handling_flow.md) — End-to-end attack processing from detection through enforcement
 
-These documents collectively define the system’s intended behavior, guarantees, and constraints.
 
-If you're starting from source as a developer or auditor, begin with [Filepurpose](documentation/mapping/Filepurpose.md); it is the canonical map for the AI/, server/, and relay/ components.
+### Key Terms
 
-### Key Terms (For Non-Specialists)
+For a glossary of technical terms (eBPF, PCAP, LSTM, Autoencoder, MITRE ATT&CK, etc.), see [Installation.md § Key Terms](documentation/installation/Installation.md#-key-terms-for-non-specialists).
 
-- **eBPF/XDP:** Linux kernel technologies that let the system observe and filter packets directly in the OS with very low overhead.
-- **PCAP:** Packet capture format used to record raw network traffic for analysis and replay in lab testing.
-- **LSTM:** A type of recurrent neural network specialized for understanding sequences over time (for example, multi-step attack campaigns).
-- **Autoencoder:** An unsupervised neural network used here to spot "never-seen-before" traffic patterns and potential zero-day attacks.
-- **MITRE ATT&CK:** A community-maintained catalog of real-world attacker tactics and techniques; this README maps coverage against those techniques.
+### Deployment Scope
 
-### Deployment Scope — Three Roles, Many Environments
+Battle-Hardened AI operates in 3 deployment roles: **Gateway/Router** (network-wide protection), **Host-only** (individual endpoint protection), and **Observer** (detection-only monitoring). For the complete deployment role comparison table, see [Architecture Understanding § Deployment Roles](#deployment-roles) above.
 
-**Battle-Hardened AI operates in 3 deployment roles:**
-
-| Deployment Role | Protection Scope | Enforcement Method |
-|----------------|------------------|-------------------|
-| **Gateway/Router** | Entire network segment (all devices behind gateway) | Direct firewall commands (iptables/nftables on Linux) |
-| **Host-only** | Single machine + services it terminates | Local firewall (iptables on Linux, Windows Defender Firewall) |
-| **Observer** | Detection-only (no direct enforcement) | Exports decisions to external firewall via JSON feeds |
-
-**Installation reference:** For setup by deployment role, see:
-- [Installation.md § Deployment Role](documentation/installation/Installation.md#🎯-deployment-role-read-first)
-- [Installation.md § Gateway Pre-Flight Checklist](documentation/installation/Installation.md#✅-gateway-pre-flight-checklist)
-- [Installation.md § Linux Gateway Setup](documentation/installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
-- [Installation.md § Cloud Gateway Setup](documentation/installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
+**Installation reference:** For setup instructions, see [Installation.md § Deployment Role](documentation/installation/Installation.md#🎯-deployment-role-read-first).
 
 **Cloud deployment:** Works identically on cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
 
 **These 3 roles adapt to different environments:**
 
-- **🏠 Home & Small Office:** Gateway protects entire LAN; host-only protects individual Windows/macOS machines
-- **🏢 Enterprise Networks:** Gateway at LAN/VLAN/VPN edge; observer via SPAN/mirror for SOC visibility without routing changes
+- **ðŸ  Home & Small Office:** Gateway protects entire LAN; host-only protects individual Windows/macOS machines
+- **ðŸ¢ Enterprise Networks:** Gateway at LAN/VLAN/VPN edge; observer via SPAN/mirror for SOC visibility without routing changes
 - **🖥 Servers & Data Centers:** Gateway on reverse proxies/appliance nodes; host-only on critical servers
 - **🌐 Websites & APIs:** Gateway in front of web servers/API gateways (works alongside WAFs, not replacing them)
-- **☁️ Cloud (IaaS/PaaS):** Gateway with virtual NICs (AWS ENIs, Azure vNICs, GCP interfaces); observer via VPC/VNet flow logs
-- **🏭 OT & Critical Infrastructure:** Observer mode for non-intrusive ICS/SCADA/lab monitoring (no agents on sensitive equipment)
-- **⚖️ Government & Defense:** Gateway for classified networks with strict data sovereignty (air-gapped relay option available)
+- **'˜ï¸ Cloud (IaaS/PaaS):** Gateway with virtual NICs (AWS ENIs, Azure vNICs, GCP interfaces); observer via VPC/VNet flow logs
+- **ðŸ­ OT & Critical Infrastructure:** Observer mode for non-intrusive ICS/SCADA/lab monitoring (no agents on sensitive equipment)
+- **'š–ï¸ Government & Defense:** Gateway for classified networks with strict data sovereignty (air-gapped relay option available)
 
 #### Enforcement Requires Firewall Integration
 
 To make deny decisions real, Battle-Hardened AI must be connected to the underlying firewall. **Before any production rollout, review [documentation/firewall/Firewall_enforcement.md](documentation/firewall/Firewall_enforcement.md) end-to-end.** On Linux, this typically involves `ipset`/`iptables`; on Windows, it wires into Windows Defender Firewall via PowerShell.
 
-### Hardware Deployment Checklists
+### Hardware & System Requirements
 
-These checklists describe hardware setups for gateway and inline bridge roles. Linux is the primary OS for routing and enforcement. Windows is supported for host-only or appliance-style deployments.
+For detailed hardware deployment checklists (gateway router options, transparent bridge, system requirements), see [documentation/installation/Installation.md § Hardware Deployment Checklists](documentation/installation/Installation.md#-hardware-deployment-checklists).
 
-#### ✅ Option A — Battle-Hardened AI as Edge Gateway Router (Recommended for Full Control)
-
-**Network Topology**
-
-```text
-Modem/ONT → Battle-Hardened AI → Switch → Internal Network
-```
-
-**Required Hardware**
-
-- Modem/ONT in bridge mode (disables NAT and firewall)
-- Dedicated Linux appliance (2 NICs: WAN + LAN)
-- Intel-class NICs (for example, i210/i350)
-- AES-NI capable CPU
-- 16–32 GB RAM
-- SSD/NVMe storage
-- Layer-2 switch (VLAN-capable preferred)
-- Wi‑Fi AP in bridge mode (no DHCP/NAT)
-
-**What This Delivers**
-
-- Battle-Hardened AI becomes the default gateway
-- All traffic flows through Battle-Hardened AI (no bypass without physical change)
-- Full control over NAT, routing, firewall, and semantic validation
-
-#### ✅ Option B — Battle-Hardened AI as Transparent Inline Bridge (No Routing Changes)
-
-**Network Topology**
-
-```text
-Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
-```
-
-**Required Hardware**
-
-- Modem/ONT in bridge mode
-- Battle-Hardened AI Linux node with 2 NICs (WAN-side + LAN-side)
-- Existing router handling NAT, DHCP, and Wi‑Fi
-
-**What This Delivers**
-
-- No router reconfiguration needed
-- Battle-Hardened AI still sees and filters traffic before router interaction
-- Minimal architectural disruption
-
-#### ⚠️ What You Don’t Need
-
-- ❌ SD-WAN or cloud-managed routers
-- ❌ Proprietary routers or expensive chassis
-- ❌ Agents on endpoints
-- ❌ Cloud connectivity for core detection
-
-### System Requirements & Platform Support
-
-Minimum suggested specs for lab/small deployments (per node):
-
-- Linux gateway/appliance: 4 CPU cores, 8–16 GB RAM, SSD/NVMe storage.
-- Windows host-only/appliance: 4 CPU cores, 8–16 GB RAM, SSD storage.
-- Network: 2 NICs for inline/gateway roles; 1 NIC for host-only or SPAN/TAP deployments.
-
-Actual requirements depend on traffic volume, retention, and enabled modules; see Installation and Windows checklists for details.
-
-#### Platform & OS Support Summary
-
-| Feature | Linux (Recommended) | Windows / macOS (Host-Only) |
-|---------|---------------------|-----------------------------|
-| Deployment mode | Gateway / router / bridge | Host-level / appliance |
-| GUI dashboard | ✅ | ✅ |
-| Docker support | ✅ Full (with NET_ADMIN) | ❌ Limited (bridge-mode isolation) |
-| Native firewall integration | ✅ `iptables`/`ipset` | ✅ Windows Defender Firewall |
-| Package format | `.deb` / `.rpm` | `.exe` installer |
-| Auto-restart | `systemd` + Docker policies | Watchdog / Windows service |
-| Packet capture & eBPF | ✅ | ⚠️ Requires administrator privileges |
-| Scalability | 10,000+ connections (scalable) | ~500 connections (OS limits) |
-
-See [documentation/installation/Installation.md](documentation/installation/Installation.md) and [Windows-testing-checklist.md](documentation/checklist/Windows-testing-checklist.md) for detailed setup instructions. For production firewall synchronization, see [documentation/firewall/Firewall_enforcement.md](documentation/firewall/Firewall_enforcement.md).
+**Brief summary:**
+- **Linux gateway:** 4+ CPU cores, 8-16 GB RAM, 2 NICs, SSD storage
+- **Windows host:** 4+ CPU cores, 8-16 GB RAM, SSD storage
+- **Scalability:** Linux supports 10,000+ connections; Windows ~500 (OS limits)
 
 ---
 
 ## Competitive Positioning vs NDR/XDR Platforms
+
+Battle-Hardened AI is designed to sit in front of, and alongside, existing controls rather than replace them.
+
+**Quick Positioning:**
+- **Versus firewalls (NGFW/WAF):** Traditional firewalls enforce static or signature-based rules on packets and sessions. Battle-Hardened AI acts as a semantic commander in front of them, deciding *whether* an interaction should be allowed at all and then driving firewall rules accordingly.
+- **Versus NDR/XDR:** NDR/XDR platforms aggregate telemetry and raise alerts *after* execution. Battle-Hardened AI operates at the execution gate, using 21 documented layers plus the semantic execution-denial gate to reject malicious actions before they reach those systems.
+- **Versus SD-WAN and routing gear:** SD-WAN optimizes paths and connectivity between sites. Battle-Hardened AI focuses purely on security semantics and trust, determining which flows should exist at all and leaving path selection to the network layer.
+- **Versus EDR (agent-based):** EDR agents live on individual endpoints and watch local processes. Battle-Hardened AI typically runs as a gateway node with no agents, protecting many devices at once and exporting decisions that EDR/XDR tools can still consume.
+
+
+### Fundamental Positioning: A New Control Class
+
+### Not an Incremental Add-On
+
+This is not an incremental NDR/XDR feature enhancement. Battle-Hardened AI is a **stateful, pre-execution control class**—a new layer that:
+
+- Resists probing and iterative evasion
+- Degrades adversary trust over time
+- Prevents coercion by malicious inputs
+- Covers 43 MITRE ATT&CK techniques
+- Operates independently of alert volume or SIEM bloat
+
+### What Makes Us Different
+
+Most platforms react **after** execution. Battle-Hardened AI intervenes **before**.
+
+#### Comparison: Execution Timing
+
+Traditional security flow:
+
+```text
+Attack →’ Execute →’ Detect →’ Investigate →’ Respond
+          →‘
+     (Other tools operate here)
+```
+
+Battle-Hardened AI flow:
+
+```text
+Attack →’ Validate →’ 'Œ DENY (no execution)
+      or
+      →’ ✓ ALLOW →’ Execute →’ [Traditional stack]
+           →‘
+   (BH-AI operates exclusively at this pre-execution decision point)
+```
+
+#### Stack Enforcement by Layer
+
+```text
+┌─────────────────────────────┐
+│                 FIRST-LAYER POSITIONING                 │
+├────────────────────────────┤
+│  App Layer (L7)   →’ Step 21 Semantic Execution-Denial Gate │
+│  Transport (L4)   →’ Flow validation                     │
+│  Network (L3)     →’ IP & route context                  │
+│  Link Layer (L2)  →’ Frame/MAC insights                  │
+│  Kernel Telemetry →’ Syscall/socket correlation          │
+└─────────────────────────────┘
+```
+
+#### What Battle-Hardened AI Is Not
+
+To remain strictly focused as a first-layer decision system, Battle-Hardened AI does **not**:
+
+- Act as a SIEM (log aggregator)
+- Act as a SOAR (workflow orchestrator)
+- Act as an EDR (host process monitor)
+- Act as an IAM (identity manager)
+- Act as a threat intel aggregator
+
+It makes **execution decisions only**.
+
+#### First-Layer Decision Flow
+
+```text
+ATTACKER REQUEST
+   →“
+[ Battle-Hardened AI ]
+   └”€ Step 1: Semantic Validity
+   └”€ Step 2: Trust Graph
+   └”€ Step 3: Causal Reasoning
+   └'”€ Step 4: Consensus (21 layers)
+   →“
+✓ ALLOW  or  'Œ DENY
+```
+
+### 🧪 Example: SSH Credential Stuffing
+
+- **Traditional flow:** Attackers perform high-volume or distributed SSH login attempts. Sessions are established, and only then do downstream tools detect anomalies and raise alerts.
+- **With Battle-Hardened AI:** Behavioral, sequence, and trust signals flag abnormal SSH login patterns. Trust for the source degrades, and the semantic execution-denial gate determines that the login attempts are not legitimate for the entity.
+- **Outcome:** Connections are blocked **before** successful session establishment, and the attacker cannot meaningfully interact with protected systems.
+
+---
 
 This section brings together two complementary views:
 - An **architecture-level comparison** of Battle-Hardened AI vs commercial NDR/XDR platforms (how the systems are built).
@@ -938,7 +809,7 @@ This section brings together two complementary views:
 
 #### Positioning Statement (Critical)
 
-**Battle-Hardened AI is not positioned as “better detection” or “higher accuracy.”**  
+**Battle-Hardened AI is not positioned as —œbetter detection— or —œhigher accuracy.—**  
 **It is positioned as a first-layer autonomous execution-denial system — a fundamentally different defensive control class.**
 
 Most commercial NDR/XDR platforms are **event-driven correlation engines**. They observe activity, correlate events, and surface alerts for downstream investigation.
@@ -962,7 +833,7 @@ Battle-Hardened AI uses a **multi-engine, stateful consensus architecture**. Det
 - Signals can contradict each other and still be resolved coherently
 - The system accumulates understanding, not just alerts
 
-**This is why Battle-Hardened AI does not use “alert volume” as a success metric.**
+**This is why Battle-Hardened AI does not use —œalert volume— as a success metric.**
 
 ---
 
@@ -981,16 +852,16 @@ This is rare not because other vendors cannot build more signals, but because:
 - Signal boundaries are intentionally opaque
 - Multiple detections are often re-labelings of the same underlying logic
 
-The claim is not **“more signals = better.”**  
+The claim is not **—œmore signals = better.—**  
 The claim is **signal independence, transparency, and a final semantic safety gate governing execution authority**.
 
 If a system cannot enumerate its detection classes publicly, it cannot be independently validated.
 
 For a true **first-layer** defensive system, these 21 layers matter because:
-- **Redundancy** – even if several signal classes misclassify or are bypassed, many others (plus the Step 21 semantic gate) still protect the system
-- **No single point of failure** – there is no “one magic algorithm” to evade; attackers must simultaneously defeat diverse, independent detectors and the final semantic gate
-- **Semantic validation** – Layer 21 does not care only about syntax or signatures; it asks whether the requested operation makes sense at all in context
-- **Zero‑trust enforcement** – Layer 20 ensures that past behavior and trust degradation directly modulate current execution thresholds
+- **Redundancy** —“ even if several signal classes misclassify or are bypassed, many others (plus the Step 21 semantic gate) still protect the system
+- **No single point of failure** —“ there is no —œone magic algorithm— to evade; attackers must simultaneously defeat diverse, independent detectors and the final semantic gate
+- **Semantic validation** —“ Layer 21 does not care only about syntax or signatures; it asks whether the requested operation makes sense at all in context
+- **Zero—‘trust enforcement** —“ Layer 20 ensures that past behavior and trust degradation directly modulate current execution thresholds
 
 ---
 
@@ -1187,6 +1058,116 @@ See [Positioning Statement](#positioning-statement-critical) and [Why Evasion Is
 
 ---
 
+## Competitive Advantage vs NDR/XDR Platforms (Operational & Scoring View)
+
+The architecture-level comparison above focuses on **how** Battle-Hardened AI is constructed relative to commercial NDR/XDR platforms. This section uses the concrete ensemble example to show **how those architectural choices change real-world scoring, false positives, and evasion resistance** when compared to leading products.
+
+### 🏆 Competitive Advantage: Why This Approach Outperforms Industry Leaders
+
+**Direct Conceptual Comparison vs. Named Competitors:**
+
+| Aspect                       | Battle-Hardened AI (21 Signals/Layers) | SentinelOne Singularity | Darktrace Cyber AI | Bitdefender GravityZone | Vectra AI Cognito | CrowdStrike Falcon |
+|------------------------------|---------------------------------------|-------------------------|---------------------|--------------------------|-------------------|--------------------|
+| **Number of Signals/Layers** | 21 documented: 18 primary (e.g., kernel telemetry, signatures, RandomForest, LSTM, autoencoders, graph intel); 2 strategic (causal inference, trust degradation); +1 semantic gate for denial. True independence + voting. | Not quantified (dual AI engines: behavioral + cloud ML); focuses on "multi-layered" correlation via Storyline. | "Multi-layered" self-learning (unsupervised ML, Bayesian); no specific count (e.g., anomaly + behavioral DNA models). | "Multi-layered" ML (e.g., HyperDetect with supervised/unsupervised; 60,000+ data points); layers like heuristics + anomaly, but not enumerated as 21. | 3-6 signals (behavioral IOAs, velocity/prioritization); "AI Detections" for surfaces (network/identity/cloud). | Not quantified; AI-powered IOAs + Threat Graph; "layers" across endpoint/identity/cloud, but behavioral focus. |
+| **Detection Diversity**      | High: Covers signatures, ML (supervised/unsupervised/deep), behavioral heuristics, sequences, drift, graph, VPN/Tor, intel feeds, FP filters, predictive, Byzantine/integrity. | Medium-High: Behavioral AI for anomalies/zero-days; endpoint-to-cloud signals. | High: Anomaly-based (novel threats); encrypted traffic + predictive modeling. | High: Heuristics + ML for behavior; supply chain + process monitoring. | Medium: Attacker behaviors (C2/lateral); encrypted analysis + signals. | Medium-High: Big data ML for patterns; endpoint events + predictive hunting. |
+| **Fusion/Ensemble**          | Weighted voting; conservative base (57.2%) + authoritative boosts; causal downgrade + trust modulation. | Storyline correlation; AI stitches events into narratives. | Bayesian fusion; self-adapting without labels. | Tunable ML layers; continuous anomaly fusion. | Velocity/breadth prioritization; AI triage. | Integrated IOAs; cloud-native correlation. |
+| **Unique Tech Edge**         | Semantic denial pre-impact; non-resetting trust; causal root-cause (legit vs. attack). | Agentic multistep autonomy; ransomware rollback. | Self-learning unsupervised; agentic simulation. | Behavioral hardening pre-exploit; quantum roadmap. | Evasion-resistant encrypted signals. | Scalable AI for simpler attacks. |
+| **Overall Conceptual Rating**| '˜…'˜…'˜…'˜…'½ (Exceptional diversity/transparency; superior for semantic purity/privacy). | '˜…'˜…'˜…'˜… (Strong agentic integration; excels in rollback/autonomy). | '˜…'˜…'˜…'˜…'½ (Adaptive anomaly hunting; high for novel threats). | '˜…'˜…'˜…'˜… (Layered prevention; strong quantum readiness). | '˜…'˜…'˜…'˜… (Behavioral prioritization; evasion focus). | '˜…'˜…'˜…'˜… (Endpoint pattern mastery; scalable). |
+
+**Industry Standard vs. Battle-Hardened AI (Summary Table):**
+
+| Solution | Signals / Layers | Decision Method | Base Score Transparency | Unique Capabilities |
+|----------|------------------|-----------------|------------------------|---------------------|
+| **Battle-Hardened AI** | **21 (20 signals + Step 21 gate)** | Transparent weighted voting + 4-layer modulation | ✓ Full breakdown (57.2% →’ 100%) | Causal inference, trust degradation, authoritative boosting, semantic execution gate |
+| CrowdStrike Falcon | 3-4 | ML black box | 'Œ Proprietary "threat score" | Behavioral, threat intel, cloud reputation |
+| Darktrace Enterprise | 5-6 | Neural network | 'Œ Opaque self-learning AI | Entity modeling, anomaly detection |
+| Palo Alto Cortex XDR | 3-4 | Behavioral analytics | 'Œ Hidden scoring | WildFire detonation, threat intel |
+| SentinelOne Singularity | 4-5 | Static/dynamic analysis | 'Œ Black-box ML | Behavioral, threat intel |
+| Microsoft Defender ATP | 3-4 | Cloud signals + ML | 'Œ Hidden confidence | Detonation, behavioral |
+| Traditional IDS (Snort) | 1 | Signature matching | ✓ Binary (match/no match) | Rule-based only |
+
+**Why Conservative Base Scoring (57.2%) is Superior:**
+
+The base score of **57.2%** is **intentionally conservative**—a key differentiator from competitors:
+
+**Competitors' Aggressive Scoring Problem:**
+- CrowdStrike/Darktrace: Often score 80-90% on ambiguous events →’ **high false positive rates**
+- Example: Legitimate CI/CD deployment triggers behavioral alerts →’ 85% score →’ **incorrectly blocked**
+
+**Battle-Hardened AI's Conservative Approach:**
+- Base score 57.2% (below 75% threshold) →’ **would NOT block** on ambiguous signals alone
+- **BUT:** Authoritative signals (Threat Intel 98% confidence + FP Filter 5/5 gates) boost to 100% →’ **correct block**
+- Result: **Same threat detection, fewer false positives**
+
+**Real-World Scenario Comparison:**
+
+| Event | Battle-Hardened AI | CrowdStrike | Darktrace |
+|-------|-------------------|-------------|-----------|
+| **SQL Injection** (this example) | Base 57.2% →’ Threat Intel boost →’ 100% →’ ✓ **BLOCK** | ~80% →’ ✓ **BLOCK** | ~85% →’ ✓ **BLOCK** |
+| **Legitimate Deployment** (triggers 8-10 signals) | Base 45% →’ No authoritative signal →’ ✓ **ALLOW** | ~75% →’ 'Œ **FALSE POSITIVE (blocked)** | ~70% →’ 'Œ **FALSE POSITIVE (blocked)** |
+| **APT Low-and-Slow** (3 signals over 24h) | Base 35% →’ Trust degradation →’ 65% final score (low-trust block threshold 60%) →’ ✓ **BLOCK** | ~40% →’ 'Œ **MISS** | ~50% →’ 'Œ **MISS** |
+
+**Unique Strategic Intelligence (No Competitor Has This):**
+
+**1. Causal Inference (Layer 19):**
+- **What it does:** Determines WHY anomaly occurred (deployment vs. attack)
+- **Competitor gap:** CrowdStrike/Darktrace have NO root cause analysis
+- **Impact:** Prevents false positives on legitimate operational changes
+
+**2. Trust Degradation (Layer 20):**
+- **What it does:** Persistent entity trust scoring with permanent scarring (trust never fully recovers)
+- **Competitor gap:** Only Darktrace has partial entity modeling (but trust CAN reset)
+- **Impact:** Prevents "try again later" strategies used by APT groups
+
+**3. Authoritative Signal Boosting:**
+- **What it does:** High-confidence signals override ensemble score
+- **Competitor gap:** Most use simple weighted averages (no override mechanism)
+- **Impact:** Ensures known threats are blocked even if other signals disagree
+
+**Evasion Resistance Comparison:**
+
+| Solution | Evasion Probability | Attack Vectors Attacker Must Bypass |
+|----------|---------------------|-------------------------------------|
+| **Battle-Hardened AI** | Modeled extremely low (see note) | Multiple independent signals, semantic gate, causal inference, trust degradation, and authoritative overrides |
+| CrowdStrike Falcon | ~5-10% | 3-4 signals (behavioral, threat intel, static analysis) |
+| Darktrace Enterprise | ~15-20% | 5-6 signals (anomaly detection, entity modeling) |
+| Traditional IDS | ~30-40% | 1 signal (signature matching) |
+
+These probabilities are illustrative, model-based estimates meant to compare architectural robustness, not empirically measured failure rates in production.
+
+Taken together, the layered ensemble, semantic gate, causal reasoning, and trust model make practical evasion **extremely difficult** for real attacks while maintaining operational effectiveness.
+
+**Transparency Advantage:**
+
+**Battle-Hardened AI:**
+```
+SOC Analyst sees: "Base 57.2% (12/20 signals), Threat Intel match 
+(98% confidence) + FP Filter (5/5 gates) →’ Final 100% →’ BLOCKED"
+```
+✓ **Fully auditable**, explainable, debuggable
+
+**Competitors (CrowdStrike/Darktrace):**
+```
+SOC Analyst sees: "Threat Score: 85 →’ BLOCKED"
+```
+'Œ **Black box**, difficult to audit, unclear why 85% was assigned
+
+**Summary: Battle-Hardened AI Wins On:**
+
+✓ **Signal/Layer Diversity:** 21 vs 3-6 (competitors)  
+✓ **Transparency:** Full weighted breakdown vs black-box ML  
+✓ **False Positive Reduction:** Conservative base (57.2%) + authoritative boost vs aggressive scoring (80-90%)  
+✓ **Strategic Intelligence:** Causal inference + trust degradation (UNIQUE—no competitor has this)  
+✓ **Evasion Resistance:** Modeled extremely low (see note) vs 5-40% (competitors)  
+✓ **Explainability:** Human-readable decisions vs opaque neural networks  
+✓ **APT Detection:** Trust degradation defeats "try again later" strategies (competitors miss low-and-slow attacks)
+
+---
+For the exact decision thresholds, boosting rules, and Stage 3→’4 wiring, see the earlier **Federated AI Training & Relay Architecture** section (Stages 3—“4). In short, events are logged from ~50% confidence upward, auto-blocked from ~75% (lower in APT/low—‘trust modes), and further modulated by authoritative signals, causal labels, and long—‘term trust state.
+
+---
+
+
 ## Applicability to Military & Law-Enforcement Environments
 
 After understanding how Battle-Hardened AI operates and how it compares to other platforms, this section focuses on where it can be safely deployed in high-assurance environments.
@@ -1224,7 +1205,7 @@ If you choose to enable the optional global intelligence relay, only the followi
 1. **Attack Signatures** (pattern strings like `' OR 1=1--`, never actual exploit code or victim data)
 2. **Behavioral Statistics** (anonymized metrics: average connection rates, port entropy scores, ASN regions—not geolocation)
 3. **Reputation Hashes** (SHA-256 hashed attacker IPs, not raw addresses or victim IPs)
-4. **Graph Topologies** (anonymized patterns like "A→B→C", not real server names or IP addresses)
+4. **Graph Topologies** (anonymized patterns like "A→’B→’C", not real server names or IP addresses)
 5. **ML Model Weight Deltas** (neural network parameter updates, not training data)
 
 **What is NEVER Shared:**
@@ -1232,14 +1213,14 @@ In implementation, raw training datasets and history under the relay's `ai_train
 
 **What is NEVER Shared:**
 
-- ❌ Customer network traffic or packet payloads
-- ❌ Authentication credentials or session tokens
-- ❌ File contents, database records, or application data
-- ❌ Internal IP addresses, hostnames, or network topology
-- ❌ User identities, employee information, or PII
-- ❌ Business communications (emails, documents, messages)
-- ❌ Proprietary code, trade secrets, or classified information
-- ❌ Exploit payloads or weaponized code samples
+- 'Œ Customer network traffic or packet payloads
+- 'Œ Authentication credentials or session tokens
+- 'Œ File contents, database records, or application data
+- 'Œ Internal IP addresses, hostnames, or network topology
+- 'Œ User identities, employee information, or PII
+- 'Œ Business communications (emails, documents, messages)
+- 'Œ Proprietary code, trade secrets, or classified information
+- 'Œ Exploit payloads or weaponized code samples
 
 **Data Sovereignty Guarantees:**
 
@@ -1274,139 +1255,11 @@ The operator (relay server administrator) has **zero visibility** into your netw
 
 ---
 
-## MITRE ATT&CK Coverage Matrix
+## MITRE ATT&CK Coverage
 
-Building on the execution-control and competitive sections above, this matrix shows where Battle-Hardened AI’s detection layers and semantic execution-denial gate align with the MITRE ATT&CK framework.
+For complete MITRE ATT&CK coverage details including the coverage matrix, per-technique breakdown (43 techniques across 15 tactics), competitive analysis, federated AI architecture, and 5 production-ready security enhancements, see [Mitre-attack.md](documentation/mitre-evaluation/Mitre-attack.md).
 
-**Total MITRE ATT&CK Techniques Covered: 43 distinct techniques** (credibly mapped, no inflation)
-
-### Coverage Summary by Tactic
-
-| MITRE Tactic | Technique Count | Techniques Covered | Primary Detection Signals |
-|--------------|----------------|-------------------|---------------------------|
-| **TA0043 - Reconnaissance** | 4 | T1595 (Active Scanning), T1590 (Gather Victim Network Info), T1046 (Network Service Discovery), T1018 (Remote System Discovery) | #6 Behavioral, #10 Graph, #1 Kernel, #7 LSTM |
-| **TA0001 - Initial Access** | 5 | T1190 (Exploit Public-Facing Application), T1133 (External Remote Services), T1078 (Valid Accounts), T1566 (Phishing), T1204 (User Execution) | #2 Signatures, #8 Autoencoder, #12 Threat Intel, #16 Predictive |
-| **TA0006 - Credential Access** | 3 | T1110 (Brute Force), T1110.003 (Password Spraying), T1078 (Valid Accounts) | #6 Behavioral, #7 LSTM, #14 Reputation |
-| **TA0008 - Lateral Movement** | 6 | T1021 (Remote Services), T1021.002 (SMB/Windows Admin Shares), T1021.004 (SSH), T1080 (Taint Shared Content), T1210 (Exploitation of Remote Services), T1570 (Lateral Tool Transfer) | #10 Graph, #1 Kernel, #7 LSTM, #20 Trust |
-| **TA0007 - Discovery** | 1 | T1018 (Remote System Discovery) | #6 Behavioral, #19 Causal, #20 Trust |
-| **TA0011 - Command & Control** | 9 | T1071 (Application Layer Protocol), T1095 (Non-Application Layer Protocol), T1041 (Exfiltration Over C2), T1568 (Dynamic Resolution), T1090 (Proxy), T1090.003 (Multi-hop Proxy), T1079 (Multilayer Encryption), T1108 (Redundant Access), T1102 (Web Service) | #10 Graph, #8 Autoencoder, #12 Threat Intel, #11 VPN/Tor |
-| **TA0009 - Collection** | 1 | T1213 (Data from Information Repositories) | #6 Behavioral, #19 Causal |
-| **TA0010 - Exfiltration** | 2 | T1041 (Exfiltration Over C2 Channel), T1048 (Exfiltration Over Alternative Protocol) | #10 Graph, #6 Behavioral, #8 Autoencoder |
-| **TA0040 - Impact** | 3 | T1485 (Data Destruction), T1486 (Data Encrypted for Impact), T1491 (Defacement) | #8 Autoencoder, #19 Causal, #18 Integrity |
-| **TA0003 - Persistence** | 1 | T1505 (Server Software Component) | #1 Kernel, #2 Signatures, #18 Integrity |
-| **TA0004 - Privilege Escalation** | 2 | T1055 (Process Injection), T1068 (Exploitation for Privilege Escalation) | #1 Kernel, #8 Autoencoder |
-| **TA0005 - Defense Evasion** | 2 | T1070 (Indicator Removal), T1562 (Impair Defenses) | #9 Drift, #18 Integrity, #1 Kernel |
-| **TA0002 - Execution** | 1 | T1059 (Command and Scripting Interpreter) | #2 Signatures, #7 LSTM, #8 Autoencoder |
-| **TA0042 - Resource Development** | 3 | T1583 (Acquire Infrastructure), T1584 (Compromise Infrastructure), T1608 (Stage Capabilities) | #5 Gradient Boost, #12 Threat Intel, #14 Reputation |
-| **TA0015 - Supply Chain Compromise** | 3 | T1195 (Supply Chain Compromise), T1199 (Trusted Relationship), T1565 (Data Manipulation) | #17 Byzantine, #18 Integrity |
-| **Cross-Cutting Semantic Gating** | N/A | Execution / Privilege Escalation / Impact techniques blocked pre-execution by semantic gate | Step 21 Semantic Execution-Denial Gate |
-| **TOTAL** | **43** | **43 distinct MITRE ATT&CK techniques** | **21 detection layers (20 signals + Step 21 semantic gate)** |
-
-### Why 43 Techniques is a Strong, Credible Number
-
-Each of the **43 techniques** in the matrix is:
-- Mapped to at least one concrete detection layer
-- Counted once (no sub-technique inflation)
-- Backed by an auditable detection method
-
-In other words, this is a **technical coverage statement**, not a marketing number.
-
-**Battle-Hardened AI defensibly covers 43 MITRE ATT&CK techniques using its documented detection layers and semantic gate.**
-
-### Per-Technique MITRE ATT&CK Breakdown (43 Techniques)
-
-Below is an auditor-style mapping from each MITRE technique to the **primary Battle-Hardened AI layers** that detect or constrain it.
-
-#### TA0043 – Reconnaissance
-
-- **T1595 – Active Scanning** – Layers: #6 Behavioral, #10 Graph, #1 Kernel, #7 LSTM.
-- **T1590 – Gather Victim Network Info** – Layers: #6 Behavioral, #19 Causal, #20 Trust.
-- **T1046 – Network Service Discovery** – Layers: #1 Kernel, #6 Behavioral, #3 RandomForest, #4 IsolationForest.
-- **T1018 – Remote System Discovery** – Layers: #10 Graph, #7 LSTM, #19 Causal.
-
-#### TA0001 – Initial Access
-
-- **T1190 – Exploit Public-Facing Application** – Layers: #2 Signatures, #8 Autoencoder, #4 IsolationForest, #1 Kernel, Step 21.
-- **T1133 – External Remote Services** – Layers: #6 Behavioral, #10 Graph, #11 VPN/Tor, #12 Threat Intel, #14 Reputation, #20 Trust.
-- **T1078 – Valid Accounts** – Layers: #6 Behavioral, #7 LSTM, #14 Reputation, #20 Trust, Step 21.
-- **T1566 – Phishing** – Layers: #2 Signatures, #8 Autoencoder, #16 Predictive, #12 Threat Intel, #14 Reputation.
-- **T1204 – User Execution** – Layers: #8 Autoencoder, #4 IsolationForest, #19 Causal, Step 21.
-
-#### TA0006 – Credential Access
-
-- **T1110 – Brute Force** – Layers: #6 Behavioral, #7 LSTM, #14 Reputation, #13 FP Filter.
-- **T1110.003 – Password Spraying** – Layers: #10 Graph, #6 Behavioral, #7 LSTM, #19 Causal, #20 Trust.
-- **T1078 – Valid Accounts (Reuse)** – Layers: #6 Behavioral, #7 LSTM, #14 Reputation, #20 Trust, Step 21.
-
-#### TA0008 – Lateral Movement
-
-- **T1021 – Remote Services** – Layers: #1 Kernel, #10 Graph, #7 LSTM, #20 Trust.
-- **T1021.002 – SMB/Windows Admin Shares** – Layers: #1 Kernel, #10 Graph, #18 Integrity, #6 Behavioral.
-- **T1021.004 – SSH** – Layers: #10 Graph, #11 VPN/Tor, #6 Behavioral, #14 Reputation, #20 Trust.
-- **T1080 – Taint Shared Content** – Layers: #18 Integrity, #10 Graph, #6 Behavioral.
-- **T1210 – Exploitation of Remote Services** – Layers: #2 Signatures, #1 Kernel, #8 Autoencoder, #19 Causal, Step 21.
-- **T1570 – Lateral Tool Transfer** – Layers: #1 Kernel, #10 Graph, #8 Autoencoder, #20 Trust.
-
-#### TA0007 – Discovery
-
-- **T1018 – Remote System Discovery** – Layers: #6 Behavioral, #19 Causal, #20 Trust.
-
-#### TA0011 – Command & Control
-
-- **T1071 – Application Layer Protocol** – Layers: #10 Graph, #8 Autoencoder, #3 RandomForest/#4 IsolationForest, #11 VPN/Tor, #12 Threat Intel.
-- **T1095 – Non-Application Layer Protocol** – Layers: #1 Kernel, #10 Graph, #8 Autoencoder.
-- **T1041 – Exfiltration Over C2** – Layers: #10 Graph, #6 Behavioral, #8 Autoencoder.
-- **T1568 – Dynamic Resolution** – Layers: #10 Graph, #12 Threat Intel, #19 Causal.
-- **T1090 – Proxy** – Layers: #11 VPN/Tor, #6 Behavioral, #14 Reputation, #10 Graph.
-- **T1090.003 – Multi-hop Proxy** – Layers: #10 Graph, #20 Trust.
-- **T1079 – Multilayer Encryption** – Layers: #8 Autoencoder, #1 Kernel.
-- **T1108 – Redundant Access** – Layers: #10 Graph, #20 Trust, #19 Causal.
-- **T1102 – Web Service** – Layers: #2 Signatures, #10 Graph, #12 Threat Intel, #14 Reputation.
-
-#### TA0009 – Collection
-
-- **T1213 – Data from Information Repositories** – Layers: #6 Behavioral, #19 Causal, #10 Graph, #20 Trust.
-
-#### TA0010 – Exfiltration
-
-- **T1048 – Exfiltration Over Alternative Protocol** – Layers: #10 Graph, #8 Autoencoder, #6 Behavioral.
-- **T1041 – Exfiltration Over C2 Channel** – Layers: #10 Graph, #6 Behavioral, #8 Autoencoder (same C2 path, higher data volume).
-
-#### TA0040 – Impact
-
-- **T1485 – Data Destruction** – Layers: #1 Kernel, #18 Integrity, #9 Drift, #19 Causal.
-- **T1486 – Data Encrypted for Impact** – Layers: #1 Kernel, #18 Integrity, #8 Autoencoder.
-- **T1491 – Defacement** – Layers: #18 Integrity, #1 Kernel, #10 Graph, #6 Behavioral.
-
-#### TA0003 – Persistence
-
-- **T1505 – Server Software Component** – Layers: #18 Integrity, #2 Signatures, #17 Byzantine, Cryptographic Lineage.
-
-#### TA0004 – Privilege Escalation
-
-- **T1055 – Process Injection** – Layers: #1 Kernel, #8 Autoencoder, #19 Causal.
-- **T1068 – Exploitation for Privilege Escalation** – Layers: #2/#3/#4/#8 traffic detection, #1 Kernel, #20 Trust.
-
-#### TA0005 – Defense Evasion
-
-- **T1070 – Indicator Removal** – Layers: #18 Integrity, #9 Drift, #1 Kernel, Cryptographic Lineage.
-- **T1562 – Impair Defenses** – Layers: #18 Integrity, #9 Drift, #19 Causal.
-
-#### TA0002 – Execution
-
-- **T1059 – Command and Scripting Interpreter** – Layers: #2 Signatures, #8 Autoencoder, #1 Kernel, #7 LSTM, #19 Causal, Step 21.
-
-#### TA0042 – Resource Development
-
-- **T1583 – Acquire Infrastructure** – Layers: #5/#14 Reputation, #12 Threat Intel.
-- **T1584 – Compromise Infrastructure** – Layers: #12 Threat Intel, #14 Reputation, #10 Graph.
-- **T1608 – Stage Capabilities** – Layers: #8 Autoencoder, #2 Signatures, #14 Reputation.
-
-#### TA0015 – Supply Chain Compromise
-
-- **T1195 – Supply Chain Compromise** – Layers: #17 Byzantine, #18 Integrity, Cryptographic Lineage.
-- **T1199 – Trusted Relationship** – Layers: #10 Graph, #20 Trust, #6 Behavioral.
-- **T1565 – Data Manipulation** – Layers: #18 Integrity, Cryptographic Lineage, #9 Drift, #19 Causal.
+**Summary:** Battle-Hardened AI covers **43 distinct MITRE ATT&CK techniques** using 21 detection layers (20 signals + Step 21 semantic gate).
 
 ---
 
@@ -1430,34 +1283,34 @@ Battle-Hardened AI is designed for high-assurance environments and aligns with m
 
 Battle-Hardened AI employs **21 layered detection engines**—20 independent signals and a final semantic execution-denial gate. They operate in parallel and are fused via weighted ensemble logic to maximize accuracy and resilience.
 
-- **Layers 1–18:** Primary detection signals derived from traffic, system telemetry, and threat intelligence.
-- **Layers 19–20:** Strategic intelligence layers that handle intent, causality, and long-term trust memory.
+- **Layers 1—“18:** Primary detection signals derived from traffic, system telemetry, and threat intelligence.
+- **Layers 19—“20:** Strategic intelligence layers that handle intent, causality, and long-term trust memory.
 - **Layer 21:** A semantic execution gate that finalizes enforcement decisions based on structural, contextual, and trust criteria.
 
 Layered view of the detection stack:
 
 ```text
-                            ┌─────────────────────────────┐
+                            ┌───────────────┐
                             │  Layer 21: Step 21 Semantic │
                             │  Execution-Denial Gate      │
-                            └─────────────▲───────────────┘
+                            └───────–²────────┘
                                                  │
-            ┌────────────────────────┴────────────────────────┐
-            │   Layers 19–20: Strategic Intelligence         │
+            ┌────────────'┴────────────┐
+            │   Layers 19—“20: Strategic Intelligence         │
             │   - Causal Inference Engine                    │
             │   - Trust Degradation Graph                    │
-            └─────────────▲──────────────────────────────────┘
+            └───────–²─────────────────┘
                                  │
-   ┌───────────────────┴──────────────────────────────────────────────┐
-   │  Layers 1–18: Primary Signals (kernel, ML, behavior, graph, TI) │
+   ┌──────────┴───────────────────────┐
+   │  Layers 1—“18: Primary Signals (kernel, ML, behavior, graph, TI) │
    │  - eBPF/kernel telemetry, signatures, RF/IF/GB models           │
    │  - behavioral heuristics, LSTM, autoencoder, drift              │
    │  - graph intelligence, VPN/Tor, threat intel, FP filter         │
    │  - reputation, explainability, predictive, Byzantine, integrity │
-   └──────────────────────────────────────────────────────────────────┘
+   └─────────────────────────────────┘
 
-Incoming events are evaluated by Layers 1–18 in parallel, summarized by
-Layers 19–20, and finally adjudicated by Layer 21 before any execution.
+Incoming events are evaluated by Layers 1—“18 in parallel, summarized by
+Layers 19—“20, and finally adjudicated by Layer 21 before any execution.
 ```
 
 | # | Signal | Description |
@@ -1493,7 +1346,7 @@ Planned updates include:
 - Configurable, path-based endpoint rules for `network_request` semantics
 - Externalized policy configuration files for structured semantic enforcement
 
-These improvements will strengthen Step 21’s enforcement precision without introducing fragile allow-lists.
+These improvements will strengthen Step 21's enforcement precision without introducing fragile allow-lists.
 
 ## Why Evasion Is Extremely Hard in Practice
 
@@ -1527,7 +1380,7 @@ Evasion requires an attacker to consistently avoid, mislead, or neutralize these
 
 ### LSTM-Driven Attack Progression Analysis
 
-- Models multi-stage campaigns (recon → exploit → lateral → exfiltration)
+- Models multi-stage campaigns (recon →’ exploit →’ lateral →’ exfiltration)
 - Detects even slow or evasive campaigns
 
 ### Final Defense: Trust and Causality
@@ -1554,31 +1407,31 @@ This architecture makes Battle-Hardened AI extremely difficult to circumvent whi
 
 Battle-Hardened AI continuously monitors the network by processing every packet and event through a high-fidelity, multi-layered threat detection and response pipeline. This section outlines each stage of the data flow—from raw packet capture to federated learning and global signature propagation.
 
-High‑level relay topology:
+High—‘level relay topology:
 
 ```text
       Customer Site(s)                               Optional VPS / Relay
 
-   ┌──────────────────────────┐                   ┌───────────────────────────┐
+   ┌─────────────┐                   ┌──────────────┐
    │  Battle-Hardened AI Node │                   │   Relay / Training Hub    │
    │  (Linux gateway or EXE)  │                   │   (Docker or systemd)     │
-   └─────────────┬────────────┘                   └─────────────┬─────────────┘
+   └───────”¬──────┘                   └───────”¬───────┘
          │  Stage 5/6: Sanitized patterns, stats,       │
          │  reputation deltas, model diffs              │
          │  (no payloads, no PII)                       │
          │                                              │
       Push   ▼                                              │
      (WS 60001)                      Aggregate + Retrain    │
-         ├──────────────────────────────────────────────►
+         ├───────────────────────'–º
          │                                              │
-      Pull   ◄──────────────────────────────────────────────┤
+      Pull   '—„───────────────────────┐
      (HTTPS 60002)                 Stage 6/7: Models,      │
          │                     signatures, reputation   │
          │                                              │
-   ┌─────────────▼────────────┐                   └─────────────┴─────────────┘
+   ┌──────'”€▼──────┐                   └───────┴───────┘
    │  Local Detection Engine  │
-   │  (Stages 1–4 + Step 21) │
-   └──────────────────────────┘
+   │  (Stages 1—“4 + Step 21) │
+   └─────────────┘
 ```
 
 #### Stage 1: Ingestion & Preprocessing
@@ -1618,7 +1471,7 @@ All normalized events are sent to `assess_threat(event)`, which triggers all 20 
 
 - **Layer 1:** eBPF syscall/network correlation
 - **Layer 2:** Pattern matching for 3,000+ exploits *(current lab signature set; grows via relay)*
-- **Layers 3–5:** RandomForest, IsolationForest, Gradient Boosting ML models
+- **Layers 3—“5:** RandomForest, IsolationForest, Gradient Boosting ML models
 - **Layer 6:** Behavioral heuristics (rate, fan-out, entropy)
 - **Layer 7:** LSTM modeling multi-stage attacks
 - **Layer 8:** Autoencoder-based zero-day anomaly detection
@@ -1641,6 +1494,49 @@ Each layer produces independent `DetectionSignal` objects with fields such as:
 
 These are passed through a 5-gate false-positive validator and then forwarded to the ensemble engine.
 
+##### Stage 2 Enhancement: ONNX Model Format for Optimized Inference
+
+**Files:** `AI/onnx_model_converter.py`, `AI/pcs_ai.py`  
+**Purpose:** **2-5x faster CPU inference** (no GPU needed)  
+**Benefit:** Performance optimization without hardware requirements
+
+**How it works:**
+- Relay converts trained sklearn models to **ONNX (Open Neural Network Exchange)** format
+- Distributes both `.pkl` (backup) and `.onnx` (production) formats
+- Customer nodes use **ONNX Runtime** for optimized inference
+- Automatic fallback to pickle if ONNX unavailable
+
+**Performance Benchmarks (Intel i7-10700K CPU):**
+
+| Model | Pickle (.pkl) | ONNX (.onnx) | Speedup |
+|-------|---------------|--------------|---------||
+| RandomForest (100 trees) | 15.2 ms | **3.8 ms** | **4.0x** |
+| IsolationForest (100 trees) | 12.8 ms | **4.2 ms** | **3.0x** |
+| GradientBoosting (100 estimators) | 18.5 ms | **7.1 ms** | **2.6x** |
+| StandardScaler | 0.3 ms | **0.1 ms** | **3.0x** |
+
+**Integration:**
+```python
+# Relay: Convert models after training (automatic)
+from AI.onnx_model_converter import convert_all_models
+
+ml_models_dir = "/app/relay/ai_training_materials/ml_models"
+results = convert_all_models(ml_models_dir)
+# Converts: threat_classifier.pkl →' threat_classifier.onnx
+
+# Customer: Transparent loading (automatic)
+import AI.pcs_ai as pcs_ai
+# Tries .onnx first (2-5x faster), falls back to .pkl if unavailable
+features = pcs_ai._extract_features_from_request(...)
+is_anomaly, score = pcs_ai._ml_predict_anomaly(features)  # 2-5x faster!
+```
+
+**Operational Impact:**
+- **2-5x faster inference** = better response times
+- **Lower CPU usage** = 40% reduction (can downsize instances by 50%)
+- **Higher throughput** = 2.5-4x more requests/second
+- **Cost savings** = Smaller instance sizes, lower power consumption
+
 #### Step 21: Semantic Execution Denial Gate
 
 The final semantic gate prevents unauthorized or unsafe execution even after ensemble approval.
@@ -1654,18 +1550,18 @@ The final semantic gate prevents unauthorized or unsafe execution even after ens
 
 If any dimension fails, execution is silently denied—no state changes occur, but full logs are retained for learning and audit.
 
-**Concrete example – HTTP request gate** (simplified, aligned with `policies/step21/policy.json`):
+**Concrete example —“ HTTP request gate** (simplified, aligned with `policies/step21/policy.json`):
 
 - **Role:** `network_entity`
 - **Action:** `network_request`
 - **Allowed methods:** `GET`, `POST`
-- **Endpoint constraints:** Normalized path, length ≤ 200 characters, no control characters
+- **Endpoint constraints:** Normalized path, length '‰¤ 200 characters, no control characters
 - **Minimum trust score:** 40.0
 
 Example outcomes:
 
-- `GET /api/status` from a client with trust score 72.5 → **Allowed** (well-formed, permitted method, high trust).
-- `DELETE /admin/users/42` from a client with trust score 35.0 → **Denied** (disallowed method and below trust threshold; Step 21 blocks execution even if earlier layers were undecided).
+- `GET /api/status` from a client with trust score 72.5 →’ **Allowed** (well-formed, permitted method, high trust).
+- `DELETE /admin/users/42` from a client with trust score 35.0 →’ **Denied** (disallowed method and below trust threshold; Step 21 blocks execution even if earlier layers were undecided).
 
 #### Stage 3: Meta Decision Ensemble Engine
 
@@ -1674,18 +1570,18 @@ All validated signals enter `meta_decision_engine.py` for weighted voting.
 **Scoring formula:**
 
 ```text
-Weighted Score = Σ (signal_weight × confidence × is_threat) / Σ (signal_weights)
+Weighted Score = Î£ (signal_weight Ã— confidence Ã— is_threat) / Î£ (signal_weights)
 ```
 
 **Example:**
 
 - 12 of 20 signals mark a threat.
 - Signals include: signature match, LSTM kill-chain detection, threat intel feed, autoencoder anomaly, behavioral surge.
-- Base weighted sum ≈ 0.572 (57.2%) before boosting.
+- Base weighted sum '‰ˆ 0.572 (57.2%) before boosting.
 
 **Boosting mechanisms:**
 
-- Threat intel with ≥0.9 confidence forces score ≥0.90.
+- Threat intel with '‰¥0.9 confidence forces score '‰¥0.90.
 - False Positive Filter passing 5/5 gates adds +0.10.
 
 **Final score example:**
@@ -1709,115 +1605,6 @@ Optionally, Battle-Hardened AI nodes can enable encrypted relays for:
 This enables rapid learning across global deployments while preserving strict data locality, regulatory compliance, and operator control.
 
 This completes the full cycle—from ingestion to semantic enforcement—with global learning capabilities ensuring resilience and continuous improvement.
-
----
-
-## Competitive Advantage vs NDR/XDR Platforms (Operational & Scoring View)
-
-The architecture-level comparison above focuses on **how** Battle-Hardened AI is constructed relative to commercial NDR/XDR platforms. This section uses the concrete ensemble example to show **how those architectural choices change real-world scoring, false positives, and evasion resistance** when compared to leading products.
-
-### 🏆 Competitive Advantage: Why This Approach Outperforms Industry Leaders
-
-**Direct Conceptual Comparison vs. Named Competitors:**
-
-| Aspect                       | Battle-Hardened AI (21 Signals/Layers) | SentinelOne Singularity | Darktrace Cyber AI | Bitdefender GravityZone | Vectra AI Cognito | CrowdStrike Falcon |
-|------------------------------|---------------------------------------|-------------------------|---------------------|--------------------------|-------------------|--------------------|
-| **Number of Signals/Layers** | 21 documented: 18 primary (e.g., kernel telemetry, signatures, RandomForest, LSTM, autoencoders, graph intel); 2 strategic (causal inference, trust degradation); +1 semantic gate for denial. True independence + voting. | Not quantified (dual AI engines: behavioral + cloud ML); focuses on "multi-layered" correlation via Storyline. | "Multi-layered" self-learning (unsupervised ML, Bayesian); no specific count (e.g., anomaly + behavioral DNA models). | "Multi-layered" ML (e.g., HyperDetect with supervised/unsupervised; 60,000+ data points); layers like heuristics + anomaly, but not enumerated as 21. | 3-6 signals (behavioral IOAs, velocity/prioritization); "AI Detections" for surfaces (network/identity/cloud). | Not quantified; AI-powered IOAs + Threat Graph; "layers" across endpoint/identity/cloud, but behavioral focus. |
-| **Detection Diversity**      | High: Covers signatures, ML (supervised/unsupervised/deep), behavioral heuristics, sequences, drift, graph, VPN/Tor, intel feeds, FP filters, predictive, Byzantine/integrity. | Medium-High: Behavioral AI for anomalies/zero-days; endpoint-to-cloud signals. | High: Anomaly-based (novel threats); encrypted traffic + predictive modeling. | High: Heuristics + ML for behavior; supply chain + process monitoring. | Medium: Attacker behaviors (C2/lateral); encrypted analysis + signals. | Medium-High: Big data ML for patterns; endpoint events + predictive hunting. |
-| **Fusion/Ensemble**          | Weighted voting; conservative base (57.2%) + authoritative boosts; causal downgrade + trust modulation. | Storyline correlation; AI stitches events into narratives. | Bayesian fusion; self-adapting without labels. | Tunable ML layers; continuous anomaly fusion. | Velocity/breadth prioritization; AI triage. | Integrated IOAs; cloud-native correlation. |
-| **Unique Tech Edge**         | Semantic denial pre-impact; non-resetting trust; causal root-cause (legit vs. attack). | Agentic multistep autonomy; ransomware rollback. | Self-learning unsupervised; agentic simulation. | Behavioral hardening pre-exploit; quantum roadmap. | Evasion-resistant encrypted signals. | Scalable AI for simpler attacks. |
-| **Overall Conceptual Rating**| ★★★★½ (Exceptional diversity/transparency; superior for semantic purity/privacy). | ★★★★ (Strong agentic integration; excels in rollback/autonomy). | ★★★★½ (Adaptive anomaly hunting; high for novel threats). | ★★★★ (Layered prevention; strong quantum readiness). | ★★★★ (Behavioral prioritization; evasion focus). | ★★★★ (Endpoint pattern mastery; scalable). |
-
-**Industry Standard vs. Battle-Hardened AI (Summary Table):**
-
-| Solution | Signals / Layers | Decision Method | Base Score Transparency | Unique Capabilities |
-|----------|------------------|-----------------|------------------------|---------------------|
-| **Battle-Hardened AI** | **21 (20 signals + Step 21 gate)** | Transparent weighted voting + 4-layer modulation | ✅ Full breakdown (57.2% → 100%) | Causal inference, trust degradation, authoritative boosting, semantic execution gate |
-| CrowdStrike Falcon | 3-4 | ML black box | ❌ Proprietary "threat score" | Behavioral, threat intel, cloud reputation |
-| Darktrace Enterprise | 5-6 | Neural network | ❌ Opaque self-learning AI | Entity modeling, anomaly detection |
-| Palo Alto Cortex XDR | 3-4 | Behavioral analytics | ❌ Hidden scoring | WildFire detonation, threat intel |
-| SentinelOne Singularity | 4-5 | Static/dynamic analysis | ❌ Black-box ML | Behavioral, threat intel |
-| Microsoft Defender ATP | 3-4 | Cloud signals + ML | ❌ Hidden confidence | Detonation, behavioral |
-| Traditional IDS (Snort) | 1 | Signature matching | ✅ Binary (match/no match) | Rule-based only |
-
-**Why Conservative Base Scoring (57.2%) is Superior:**
-
-The base score of **57.2%** is **intentionally conservative**—a key differentiator from competitors:
-
-**Competitors' Aggressive Scoring Problem:**
-- CrowdStrike/Darktrace: Often score 80-90% on ambiguous events → **high false positive rates**
-- Example: Legitimate CI/CD deployment triggers behavioral alerts → 85% score → **incorrectly blocked**
-
-**Battle-Hardened AI's Conservative Approach:**
-- Base score 57.2% (below 75% threshold) → **would NOT block** on ambiguous signals alone
-- **BUT:** Authoritative signals (Threat Intel 98% confidence + FP Filter 5/5 gates) boost to 100% → **correct block**
-- Result: **Same threat detection, fewer false positives**
-
-**Real-World Scenario Comparison:**
-
-| Event | Battle-Hardened AI | CrowdStrike | Darktrace |
-|-------|-------------------|-------------|-----------|
-| **SQL Injection** (this example) | Base 57.2% → Threat Intel boost → 100% → ✅ **BLOCK** | ~80% → ✅ **BLOCK** | ~85% → ✅ **BLOCK** |
-| **Legitimate Deployment** (triggers 8-10 signals) | Base 45% → No authoritative signal → ✅ **ALLOW** | ~75% → ❌ **FALSE POSITIVE (blocked)** | ~70% → ❌ **FALSE POSITIVE (blocked)** |
-| **APT Low-and-Slow** (3 signals over 24h) | Base 35% → Trust degradation → 65% final score (low-trust block threshold 60%) → ✅ **BLOCK** | ~40% → ❌ **MISS** | ~50% → ❌ **MISS** |
-
-**Unique Strategic Intelligence (No Competitor Has This):**
-
-**1. Causal Inference (Layer 19):**
-- **What it does:** Determines WHY anomaly occurred (deployment vs. attack)
-- **Competitor gap:** CrowdStrike/Darktrace have NO root cause analysis
-- **Impact:** Prevents false positives on legitimate operational changes
-
-**2. Trust Degradation (Layer 20):**
-- **What it does:** Persistent entity trust scoring with permanent scarring (trust never fully recovers)
-- **Competitor gap:** Only Darktrace has partial entity modeling (but trust CAN reset)
-- **Impact:** Prevents "try again later" strategies used by APT groups
-
-**3. Authoritative Signal Boosting:**
-- **What it does:** High-confidence signals override ensemble score
-- **Competitor gap:** Most use simple weighted averages (no override mechanism)
-- **Impact:** Ensures known threats are blocked even if other signals disagree
-
-**Evasion Resistance Comparison:**
-
-| Solution | Evasion Probability | Attack Vectors Attacker Must Bypass |
-|----------|---------------------|-------------------------------------|
-| **Battle-Hardened AI** | Modeled extremely low (see note) | Multiple independent signals, semantic gate, causal inference, trust degradation, and authoritative overrides |
-| CrowdStrike Falcon | ~5-10% | 3-4 signals (behavioral, threat intel, static analysis) |
-| Darktrace Enterprise | ~15-20% | 5-6 signals (anomaly detection, entity modeling) |
-| Traditional IDS | ~30-40% | 1 signal (signature matching) |
-
-These probabilities are illustrative, model-based estimates meant to compare architectural robustness, not empirically measured failure rates in production.
-
-Taken together, the layered ensemble, semantic gate, causal reasoning, and trust model make practical evasion **extremely difficult** for real attacks while maintaining operational effectiveness.
-
-**Transparency Advantage:**
-
-**Battle-Hardened AI:**
-```
-SOC Analyst sees: "Base 57.2% (12/20 signals), Threat Intel match 
-(98% confidence) + FP Filter (5/5 gates) → Final 100% → BLOCKED"
-```
-✅ **Fully auditable**, explainable, debuggable
-
-**Competitors (CrowdStrike/Darktrace):**
-```
-SOC Analyst sees: "Threat Score: 85 → BLOCKED"
-```
-❌ **Black box**, difficult to audit, unclear why 85% was assigned
-
-**Summary: Battle-Hardened AI Wins On:**
-
-✅ **Signal/Layer Diversity:** 21 vs 3-6 (competitors)  
-✅ **Transparency:** Full weighted breakdown vs black-box ML  
-✅ **False Positive Reduction:** Conservative base (57.2%) + authoritative boost vs aggressive scoring (80-90%)  
-✅ **Strategic Intelligence:** Causal inference + trust degradation (UNIQUE—no competitor has this)  
-✅ **Evasion Resistance:** Modeled extremely low (see note) vs 5-40% (competitors)  
-✅ **Explainability:** Human-readable decisions vs opaque neural networks  
-✅ **APT Detection:** Trust degradation defeats "try again later" strategies (competitors miss low-and-slow attacks)
-
----
-For the exact decision thresholds, boosting rules, and Stage 3→4 wiring, see the earlier **Federated AI Training & Relay Architecture** section (Stages 3–4). In short, events are logged from ~50% confidence upward, auto-blocked from ~75% (lower in APT/low‑trust modes), and further modulated by authoritative signals, causal labels, and long‑term trust state.
 
 ---
 
@@ -1877,14 +1664,14 @@ Based on ensemble decision, the system executes controlled responses:
 1. **Email/SMS:** Send only for critical system events (system failure, kill-switch changes, and integrity breaches; not general threat alerts)
 2. **Syslog/SIEM:** Forward to enterprise logging systems
 
-**Stage 4 → Stage 5 Transition:**
+**Stage 4 →’ Stage 5 Transition:**
 
-Stage 4 writes attack details to `threat_log.json`, `comprehensive_audit.json`, and signal-specific logs → background extraction jobs scan logs periodically (every hour):
-- `AI/signature_extractor.py` is invoked from `AI/pcs_ai.py` when threats are logged → extracts attack patterns from each new event → appends them to `honeypot_patterns.json` under the JSON directory returned by `AI.path_helper.get_json_dir()`
-- `AI/reputation_tracker.py` reads `threat_log.json` → updates `reputation.db` with attacker IPs (SHA-256 hashed)
-- `AI/graph_intelligence.py` reads `lateral_movement_alerts.json` → updates `network_graph.json`
+Stage 4 writes attack details to `threat_log.json`, `comprehensive_audit.json`, and signal-specific logs →’ background extraction jobs scan logs periodically (every hour):
+- `AI/signature_extractor.py` is invoked from `AI/pcs_ai.py` when threats are logged →’ extracts attack patterns from each new event →’ appends them to `honeypot_patterns.json` under the JSON directory returned by `AI.path_helper.get_json_dir()`
+- `AI/reputation_tracker.py` reads `threat_log.json` →’ updates `reputation.db` with attacker IPs (SHA-256 hashed)
+- `AI/graph_intelligence.py` reads `lateral_movement_alerts.json` →’ updates `network_graph.json`
 
-Extracted materials staged locally in the JSON directory returned by `AI.path_helper.get_json_dir()` → ready for Stage 6 relay push.
+Extracted materials staged locally in the JSON directory returned by `AI.path_helper.get_json_dir()` →’ ready for Stage 6 relay push.
 
 ---
 
@@ -1929,7 +1716,7 @@ High-confidence attacks are converted into **sanitized training materials** (no 
 4. **Graph Topology** (anonymized):
    ```json
    {
-   "pattern": "A→B→C",
+   "pattern": "A→’B→’C",
      "hop_count": 3,
      "time_window": 300,
      "attack_type": "lateral_movement"
@@ -1959,7 +1746,7 @@ If relay is enabled, sanitized materials are shared worldwide.
 
 **Push to Relay** (authenticated WebSocket):
 ```
-Client → Relay Server
+Client →’ Relay Server
 {
    "node_id": "sha256(unique_id)",
    "signatures": [],
@@ -1971,7 +1758,7 @@ Client → Relay Server
 
 **Pull from Relay** (every 6 hours):
 ```
-Client ← Relay Server
+Client → Relay Server
 {
    "global_signatures": [],
    "reputation_feed": [],
@@ -1984,61 +1771,27 @@ Client ← Relay Server
 ```
 
 **Integration:**
-- New signatures → added to signature database
-- Reputation feed → merged with local reputation tracker
-- Model updates → validated by Byzantine defense → merged if safe
-- Statistics → displayed in dashboard "AI Training Network" section
+- New signatures →’ added to signature database
+- Reputation feed →’ merged with local reputation tracker
+- Model updates →’ validated by Byzantine defense →’ merged if safe
+- Statistics →’ displayed in dashboard "AI Training Network" section
 
 **Result:** Every node learns from attacks observed **anywhere in the global network**.
 
-**Stage 6 → Stage 7 Transition:**
+**Stage 6 →’ Stage 7 Transition:**
 
-Customer nodes push training materials to relay (every hour) → relay stores in `relay/ai_training_materials/` directory → relay aggregates data from all customer nodes worldwide:
+Customer nodes push training materials to relay (every hour) →’ relay stores in `relay/ai_training_materials/` directory →’ relay aggregates data from all customer nodes worldwide:
 - Signatures merged into `learned_signatures.json` (deduplicated)
 - Attack records appended to `global_attacks.json` (grows continuously, rotates at 100MB using `AI/file_rotation.py`)
 - Reputation data consolidated into `reputation_data/`
 
-Aggregated dataset triggers Stage 7 retraining (weekly) → new models trained → distributed back to customers via Stage 6 pull.
+Aggregated dataset triggers Stage 7 retraining (weekly) →’ new models trained →’ distributed back to customers via Stage 6 pull.
 
 **Critical:** `relay/ai_training_materials/global_attacks.json` uses file rotation - ML training reads ALL rotation files (`global_attacks.json`, `global_attacks_1.json`, `global_attacks_2.json`, etc.) to preserve complete training history.
 
----
+##### Stage 6 Enhancements: Model Integrity & Bandwidth Optimization
 
-#### Stage 7: Continuous Learning Loop
-
-The system continuously improves through feedback:
-
-1. **Signature Extraction:** New attack patterns added every hour
-2. **ML Retraining:** Models retrained weekly with new labeled data
-3. **Drift Detection:** Baseline updated monthly to adapt to network changes
-4. **Reputation Decay:** Old attacks gradually fade (half-life: 30 days)
-5. **Byzantine Validation:** Malicious updates rejected (94% accuracy in internal lab testing)
-
-**Feedback Sources:**
-- **Honeypot Interactions:** 100% confirmed attacks (highest quality training data)
-- **Human Validation:** SOC analyst confirms/rejects alerts → improves ML
-- **False Positive Reports:** Whitelisted events → update FP filter
-
-**Stage 7 → Stage 1 Feedback Loop (Completes the 7-Stage Cycle):**
-
-1. Relay retrains models using aggregated global attack data → new `*.pkl` and `*.keras` models created
-2. Models pushed to relay API → `relay/training_sync_api.py` serves updated models
-3. Customer nodes pull updates (every 6 hours) via `AI/training_sync_client.py`:
-   - New signatures downloaded → merged into local signature database
-   - New ML models downloaded → replace old models in the ML models directory returned by `AI/path_helper.get_ml_models_dir()` (AI/ml_models in development, /app/ml_models in Docker)
-   - `AI/byzantine_federated_learning.py` validates updates (94% malicious rejection rate in internal evaluations)
-4. Updated models loaded by Stage 2 detection signals → **improved accuracy for next packet analysis in Stage 1**
-5. Cycle repeats: better detection → more accurate training data → better models → better detection...
-
-**This continuous feedback loop enables the system to adapt to evolving threats without manual intervention.**
-
----
-
-### 🔒 Architecture Enhancements: 5 Production-Ready Security Features
-
-To enhance the security, performance, and reliability of the ML training pipeline, Battle-Hardened AI implements **5 production-ready architecture enhancements** that go beyond standard ML deployment:
-
-#### Enhancement #1: Model Cryptographic Signing
+**Enhancement: Model Cryptographic Signing**
 
 **File:** `AI/model_signing.py`  
 **Purpose:** Prevent malicious model injection attacks  
@@ -2069,9 +1822,7 @@ else:
 
 **Security Guarantee:** Even if relay server is compromised, attackers cannot inject poisoned models without the private signing key.
 
----
-
-#### Enhancement #2: Smart Pattern Filtering
+**Enhancement: Smart Pattern Filtering**
 
 **File:** `AI/pattern_filter.py`  
 **Purpose:** Deduplicate attack patterns before relay upload  
@@ -2103,7 +1854,37 @@ print(f"Bandwidth saved: {stats['bandwidth_saved_percent']}%")
 
 ---
 
-#### Enhancement #3: Model Performance Monitoring
+#### Stage 7: Continuous Learning Loop
+
+The system continuously improves through feedback:
+
+1. **Signature Extraction:** New attack patterns added every hour
+2. **ML Retraining:** Models retrained weekly with new labeled data
+3. **Drift Detection:** Baseline updated monthly to adapt to network changes
+4. **Reputation Decay:** Old attacks gradually fade (half-life: 30 days)
+5. **Byzantine Validation:** Malicious updates rejected (94% accuracy in internal lab testing)
+
+**Feedback Sources:**
+- **Honeypot Interactions:** 100% confirmed attacks (highest quality training data)
+- **Human Validation:** SOC analyst confirms/rejects alerts →’ improves ML
+- **False Positive Reports:** Whitelisted events →’ update FP filter
+
+**Stage 7 →’ Stage 1 Feedback Loop (Completes the 7-Stage Cycle):**
+
+1. Relay retrains models using aggregated global attack data →’ new `*.pkl` and `*.keras` models created
+2. Models pushed to relay API →’ `relay/training_sync_api.py` serves updated models
+3. Customer nodes pull updates (every 6 hours) via `AI/training_sync_client.py`:
+   - New signatures downloaded →’ merged into local signature database
+   - New ML models downloaded →’ replace old models in the ML models directory returned by `AI/path_helper.get_ml_models_dir()` (AI/ml_models in development, /app/ml_models in Docker)
+   - `AI/byzantine_federated_learning.py` validates updates (94% malicious rejection rate in internal evaluations)
+4. Updated models loaded by Stage 2 detection signals →’ **improved accuracy for next packet analysis in Stage 1**
+5. Cycle repeats: better detection →’ more accurate training data →’ better models →’ better detection...
+
+**This continuous feedback loop enables the system to adapt to evolving threats without manual intervention.**
+
+##### Stage 7 Enhancements: Production ML Reliability & Adversarial Robustness
+
+**Enhancement: Model Performance Monitoring**
 
 **File:** `AI/model_performance_monitor.py`  
 **Purpose:** Track ML accuracy in production and detect model degradation  
@@ -2141,9 +1922,7 @@ print(f"F1 Score: {perf['metrics']['f1_score']}")
 
 **Operational Impact:** Ensures models maintain high accuracy in production; detects data drift and adversarial attacks early.
 
----
-
-#### Enhancement #4: Adversarial Training
+**Enhancement: Adversarial Training**
 
 **File:** `relay/gpu_trainer.py`  
 **Purpose:** Make models robust against ML evasion attacks  
@@ -2177,84 +1956,23 @@ print(f"Accuracy: {result['accuracy']:.2%}")
 print(f"Adversarial examples: {result['adversarial_training']['num_adversarial']}")
 ```
 
-**Configuration:**
-```bash
-# .env
-ADVERSARIAL_TRAINING_ENABLED=true  # Enable adversarial training
-```
-
 **Operational Impact:** Prevents attackers from crafting evasive payloads that fool ML models.
 
----
-
-#### Enhancement #5: ONNX Model Format
-
-**Files:** `AI/onnx_model_converter.py`, `AI/pcs_ai.py`  
-**Purpose:** **2-5x faster CPU inference** (no GPU needed)  
-**Benefit:** Performance optimization without hardware requirements
-
-**How it works:**
-- Relay converts trained sklearn models to **ONNX (Open Neural Network Exchange)** format
-- Distributes both `.pkl` (backup) and `.onnx` (production) formats
-- Customer nodes use **ONNX Runtime** for optimized inference
-- Automatic fallback to pickle if ONNX unavailable
-
-**Performance Benchmarks (Intel i7-10700K CPU):**
-
-| Model | Pickle (.pkl) | ONNX (.onnx) | Speedup |
-|-------|---------------|--------------|---------|
-| RandomForest (100 trees) | 15.2 ms | **3.8 ms** | **4.0x** |
-| IsolationForest (100 trees) | 12.8 ms | **4.2 ms** | **3.0x** |
-| GradientBoosting (100 estimators) | 18.5 ms | **7.1 ms** | **2.6x** |
-| StandardScaler | 0.3 ms | **0.1 ms** | **3.0x** |
-
-**Integration:**
-```python
-# Relay: Convert models after training (automatic)
-from AI.onnx_model_converter import convert_all_models
-
-ml_models_dir = "/app/relay/ai_training_materials/ml_models"
-results = convert_all_models(ml_models_dir)
-# Converts: threat_classifier.pkl → threat_classifier.onnx
-
-# Customer: Transparent loading (automatic)
-import AI.pcs_ai as pcs_ai
-# Tries .onnx first (2-5x faster), falls back to .pkl if unavailable
-features = pcs_ai._extract_features_from_request(...)
-is_anomaly, score = pcs_ai._ml_predict_anomaly(features)  # 2-5x faster!
-```
-
-**Dependencies:**
-- **Relay:** `pip install skl2onnx onnx` (for conversion)
-- **Customer:** `pip install onnxruntime` (optional - automatic fallback if missing)
-
-**Operational Impact:**
-- **2-5x faster inference** = better response times
-- **Lower CPU usage** = 40% reduction (can downsize instances by 50%)
-- **Higher throughput** = 2.5-4x more requests/second
-- **Cost savings** = Smaller instance sizes, lower power consumption
-
----
-
-### 📊 Architecture Enhancements: Summary
+**Architecture Enhancements: Summary**
 
 | Enhancement | Security Benefit | Performance Benefit | MITRE Defense |
 |-------------|------------------|---------------------|---------------|
-| **#1: Model Signing** | Prevents model injection | Negligible (<1ms overhead) | T1574.012 (Supply Chain) |
-| **#2: Pattern Filtering** | Reduces attack surface | 70-80% bandwidth savings | N/A (Operational) |
-| **#3: Performance Monitoring** | Detects model poisoning | Minor (~5% overhead) | T1565.001 (Data Manipulation) |
-| **#4: Adversarial Training** | ML evasion resistance | Training time +30% (relay-side only) | T1562.004 (Impair Defenses) |
-| **#5: ONNX Format** | Faster threat response | **2-5x faster inference** | N/A (Performance) |
+| **ONNX Format (Stage 2)** | Faster threat response | **2-5x faster inference** | N/A (Performance) |
+| **Model Signing (Stage 6)** | Prevents model injection | Negligible (<1ms overhead) | T1574.012 (Supply Chain) |
+| **Pattern Filtering (Stage 6)** | Reduces attack surface | 70-80% bandwidth savings | N/A (Operational) |
+| **Performance Monitoring (Stage 7)** | Detects model poisoning | Minor (~5% overhead) | T1565.001 (Data Manipulation) |
+| **Adversarial Training (Stage 7)** | ML evasion resistance | Training time +30% (relay-side only) | T1562.004 (Impair Defenses) |
 
 **Combined Impact:**
-- ✅ **Security:** 3 additional MITRE ATT&CK defenses (T1574.012, T1565.001, T1562.004)
-- ✅ **Performance:** 2-5x faster inference, 70-80% less relay traffic, 40% lower CPU usage
-- ✅ **Reliability:** Production accuracy monitoring, automatic retraining triggers
-- ✅ **Transparency:** All enhancements fully documented and auditable
-
-**For detailed technical documentation:**
-- [Architecture_Enhancements.md](documentation/architecture/Architecture_Enhancements.md) - Complete implementation guide
-- [ONNX_Integration.md](documentation/architecture/ONNX_Integration.md) - ONNX deployment and benchmarks
+- ✓ **Security:** 3 additional MITRE ATT&CK defenses (T1574.012, T1565.001, T1562.004)
+- ✓ **Performance:** 2-5x faster inference, 70-80% less relay traffic, 40% lower CPU usage
+- ✓ **Reliability:** Production accuracy monitoring, automatic retraining triggers
+- ✓ **Transparency:** All enhancements fully documented and auditable
 
 ---
 
@@ -2270,72 +1988,25 @@ Battle-Hardened AI is designed to be operator-friendly: the dashboard focuses on
 - **Deployment Assumptions:** Battle-Hardened AI is placed where it has full visibility to relevant traffic (inline proxy, gateway, or SPAN/TAP). For encrypted traffic, visibility is limited to metadata (SNI, certificate, timing, sizes) unless deployed behind a TLS termination point.
 - **Trust Model:** The AI server itself is treated as a hardened, monitored asset; OS, Docker (when used), and surrounding infrastructure must follow standard security best practices.
 
-### Validation & Testing (Where the Numbers Come From)
+### Validation & Testing
 
-- **Signature Count (3,066+):** Derived from the active signature set used by the Signature Matching layer, built from curated public attack pattern sources and sanitized honeypot extractions. The count reflects unique, deduplicated patterns, not rule-line inflation.
-- **Accuracy Figures (~94% Recidivism / Byzantine Rejection):** Measured on held-out evaluation sets constructed from historical threat logs and simulated relay updates. Metrics are computed as standard classification accuracy on labeled events (attack vs benign or valid vs poisoned updates), with time windows and dataset sizes documented in internal test harness notebooks.
-- **Evasion Probability (modeled extremely low):** An order-of-magnitude illustration assuming independence across multiple high-confidence signals and conservative success probabilities per evasion dimension. It is not a formal cryptographic guarantee.
-- **Thresholds & Weights:** Defense thresholds (50% log, 75% block) and signal weights (0.65–0.98) were tuned via cross-validation on mixed benign/attack corpora to minimize false positives while preserving high recall on known and synthetic attack traces.
+For details on how quantitative claims (signature count, accuracy figures, evasion probability) are validated and current limitations, see [PoC Acceptance Criteria § Validation Methodology](documentation/checklist/Battle-Hardened-AI_PoC_Acceptance_Criteria.md#8-validation-methodology--testing-framework).
 
-#### Current Validation Status
 
-At present, these figures are derived from internal lab evaluations, adversarial simulations, and scripted attack scenarios (see [AI instructions](documentation/architecture/Ai-instructions.md) and [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)). There is no independent third-party validation or production case study published yet; as pilots and reviews complete, this section will be updated with external metrics and deployment evidence.
+### Operational Guidance
 
-### Known Limitations & Edge Cases
+For deployment pattern recommendations (Home/Lab, SMB, Enterprise, ISP, Overload Behavior), see [Scaling Guide § Deployment Patterns](documentation/installation/Scaling_guide.md#-deployment-pattern-recommendations).
 
-- **Ultra-Low-and-Slow Attacks:** Extremely slow campaigns (e.g., one request per day) may require longer observation windows for clear statistical separation; detection still improves over time through trust degradation and graph intelligence but can be delayed.
-- **Insiders with Strong Privileges:** Fully trusted insiders with valid credentials who behave very similarly to normal workloads are inherently hard to distinguish; network behavior is still monitored, but intent may be ambiguous.
-- **Partial Visibility / Encrypted Traffic:** When deployed without access to decrypted application traffic, certain payload-centric techniques rely more heavily on behavioral, graph, and reputation signals rather than deep content inspection.
-- **Degraded Signal Set:** If some models or signals are disabled, missing, or misconfigured, ensemble robustness decreases; the system degrades gracefully but with reduced redundancy. Operators should treat missing signals as a misconfiguration to fix, not a normal state.
-- **Misconfigured Mirroring / SPAN:** Incorrect SPAN/TAP or routing can create blind spots; Battle-Hardened AI assumes that the traffic it sees is representative of the environment it is defending.
 
-### Operational Guidance & Reference Deployment Patterns
+### Security Self-Protection
 
-- **Home / Lab:** Single-node deployment at the home router or gateway mirror port; modest CPU (4 cores), 8–16 GB RAM, and SSD storage are typically sufficient for thousands of concurrent flows.
-- **SMB / Branch Office:** Inline or tap-based deployment at the site gateway, with 8–16 cores, 32 GB RAM, and NVMe storage to sustain higher connection rates and full audit logging.
-- **Enterprise / Data Center:** One Battle-Hardened AI node per major segment (e.g., DC edge, user access, cloud egress), potentially clustered behind a load balancer or distribution layer for scale-out; sizing depends on peak connections and desired retention period.
-- **ISP / High-Throughput:** Requires careful capacity planning, hardware acceleration (where available), and potentially multiple nodes sharded by customer or prefix; in these environments, aggressive log rotation and selective telemetry are critical.
-- **Overload Behavior:** When resource pressure increases, operators should prioritize maintaining detection and logging fidelity by scaling vertically/horizontally rather than accepting packet loss; standard OS and network QoS controls apply.
+For details on how Battle-Hardened AI protects itself (model integrity, poisoning resistance, minimal attack surface, emergency controls), see [Architecture Enhancements § Self-Protection](documentation/architecture/Architecture_enhancements.md#security-of-the-system-itself-self-protection).
 
-### Security of the System Itself (Self-Protection)
 
-- **Model & Telemetry Integrity:** Integrity Monitoring (Signal 18) detects attempts to tamper with logs, telemetry sources, or model artifacts and escalates severity when such tampering coincides with threats.
-- **Poisoning Resistance:** Byzantine Federated Learning (Signal 17) evaluates incoming model updates and relay contributions, rejecting suspected poisoned updates with high accuracy before they influence production models.
-- **Minimal Attack Surface:** The core server exposes a tightly scoped HTTP interface and can be placed behind reverse proxies or firewalls; operators are expected to restrict SSH, management ports, and relay access to trusted administrative paths.
-- **OS & Container Hardening:** Standard OS baselines (patching, CIS-style hardening, least-privilege service accounts) and hardened Docker configurations (if used) are assumed; Battle-Hardened AI does not override host security posture.
- - **Emergency Controls:** Kill-switch modes and the Governance & Emergency Controls dashboard section (core section 23 and related APIs) allow operators to rapidly shift from autonomous enforcement to monitor-only or fully disabled enforcement in case of suspected compromise.
+### Governance & Policy Management
 
-### Governance, Change Control & Step 21 Policy Management
+For Step 21 policy governance (roles, monitor-only vs enforce, staged rollouts, auditability), see [AI Instructions § Governance](documentation/architecture/Ai-instructions.md#governance-change-control--step-21-policy-management).
 
-- **Roles & Responsibility:** Step 21 semantic policies (roles, actions, structural rules) are treated as governed configuration, not ad-hoc code. Only designated security owners should modify these policies via approved change-control processes.
-- **Monitor-Only vs Enforce:** Environments can operate Step 21 in monitor-only mode (log semantic violations without blocking) during initial rollout or policy updates, then transition to full enforcement after validation.
-- **Staged Rollouts:** Policy changes should be staged (test → pre-production → production) with audit trails in configuration management and clear rollback procedures to avoid accidental denial of legitimate traffic.
-- **Auditability:** Each semantic decision is explainable and logged; this allows reviewers to see which policy dimension (state, intent, structure, trust) caused a block and adjust policies accordingly.
-
-Governed Step 21 flow (monitor-only vs enforce):
-
-```text
-     ┌──────────────────────────────┐
-     │  policies/step21/*.json     │
-     │  (roles, actions, schemas,  │
-     │   trust thresholds)         │
-     └─────────────┬────────────────┘
-             │
-             ▼
-     ┌──────────────────────────────┐
-     │  Step 21 Semantic Gate       │
-     │  (enforced in AI/step21_*.py)│
-     └─────────────┬────────────────┘
-             │
-     ┌─────────────┴───────────────────────────────┐
-     │                                             │
-     ▼                                             ▼
-  Monitor-only mode                             Enforce mode
-  (log semantic violations                      (log + block invalid
-   to threat_log.json,                          execution requests
-   causal_analysis.json,                         before state change)
-   trust_graph.json)                            
-```
 
 ### How to Trust This (Auditors & CISOs)
 
@@ -2345,13 +2016,10 @@ Governed Step 21 flow (monitor-only vs enforce):
 - **Architecture Compliance:** The documented behavior in this README is backed by the architecture and validation materials in Architecture_Enhancements.md and related runbooks, allowing formal review against organizational security standards.
 - **Control Interaction:** Battle-Hardened AI is designed to complement, not replace, existing NDR, IDS/IPS, firewalls, and EDR controls, adding semantic gating, persistent trust, and federated learning as additional defensive layers.
 
-### FAQ & Common Objections
+### FAQ
 
-- **“What if the models are wrong?”** The ensemble is intentionally conservative, supported by causal inference and trust modulation. All actions are logged with explainable traces so operators can tune thresholds and override decisions when needed.
-- **“How do I roll back a bad update?”** Model and policy updates can be versioned and rolled back via configuration management and deployment tooling; emergency kill-switch and monitor-only modes provide additional safety nets during incident response.
-- **“What if the relay is compromised?”** Relay participation is optional and uses anonymized, pattern-level data. Byzantine defenses and integrity checks reduce the risk of poisoned updates; in high-assurance environments, relay can be fully disabled.
-- **“How does this coexist with my existing NDR/EDR/Firewall?”** Battle-Hardened AI is typically deployed as a complementary layer (gateway, sensor, or proxy), feeding additional intelligence into existing controls and automation/orchestration pipelines rather than replacing them.
-- **“What happens if Step 21 blocks a critical request by mistake?”** Semantic decisions are fully logged and explainable; operators can switch to monitor-only mode, adjust the offending policy, and replay or safely reissue the legitimate request through normal change processes.
+For common questions (What if models are wrong? How to roll back? What if relay is compromised? Coexistence with NDR/EDR? Step 21 mistakes?), see [Installation § FAQ](documentation/installation/Installation.md#-faq--common-objections).
+
 
 ### Advanced Defense Modules
 

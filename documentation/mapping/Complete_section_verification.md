@@ -2,14 +2,7 @@
 **Generated:** February 3, 2026  
 **Purpose:** Comprehensive cross-reference of ALL dashboard sections with HTML IDs, JavaScript functions, APIs, JSON files, and Python modules
 
-**Architecture Enhancements:** This system implements 5 production-ready architecture enhancements:
-1. **Model Cryptographic Signing** - Ed25519 signatures prevent malicious model injection (`AI/model_signing.py`)
-2. **Smart Pattern Filtering** - Bloom filter deduplication saves 70-80% relay bandwidth (`AI/pattern_filter.py`)
-3. **Model Performance Monitoring** - Track ML accuracy in production, trigger retraining (`AI/model_performance_monitor.py`)
-4. **Adversarial Training** - FGSM algorithm makes models robust against evasion (`relay/gpu_trainer.py`)
-5. **ONNX Model Format** - 2-5x faster CPU inference with ONNX Runtime (`AI/onnx_model_converter.py`)
-
-For complete documentation, see [Architecture_Enhancements.md](../architecture/Architecture_Enhancements.md) and [ONNX_Integration.md](../architecture/ONNX_Integration.md).
+**Note:** This system implements 5 production-ready architecture enhancements (model signing, pattern filtering, performance monitoring, adversarial training, ONNX). For complete details, see [Architecture_Enhancements.md](../architecture/Architecture_Enhancements.md) and [AI_ml_file_proof.md](AI_ml_file_proof.md).
 
 ---
 
