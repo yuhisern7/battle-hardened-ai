@@ -9,9 +9,9 @@ This guide shows how to **enforce these decisions at OS firewall level** on:
 - **Linux** (Debian/Ubuntu, RHEL/Rocky, VyOS, OpenWRT, Alpine, SUSE)
 - **Windows** (native host firewall)
 
-**Enterprise environments:** Use this as a reference implementation. Integrate with existing GPO/MDM/EDR firewall policies as appropriate.
+**Enterprise environments:** Use this as a reference implementation. Integrate with existing GPO/MDM/EDR firewall policies and upstream NGFW/WAF/cloud firewalls as appropriate.
 
-**Architecture:** Battle-Hardened AI provides **detection and decision logic**. Firewall enforcement translates those decisions into kernel-level network filtering.
+**Architecture:** Battle-Hardened AI provides **detection and decision logic**. Firewall enforcement translates those decisions into kernel-level network filtering on the local OS firewall, while **vendor-neutral JSON outputs** allow NGFW, WAF, cloud security groups, NDR/XDR, SIEM/SOAR, and other systems to consume the same decisions (see Enterprise Integration Topologies in README.md).
 
 ---
 
