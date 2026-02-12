@@ -22,6 +22,13 @@
 - ✅ **Corrupted JSON Cleanup** - Deleted corrupted threat_log.json from user data directory
 - ✅ **Production Ready** - Zero critical warnings, all ML models load and train successfully
 
+### Recent Fixes Applied (2026-02-10)
+- ✅ **Corrupted JSON Auto-Recovery** - Added automatic threat_log.json corruption detection and reset in AI/pcs_ai.py (backs up corrupted file to .corrupted, creates fresh empty JSON)
+- ✅ **Gateway MAC Detection Fix** - Added automatic gateway ping before ARP lookup in server/device_blocker.py (fixes "Could not find gateway MAC via ARP" error on Windows where ARP cache is empty)
+- ✅ **ARP Spoofing False Positive Fix** - Fixed network_monitor.py self-blocking bug where system detected its own device blocker ARP packets as attacks and blocked localhost IP in infinite loop
+- ✅ **Device Blocking Re-enabled** - Windows device blocking now works by pre-populating ARP cache with 0.5s delay for cache update
+- ✅ **Whitelist Check Added** - ARP spoofing detection now skips local machine IP and all whitelisted IPs to prevent false positives
+
 ### Recent Fixes Applied (2026-02-09)
 - ✅ **Windows Health Check Script** - Created `packaging/windows/health-check.ps1` (159 lines, 7-step diagnostics) matching Debian health-check.sh functionality
 - ✅ **Port 60001 Removed from Health Check** - Windows uses single port 60000 for dashboard+API (Linux uses separate 60000/60001 services)
