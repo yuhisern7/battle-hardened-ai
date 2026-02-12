@@ -4,6 +4,10 @@
 
 ---
 
+**Related overview:** For the end-to-end 7-stage pipeline description and positioning, see **[README.md](README.md)**.
+
+---
+
 ## 🎯 Deployment Mode Determines Protection Scope
 
 **What gets protected depends on deployment role:**

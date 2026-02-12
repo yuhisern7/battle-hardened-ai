@@ -9,7 +9,7 @@
 4. **Adversarial Training** - FGSM algorithm makes models robust against evasion (`relay/gpu_trainer.py`)
 5. **ONNX Model Format** - 2-5x faster CPU inference with ONNX Runtime (`AI/onnx_model_converter.py`)
 
-For complete documentation, see [Architecture_Enhancements.md](Architecture_Enhancements.md) and [ONNX_Integration.md](ONNX_Integration.md).
+For complete documentation, see [Architecture_Enhancements.md](Architecture_Enhancements.md) and [ONNX_Integration.md](ONNX_Integration.md). For high-level architecture, deployment roles, and capabilities, see **[README.md](README.md)**.
 
 ---
 

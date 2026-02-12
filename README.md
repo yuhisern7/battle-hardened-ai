@@ -16,12 +16,7 @@ Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21
 - Built for **enterprise, government, and national-security** defense use cases where autonomy, auditability, and privacy are mandatory.
 - Optionally connects to a **central relay/VPS** where many Battle-Hardened AI nodes share only sanitized attack patterns and receive model/signature updates,
   so global learning improves over time without any customer content or PII leaving local infrastructure.
-- Implements **5 production-ready architecture enhancements** for ML pipeline security:
-  - Model cryptographic signing (Ed25519) prevents model injection attacks
-  - Smart pattern filtering (70-80% bandwidth savings)
-  - Production ML performance monitoring with auto-retrain triggers
-  - Adversarial training (FGSM) for ML evasion resistance
-  - ONNX model format (2-5x faster CPU inference)
+- Implements **5 production-ready ML pipeline hardening features** (see *Architecture Enhancements: ML Pipeline Hardening Layer* below for details).
 
 ### Executive Summary (Non-Technical)
 
@@ -148,7 +143,7 @@ When the **optional relay** is enabled, Battle-Hardened AI nodes share intellige
 - Relay distributes **models, signatures, and reputation feeds only** (no raw training data from customers).
 - Model signing, Byzantine validation, and ONNX optimization harden distribution against tampering and performance regressions.
 
-For the full Stage 5–7 technical flow and privacy guarantees, see [Stage 5: Training Material Extraction (Privacy-Preserving)](#stage-5-training-material-extraction-privacy-preserving), [Stage 6: Global Intelligence Sharing (Optional Relay)](#stage-6-global-intelligence-sharing-optional-relay), and [Stage 7: Continuous Learning Loop](#stage-7-continuous-learning-loop).
+For the full Stage 5–7 technical flow and privacy guarantees, see [AI instructions](documentation/architecture/Ai-instructions.md) (Stages 5–7 implementation details) and [Attack handling flow](documentation/architecture/Attack_handling_flow.md) (end-to-end relay and response behavior).
 
 ### Architecture Enhancements: ML Pipeline Hardening Layer
 
@@ -170,8 +165,8 @@ Beyond the 21 detection layers, Battle-Hardened AI implements **5 production sec
 - ONNX Runtime provides 2-5x faster CPU inference (no GPU required)
 
 **For detailed technical documentation:**
-- [Architecture_Enhancements.md](documentation/architecture/Architecture_Enhancements.md) - Complete implementation guide
-- [ONNX_Integration.md](documentation/architecture/ONNX_Integration.md) - ONNX deployment and benchmarks
+- [Architecture_enhancements.md](documentation/architecture/Architecture_enhancements.md) - Complete implementation guide
+- [ONNX_integration.md](documentation/architecture/ONNX_integration.md) - ONNX deployment and benchmarks
 
 ### Operational Loop: Continuous Defense Improvement
 
@@ -319,35 +314,23 @@ See [Stage 7: Continuous Learning Loop](#stage-7-continuous-learning-loop) below
     └─ Merge: Integrate global knowledge into local detection
     ↓
 🔄 CONTINUOUS LEARNING (feedback-driven improvement)
-    ├─ Signature database auto-updated (hourly)
-    ├─ ML models retrained (weekly with labeled data)
+   ├─ Signature database auto-updated (hourly)
+   ├─ ML models retrained (weekly with labeled data)
    ├─ Reputation tracker updated (with decay, half-life 30 days)
-    ├─ Drift baseline refreshed (monthly adaptation)
+   ├─ Drift baseline refreshed (monthly adaptation)
    └─ Byzantine validation (94% malicious update rejection, measured on adversarial lab simulations; see "Validation & Testing" below)
-    ↓
+   ↓
 🔁 LOOP: Next packet processed with improved defenses
 
-🔒 ARCHITECTURE ENHANCEMENTS (5 Production Security Features)
-   ├─ Model Cryptographic Signing (Ed25519) - Prevents model injection attacks
-   ├─ Smart Pattern Filtering (Bloom filter) - 70-80% bandwidth savings
-   ├─ Model Performance Monitoring - Production accuracy tracking, auto-retrain triggers
-   ├─ Adversarial Training (FGSM) - ML evasion resistance
-   └─ ONNX Model Format - 2-5x faster CPU inference (no GPU needed)
-   See: Architecture Enhancements section for full details
+🔒 ARCHITECTURE ENHANCEMENTS — see *Architecture Enhancements: ML Pipeline Hardening Layer* above for the five production security features (model signing, pattern filtering, performance monitoring, adversarial training, ONNX).
 ```
 
 Implementation-wise, customer nodes:
-- Push sanitized threat summaries and extracted patterns to a centrally-operated relay/VPS over WebSocket (typically `wss://<relay-host>:60001`) using a dedicated relay client; **no raw payloads, logs, or customer data are ever sent**.
+- Push sanitized threat summaries and extracted patterns to a centrally-operated relay/VPS over WebSocket (typically `wss://<relay-host>:60001`) using a dedicated relay client.
 - Pull **only pre-trained models** and curated signature/reputation/intel bundles from an HTTPS training API (typically `https://<relay-host>:60002`); raw training datasets and history remain on the relay and never transit customer networks.
 - Load downloaded models from their local ML models directory (resolved by `AI.path_helper.get_ml_models_dir()`); nodes never read `relay/ai_training_materials/` directly.
 
-**This architecture creates a federated, privacy-preserving defense mesh where:**
-
-- **One server protects an entire network segment** (no endpoint agents required)
-- **Every attack makes the system smarter** (automated signature extraction + ML retraining)
-- **Every node benefits from global learning** (relay-shared intelligence from worldwide attacks)
-- **Organizations retain full control** (relay participation is optional, all data anonymized)
-- **Privacy is preserved** (no raw payloads, no PII, only statistical features shared)
+This relay pattern creates a federated, privacy-preserving defense mesh; see the *Federated Relay Architecture* and *Data Handling & Privacy Principles* sections for the full privacy and control guarantees.
 
 ---
 
@@ -729,7 +712,11 @@ For auditors, engineers, and operators, the following documents serve as the aut
 - [Architecture Enhancements & Compliance](documentation/architecture/Architecture_Enhancements.md) — 5 implemented features plus compliance verification of runtime code paths
 - [AI/ML pipeline proof](documentation/mapping/AI_ml_file_proof.md) — Complete technical proof of AI/ML training pipeline with exact file paths, line numbers, and 758K+ training examples
 - [Attack handling flow](documentation/architecture/Attack_handling_flow.md) — End-to-end attack handling, from honeypot and network monitoring through pcs_ai, firewall, and relay
-- [JSON File Rotation](documentation/JSON_file_rotation.md) — Automatic rotation system for JSON files to prevent bloat (threat logs, performance metrics, network state)
+- [JSON File Rotation](documentation/others/JSON_file_rotation.md) — Automatic rotation system for JSON files to prevent bloat (threat logs, performance metrics, network state)
+- [Section function mapping](documentation/mapping/Section_function_mapping.md) — Maps README and dashboard sections to underlying services and JSON surfaces
+- [Complete section verification](documentation/mapping/Complete_section_verification.md) — Checklist for validating that every documented section has a concrete implementation
+- [Scaling guide](documentation/installation/Scaling_guide.md) — Capacity planning, performance considerations, and multi-node scaling patterns
+- [MITRE ATT&CK evaluation](documentation/mitre-evaluation/Mitre-attack.md) — Detailed mapping of Battle-Hardened AI behavior to MITRE ATT&CK techniques and test cases
 
 These documents collectively define the system’s intended behavior, guarantees, and constraints.
 
@@ -923,230 +910,9 @@ Most commercial NDR/XDR platforms are **event-driven correlation engines** that 
 Battle-Hardened AI is designed to sit in front of, and alongside, existing controls rather than replace them.
 
 - **Versus firewalls (NGFW/WAF):** Traditional firewalls enforce static or signature-based rules on packets and sessions. Battle-Hardened AI acts as a semantic commander in front of them, deciding *whether* an interaction should be allowed at all and then driving firewall rules accordingly.
-- **Versus NDR/XDR:** NDR/XDR platforms aggregate telemetry and raise alerts *after* execution. Battle-Hardened AI operates at the execution gate, using 21 documented layers plus the semantic execution-denial gate to reject malicious actions before they reach those systems.
+- **Versus NDR/XDR:** NDR/XDR platforms aggregate telemetry and raise alerts *after* execution, while Battle-Hardened AI serves as a pre-execution gate and exports its decisions for them to consume (see *Competitive Positioning vs NDR/XDR Platforms* for full comparison).
 - **Versus SD-WAN and routing gear:** SD-WAN optimizes paths and connectivity between sites. Battle-Hardened AI focuses purely on security semantics and trust, determining which flows should exist at all and leaving path selection to the network layer.
 - **Versus EDR (agent-based):** EDR agents live on individual endpoints and watch local processes. Battle-Hardened AI typically runs as a gateway node with no agents, protecting many devices at once and exporting decisions that EDR/XDR tools can still consume.
-
----
-
-#### Stage 4: Response Execution (Policy-Governed)
-
-Based on ensemble decision, the system executes controlled responses:
-
-**Immediate Actions (if `should_block = true`):**
-1. **Firewall Block:** Add IP to `iptables` or `nftables` with TTL (e.g., 24 hours), or invoke Fortinet, Cisco ASA, and other programmable firewalls via their APIs
-2. **Connection Drop:** Terminate active TCP connections from attacker
-3. **Rate Limiting:** If partial threat (50-74%), apply aggressive rate limiting instead of full block
-
-**Logging Actions (always executed):**
-1. **Local Threat Log:** Write to `threat_log.json` under the JSON directory returned by `AI.path_helper.get_json_dir()`
-    ```json
-    {
-       "timestamp": "2026-01-07T10:32:15Z",
-       "ip_address": "203.0.113.42",
-       "threat_type": "SQL Injection",
-       "details": "Port 443 login form SQL injection string detected",
-       "level": "CRITICAL",
-       "action": "blocked",
-       "geolocation": {
-          "country": "United States",
-          "region": "New York",
-          "city": "New York",
-          "asn": "AS15169"
-       },
-       "anonymization_detection": {
-          "is_anonymized": false,
-          "anonymization_type": "direct",
-          "confidence": 0
-       },
-       "behavioral_metrics": null,
-       "attack_sequence": null,
-       "source": "local"
-    }
-    ```
-
-2. **JSON Audit Surfaces:** Update multiple files:
-   - `threat_log.json` (primary threat log, auto-rotates at 100MB)
-   - `comprehensive_audit.json` (all THREAT_DETECTED events, auto-rotates at 100MB)
-   - `dns_security.json` (DNS tunneling metrics)
-   - `tls_fingerprints.json` (encrypted traffic patterns)
-   - `network_graph.json` (topology updates)
-   - `behavioral_metrics.json` (per-IP statistics)
-   - `attack_sequences.json` (LSTM state sequences)
-   - `lateral_movement_alerts.json` (graph intelligence findings)
-   - `causal_analysis.json` *(Layer 19: root cause analysis results)*
-   - `trust_graph.json` *(Layer 20: entity trust state tracking)*
-   
-   **Note:** Files marked "auto-rotates at 100MB" use file rotation (`AI/file_rotation.py`) to prevent unbounded growth (optimized for resource-constrained relay servers). ML training reads ALL rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history.
-
-3. **Dashboard Update:** Real-time WebSocket push to `inspector_ai_monitoring.html`
-
-**Alert Actions (configurable):**
-1. **Email/SMS:** Send only for critical system events (system failure, kill-switch changes, and integrity breaches; not general threat alerts)
-2. **Syslog/SIEM:** Forward to enterprise logging systems
-
-**Stage 4 → Stage 5 Transition:**
-
-Stage 4 writes attack details to `threat_log.json`, `comprehensive_audit.json`, and signal-specific logs → background extraction jobs scan logs periodically (every hour):
-- `AI/signature_extractor.py` is invoked from `AI/pcs_ai.py` when threats are logged → extracts attack patterns from each new event → appends them to `honeypot_patterns.json` under the JSON directory returned by `AI.path_helper.get_json_dir()`
-- `AI/reputation_tracker.py` reads `threat_log.json` → updates `reputation.db` with attacker IPs (SHA-256 hashed)
-- `AI/graph_intelligence.py` reads `lateral_movement_alerts.json` → updates `network_graph.json`
-
-Extracted materials staged locally in the JSON directory returned by `AI.path_helper.get_json_dir()` → ready for Stage 6 relay push.
-
----
-
-#### Stage 5: Training Material Extraction (Privacy-Preserving)
-
-High-confidence attacks are converted into **sanitized training materials** (no payloads, no PII).
-
-**What Gets Extracted:**
-
-1. **Attack Signatures** (patterns only, zero exploit code):
-   ```json
-   {
-     "signature_id": "sig_20260107_001",
-     "attack_type": "SQL Injection",
-     "pattern": "' OR 1=1--",
-     "encoding": "url_encoded",
-     "http_method": "POST",
-     "confidence": 0.95
-   }
-   ```
-
-2. **Behavioral Statistics**:
-   ```json
-   {
-     "avg_connection_rate": 50,
-     "port_entropy": 3.8,
-     "fan_out": 20,
-       "geographic_region": "AS15169"
-   }
-   ```
-
-3. **Reputation Updates**:
-   ```json
-   {
-   "ip_hash": "sha256(203.0.113.42)",
-     "attack_count": 3,
-     "severity_avg": 0.87,
-     "last_seen": "2026-01-07"
-   }
-   ```
-
-4. **Graph Topology** (anonymized):
-   ```json
-   {
-   "pattern": "A→B→C",
-     "hop_count": 3,
-     "time_window": 300,
-     "attack_type": "lateral_movement"
-   }
-   ```
-
-5. **Model Weights** (ML/LSTM updates):
-   - Updated RandomForest trees
-   - LSTM weight adjustments
-   - Autoencoder parameter updates
-
-**Customer-Side Local Staging:**
-
-Extracted materials are initially stored locally on the customer node under the JSON directory returned by `AI.path_helper.get_json_dir()` (typically `server/json/` on bare-metal or `/app/json/` in Docker deployments):
-- `honeypot_patterns.json` (attack patterns)
-- `behavioral_metrics.json` (connection statistics)
-- `reputation.db` (SQLite - IP reputation hashes)
-- `network_graph.json` (topology patterns)
-
-**Note:** Customer nodes extract locally first. Relay receives these materials via Stage 6 push (not direct writes). This maintains the customer/relay separation - relay paths (`relay/ai_training_materials/`) are only on the relay server, never accessible to customer nodes.
-
-**Bandwidth Optimization:** Bloom filter-based pattern deduplication (`AI/pattern_filter.py`) achieves 70-80% bandwidth reduction by filtering duplicate signatures before relay upload while maintaining 99.9% accuracy.
-
----
-
-#### Stage 6: Global Intelligence Sharing (Optional Relay)
-
-If relay is enabled, sanitized materials are shared worldwide.
-
-**Push to Relay** (authenticated WebSocket):
-```
-Client → Relay Server
-{
-   "node_id": "sha256(unique_id)",
-   "signatures": [],
-   "statistics": {},
-   "reputation_updates": [],
-   "model_diffs": {}
-}
-```
-
-**Pull from Relay** (every 6 hours):
-```
-Client ← Relay Server
-{
-   "global_signatures": [],
-   "reputation_feed": [],
-   "model_updates": {},
-  "threat_statistics": {
-    "top_attack_types": ["SQL Injection", "Brute Force"],
-    "emerging_threats": ["CVE-2026-1234"]
-  }
-}
-```
-
-**Integration:**
-- New signatures → added to signature database
-- Reputation feed → merged with local reputation tracker
-- Model updates → validated by Byzantine defense → merged if safe
-- Statistics → displayed in dashboard "AI Training Network" section
-
-**Result:** Every node learns from attacks observed **anywhere in the global network**.
-
-**Model Distribution Security:** All models distributed via relay are cryptographically signed with Ed25519 signatures (`AI/model_signing.py`) and verified before loading, preventing model injection attacks even if the relay is compromised (defends against MITRE T1574.012).
-
-**Stage 6 → Stage 7 Transition:**
-
-Customer nodes push training materials to relay (every hour) → relay stores in `relay/ai_training_materials/` directory → relay aggregates data from all customer nodes worldwide:
-- Signatures merged into `learned_signatures.json` (deduplicated)
-- Attack records appended to `global_attacks.json` (grows continuously, rotates at 100MB using `AI/file_rotation.py`)
-- Reputation data consolidated into `reputation_data/`
-
-Aggregated dataset triggers Stage 7 retraining (weekly) → new models trained → distributed back to customers via Stage 6 pull.
-
-**Critical:** `relay/ai_training_materials/global_attacks.json` uses file rotation - ML training reads ALL rotation files (`global_attacks.json`, `global_attacks_1.json`, `global_attacks_2.json`, etc.) to preserve complete training history.
-
----
-
-#### Stage 7: Continuous Learning Loop
-
-The system continuously improves through feedback:
-
-1. **Signature Extraction:** New attack patterns added every hour
-2. **ML Retraining:** Models retrained weekly with new labeled data (relay uses ONNX format for 2-5x faster inference on customer nodes)
-3. **Adversarial Training:** Relay generates adversarial examples via FGSM to harden models against ML evasion attacks (defends against MITRE T1562.004)
-4. **Model Performance Monitoring:** Production accuracy tracked continuously (`AI/model_performance_monitor.py`); auto-retraining triggered if accuracy drops below 85% (defends against MITRE T1565.001)
-5. **Drift Detection:** Baseline updated monthly to adapt to network changes
-6. **Reputation Decay:** Old attacks gradually fade (half-life: 30 days)
-7. **Byzantine Validation:** Malicious updates rejected (94% accuracy in internal lab testing)
-
-**Feedback Sources:**
-- **Honeypot Interactions:** 100% confirmed attacks (highest quality training data)
-- **Human Validation:** SOC analyst confirms/rejects alerts → improves ML
-- **False Positive Reports:** Whitelisted events → update FP filter
-
-**Performance Enhancements:** Customer nodes use ONNX Runtime for optimized ML inference (2-5x faster than pickle, 40% lower CPU usage). See [documentation/architecture/Architecture_Enhancements.md](documentation/architecture/Architecture_Enhancements.md) for complete technical details on model signing, adversarial training, performance monitoring, and ONNX integration.
-
-**Stage 7 → Stage 1 Feedback Loop (Completes the 7-Stage Cycle):**
-
-1. Relay retrains models using aggregated global attack data → new `*.pkl` and `*.keras` models created
-2. Models pushed to relay API → `relay/training_sync_api.py` serves updated models
-3. Customer nodes pull updates (every 6 hours) via `AI/training_sync_client.py`:
-   - New signatures downloaded → merged into local signature database
-   - New ML models downloaded → replace old models in the ML models directory returned by `AI/path_helper.get_ml_models_dir()` (AI/ml_models in development, /app/ml_models in Docker)
-   - `AI/byzantine_federated_learning.py` validates updates (94% malicious rejection rate in internal evaluations)
-4. Updated models loaded by Stage 2 detection signals → **improved accuracy for next packet analysis in Stage 1**
-5. Cycle repeats: better detection → more accurate training data → better models → better detection...
-
-**This continuous feedback loop enables the system to adapt to evolving threats without manual intervention.**
 
 ---
 

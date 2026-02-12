@@ -5,6 +5,9 @@
 
 ---
 
+**Related overview:** For high-level architecture, threat model, and deployment roles, see **[README.md](README.md)**.
+
+
 ## ✅ Implemented Features
 
 ### 1. Model Cryptographic Signing (Security)

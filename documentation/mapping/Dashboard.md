@@ -6,6 +6,10 @@ This document provides a comprehensive guide to the core dashboard sections, map
 
 ---
 
+**Related overview:** For the high-level architecture, 7-stage pipeline description, and competitive positioning, see **[README.md](README.md)**.
+
+---
+
 ## 🎯 Dashboard Scope by Deployment Role
 
 **What the dashboard shows depends on deployment mode:**

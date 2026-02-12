@@ -4,6 +4,10 @@
 
 ---
 
+**Related overview:** For high-level deployment roles, threat model, and capabilities, see **[README.md](README.md)**.
+
+---
+
 ## 🎯 Deployment Role & Capacity Context
 
 **Before scaling, understand what you're protecting:**
