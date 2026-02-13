@@ -6,7 +6,7 @@ This document provides a comprehensive guide to the core dashboard sections, map
 
 ---
 
-**Related overview:** For the high-level architecture, 7-stage pipeline description, and competitive positioning, see **[README.md](README.md)**.
+**Related overview:** For the high-level architecture, 7-stage pipeline description, and competitive positioning, see **[README.md](../../README.md)**.
 
 ---
 
@@ -21,20 +21,20 @@ This document provides a comprehensive guide to the core dashboard sections, map
 | **Observer** | SPAN/mirror traffic analysis | Detection stats (no enforcement metrics) |
 
 **Installation reference:** For deployment setup:
-- [Installation.md § Deployment Role](installation/Installation.md#-deployment-role-read-first)
-- [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
-- [Installation.md § Cloud Gateway Setup](installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
+- [Installation.md § Deployment Role](../installation/Installation.md#-deployment-role-read-first)
+- [Installation.md § Linux Gateway Setup](../installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- [Installation.md § Cloud Gateway Setup](../installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
 
 **Cloud deployment:** All dashboard APIs work identically on cloud VMs (AWS/Azure/GCP). Virtual NICs supported.
 
 ---
 
 **Installation & Setup:**
-- For installation instructions, see [Installation](installation/Installation.md)
-- For relay server setup, see [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)
-- For attack testing, see [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)
-- For architecture enhancements, see [Architecture_Enhancements.md](../architecture/Architecture_Enhancements.md)
-- For ONNX integration, see [ONNX_Integration.md](../architecture/ONNX_Integration.md)
+- For installation instructions, see [Installation](../installation/Installation.md)
+- For relay server setup, see [relay/RELAY_SETUP.md](../../relay/RELAY_SETUP.md)
+- For attack testing, see [KALI_ATTACK_TESTS.md](../../KALI_ATTACK_TESTS.md)
+- For architecture enhancements, see [Architecture_enhancements.md](../architecture/Architecture_enhancements.md)
+- For ONNX integration, see [ONNX_integration.md](../architecture/ONNX_integration.md)
 
 **Architecture Enhancements (5 Production Features):**
 1. **Model Cryptographic Signing** - Ed25519 signatures prevent malicious model injection

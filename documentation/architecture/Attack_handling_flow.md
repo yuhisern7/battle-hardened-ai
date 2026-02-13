@@ -4,7 +4,7 @@
 
 ---
 
-**Related overview:** For the end-to-end 7-stage pipeline description and positioning, see **[README.md](README.md)**. For how these decisions drive firewalls, IDS/IPS, NDR/XDR, cloud controls, and other tools, see the **Enterprise Integration Topologies** and **Ecosystem View — BH-AI as the Autonomous Gate** sections in README.md.
+**Related overview:** For the end-to-end 7-stage pipeline description and positioning, see **[README.md](../../README.md)**. For how these decisions drive firewalls, IDS/IPS, NDR/XDR, cloud controls, and other tools, see the **Enterprise Integration Topologies** and **Ecosystem View — BH-AI as the Autonomous Gate** sections in README.md.
 
 ---
 
@@ -19,13 +19,13 @@
 | **Observer** | SPAN/mirror traffic (analysis only) | Detection-only (no direct blocking) |
 
 **Installation reference:** For deployment setup, see:
-- [Installation.md § Deployment Role](installation/Installation.md#-deployment-role-read-first)
-- [Installation.md § Gateway Pre-Flight Checklist](installation/Installation.md#-gateway-pre-flight-checklist)
-- [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- [Installation.md § Deployment Role](../installation/Installation.md#-deployment-role-read-first)
+- [Installation.md § Gateway Pre-Flight Checklist](../installation/Installation.md#-gateway-pre-flight-checklist)
+- [Installation.md § Linux Gateway Setup](../installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
 
 **Cloud deployment:** All attack handling flows work identically on cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
 
-**PoC testing:** For formal acceptance testing, see [Battle-Hardened-AI_PoC_Acceptance_Criteria.md](installation/Battle-Hardened-AI_PoC_Acceptance_Criteria.md) and [Linux-Gateway-Testing.md](installation/Linux-Gateway-Testing.md).
+**PoC testing:** For formal acceptance testing, see [Battle-Hardened-AI_PoC_Acceptance_Criteria.md](../checklist/Battle-Hardened-AI_PoC_Acceptance_Criteria.md) and [Linux-Gateway-Testing.md](../checklist/Linux-Gateway-Testing.md).
 
 ---
 
@@ -339,9 +339,9 @@ These actions are executed without reliance on external systems, cloud services,
 In short: Battle-Hardened AI does not ask another system to block traffic – it enforces the decision itself at the boundary.
 
 **For gateway deployment setup:**
-- See [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
-- See [Installation.md § Cloud Gateway Setup](installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
-- See [Installation.md § Gateway Pre-Flight Checklist](installation/Installation.md#-gateway-pre-flight-checklist)
+- See [Installation.md § Linux Gateway Setup](../installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- See [Installation.md § Cloud Gateway Setup](../installation/Installation.md#scenario-2-cloud-gateway-with-virtual-nics-awsazuregcp)
+- See [Installation.md § Gateway Pre-Flight Checklist](../installation/Installation.md#-gateway-pre-flight-checklist)
 
 ### 2. Enterprise Integration Plane (Visibility & Coordination)
 

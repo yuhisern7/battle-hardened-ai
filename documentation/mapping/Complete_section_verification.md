@@ -2,7 +2,7 @@
 **Generated:** February 3, 2026  
 **Purpose:** Comprehensive cross-reference of ALL dashboard sections with HTML IDs, JavaScript functions, APIs, JSON files, and Python modules
 
-**Note:** This system implements 5 production-ready architecture enhancements (model signing, pattern filtering, performance monitoring, adversarial training, ONNX). For complete details, see [Architecture_Enhancements.md](../architecture/Architecture_Enhancements.md) and [AI_ml_file_proof.md](AI_ml_file_proof.md).
+**Note:** This system implements 5 production-ready architecture enhancements (model signing, pattern filtering, performance monitoring, adversarial training, ONNX). For complete details, see [Architecture_enhancements.md](../architecture/Architecture_enhancements.md) and [AI_ml_file_proof.md](AI_ml_file_proof.md).
 
 ---
 

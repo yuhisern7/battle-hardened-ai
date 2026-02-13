@@ -7,7 +7,7 @@
 
 ---
 
-**Related overview:** For overall system architecture and positioning, see **[README.md](README.md)**.
+**Related overview:** For overall system architecture and positioning, see **[README.md](../../README.md)**.
 
 
 ## 🚀 Quick Start

@@ -17,22 +17,22 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 | **Observer** | SPAN/mirror traffic (analysis only) | Same AI/ modules, no direct enforcement |
 
 **Installation reference:** For deployment setup, see:
-- [Installation.md § Deployment Role](installation/Installation.md#🎯-deployment-role-read-first)
-- [Installation.md § Gateway Pre-Flight Checklist](installation/Installation.md#✅-gateway-pre-flight-checklist)
-- [Installation.md § Linux Gateway Setup](installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
+- [Installation.md § Deployment Role](../installation/Installation.md#🎯-deployment-role-read-first)
+- [Installation.md § Gateway Pre-Flight Checklist](../installation/Installation.md#✅-gateway-pre-flight-checklist)
+- [Installation.md § Linux Gateway Setup](../installation/Installation.md#scenario-1-linux-gatewayrouter-network-wide-protection---recommended)
 
 **Cloud deployment:** All file architectures and pipelines work identically on cloud VMs (AWS/Azure/GCP) with virtual NICs. Physical hardware not required.
 
 ---
-- **[Installation](installation/Installation.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
-- **[README.md](README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture
-- **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** — Attack simulation test procedures
+- **[Installation](../installation/Installation.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
+- **[README.md](../../README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture
+- **[KALI_ATTACK_TESTS.md](../../KALI_ATTACK_TESTS.md)** — Attack simulation test procedures
 - **[Dashboard](Dashboard.md)** — Core first-layer dashboard API reference
-- **[AI instructions](Ai-instructions.md)** — Developer guide and implementation details
-- **[Architecture Enhancements](Architecture_Enhancements.md)** — 5 implemented features (Model Signing, Pattern Filtering, Performance Monitoring, Adversarial Training, ONNX) plus compliance verification
-- **[ONNX Integration](ONNX_Integration.md)** — ONNX model format implementation (2-5x faster CPU inference)
-- **[Attack handling flow](Attack_handling_flow.md)** — Attack handling flow diagrams
-- **[test-hmac.md](test-hmac.md)** — HMAC authentication testing guide
+- **[AI instructions](../architecture/Ai-instructions.md)** — Developer guide and implementation details
+- **[Architecture Enhancements](../architecture/Architecture_enhancements.md)** — 5 implemented features (Model Signing, Pattern Filtering, Performance Monitoring, Adversarial Training, ONNX) plus compliance verification
+- **[ONNX Integration](../architecture/ONNX_integration.md)** — ONNX model format implementation (2-5x faster CPU inference)
+- **[Attack handling flow](../architecture/Attack_handling_flow.md)** — Attack handling flow diagrams
+- **test-hmac.md** — HMAC authentication testing guide
 
 **Workspace Files:**
 - `.gitignore` — Git exclusion patterns (excludes `*.json`, `*.pkl`, `*.keras`, `__pycache__`, `.venv`, etc.)

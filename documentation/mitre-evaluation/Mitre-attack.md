@@ -4,7 +4,7 @@ Building on the execution-control and competitive sections above, this matrix sh
 
 **Total MITRE ATT&CK Techniques Covered: 43 distinct techniques** (credibly mapped, no inflation)
 
-**Related overview:** For architecture, threat model, and competitive positioning context, see **[README.md](README.md)**.
+**Related overview:** For architecture, threat model, and competitive positioning context, see **[README.md](../../README.md)**.
 
 ## Coverage Summary by Tactic
 

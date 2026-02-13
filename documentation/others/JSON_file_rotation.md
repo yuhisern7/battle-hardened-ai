@@ -168,7 +168,7 @@ With rotation enabled:
 - ML Training: Loads ALL rotations via `load_all_rotations()` for complete attack history
 
 ## See Also
-- [AI/file_rotation.py](../AI/file_rotation.py) - Rotation implementation
-- [AI/network_performance.py](../AI/network_performance.py) - Performance tracking with rotation
-- [server/network_monitor.py](../server/network_monitor.py) - Network monitoring with rotation
-- [Filepurpose.md](mapping/Filepurpose.md) - Complete file-to-pipeline mapping
+- [AI/file_rotation.py](../../AI/file_rotation.py) - Rotation implementation
+- [AI/network_performance.py](../../AI/network_performance.py) - Performance tracking with rotation
+- [server/network_monitor.py](../../server/network_monitor.py) - Network monitoring with rotation
+- [Filepurpose.md](../mapping/Filepurpose.md) - Complete file-to-pipeline mapping

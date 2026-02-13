@@ -5,7 +5,7 @@
 
 ---
 
-**Related overview:** For high-level architecture, threat model, deployment roles, and how Battle-Hardened AI acts as an autonomous defensive gate for the wider security stack, see **[README.md](README.md)** (Enterprise Integration Topologies and Ecosystem View).
+**Related overview:** For high-level architecture, threat model, deployment roles, and how Battle-Hardened AI acts as an autonomous defensive gate for the wider security stack, see **[README.md](../../README.md)** (Enterprise Integration Topologies and Ecosystem View).
 
 
 ## ✅ Implemented Features

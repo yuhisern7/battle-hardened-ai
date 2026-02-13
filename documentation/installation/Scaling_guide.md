@@ -4,7 +4,7 @@
 
 ---
 
-**Related overview:** For high-level deployment roles, threat model, and capabilities, see **[README.md](README.md)**.
+**Related overview:** For high-level deployment roles, threat model, and capabilities, see **[README.md](../../README.md)**.
 
 ---
 

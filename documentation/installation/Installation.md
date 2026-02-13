@@ -2051,11 +2051,11 @@ git pull
 ## Support & Resources
 
 ### Documentation
-- [README.md](README.md) - Features, architecture, MITRE ATT&CK coverage
-- [relay/RELAY_SETUP.md](relay/RELAY_SETUP.md) - VPS relay server setup (detailed guide)
+- [README.md](../../README.md) - Features, architecture, MITRE ATT&CK coverage
+- [relay/RELAY_SETUP.md](../../relay/RELAY_SETUP.md) - VPS relay server setup (detailed guide)
 - [testconnection.md](testconnection.md) - Client relay troubleshooting
-- [Dashboard.md](Dashboard.md) - Dashboard features and usage
-- [Ai-instructions.md](documentation/Ai-instructions.md) - AI capabilities and detection logic
+- [Dashboard.md](../mapping/Dashboard.md) - Dashboard features and usage
+- [Ai-instructions.md](../architecture/Ai-instructions.md) - AI capabilities and detection logic
 
 ### Quick Commands Reference (Packaged Installs)
 

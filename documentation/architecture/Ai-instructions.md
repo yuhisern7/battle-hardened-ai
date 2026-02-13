@@ -5,12 +5,12 @@
 > **Audience & distribution note:** This document assumes access to the **full source tree** (AI/, server/, relay/) as checked out from Git (for example in a development or CI environment). **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE do not receive this source layout by default** – they operate the packaged services and refer primarily to README and INSTALLATION. Use this guide when you are **developing, auditing, or extending** the system from source.
 
 **Related Documentation:**
-- **[README.md](README.md)** - Main documentation with architecture overview
-- **[Installation](installation/Installation.md)** - Complete installation guide
-- **[relay/RELAY_SETUP.md](relay/RELAY_SETUP.md)** - Relay server deployment
-- **[Dashboard](Dashboard.md)** - Core first-layer dashboard API reference
-- **[Filepurpose](Filepurpose.md)** - File organization by pipeline stage
-- **[KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md)** - Attack testing commands
+- **[README.md](../../README.md)** - Main documentation with architecture overview
+- **[Installation](../installation/Installation.md)** - Complete installation guide
+- **Relay deployment (see relay/ directory in repo root)** - Relay server deployment
+- **[Dashboard](../mapping/Dashboard.md)** - Core first-layer dashboard API reference
+- **[Filepurpose](../mapping/Filepurpose.md)** - File organization by pipeline stage
+- **[KALI_ATTACK_TESTS.md](../../KALI_ATTACK_TESTS.md)** - Attack testing commands
 
 ---
 
@@ -1325,7 +1325,7 @@ Use this as a quick cross-check when validating that a given stage's detections 
 
 ---
 
-**For architecture overview, see:** `README.md` (7-stage pipeline with diagrams)
+**For architecture overview, see:** [README.md](../../README.md) (7-stage pipeline with diagrams)
 
 ---
 
