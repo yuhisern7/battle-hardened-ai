@@ -66,8 +66,8 @@ This architecture creates a clear separation of concerns:
 ┌──────────────────────────────────────────────────────────┐
 │                   ENFORCEMENT PLANE                      │
 │  OS Firewall / Enterprise Controls                       │
-│  (iptables/ipset/nftables, Windows Defender Firewall,   │
-│   and external NGFW/WAF/cloud firewalls via JSON)       │
+│  (iptables/ipset/nftables, Windows Defender Firewall,    │
+│   and external NGFW/WAF/cloud firewalls via JSON)        │
 │  - Receive IP/block decisions and policy updates         │
 │  - Apply rules at kernel or platform level               │
 │  - Drop packets, terminate connections, or adjust paths  │
@@ -519,9 +519,9 @@ Battle-Hardened AI follows strict data-handling principles at the first layer:
 - Makes allow/deny decisions, but does not investigate
 - Maintains trust models without exposing raw content externally
 
-### Integration with Enterprise Security
+### Enterprise Integration Outputs (JSON Feeds)
 
-Battle-Hardened AI emits **vendor-neutral JSON decision feeds** that downstream systems consume. Example:
+As an autonomous defensive gate, Battle-Hardened AI emits **vendor-neutral JSON decision feeds** that downstream systems consume. Example:
 
 ```json
 {
