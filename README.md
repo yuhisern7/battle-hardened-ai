@@ -82,7 +82,7 @@ This architecture creates a clear separation of concerns:
 
 ### Deployment Roles
 
-Battle-Hardened AI supports three primary deployment roles (Gateway/Router, Host-only, Observer) that define protection scope and enforcement method. In practice, **Gateway/Router on Linux is the primary enterprise-grade profile**; Host-only is used for appliance-style nodes or critical servers, and Observer is for PoC, compliance, or ultra-sensitive environments where you want detection without inline changes.
+Battle-Hardened AI supports three primary deployment roles (Gateway/Router, Host-only, Observer) that define protection scope and enforcement method. In practice, **Gateway/Router on Linux is the primary enterprise-grade profile**; Host-only is used for appliance-style nodes or critical servers, and Observer is for PoC, compliance, or ultra-sensitive environments where you want detection without inline changes. Windows is supported only for host-only or appliance-style deployments; for full network gateway protection, Linux is required.
 
 For the canonical table, environment mapping, and installation links, see [Deployment Scope — Three Roles, Many Environments](#deployment-scope--three-roles-many-environments) below.
 
