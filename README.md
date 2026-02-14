@@ -124,11 +124,7 @@ These checklists describe hardware setups for gateway and inline bridge roles. L
 
 ##### ✅ Option A — Battle-Hardened AI as Edge Gateway Router (Recommended for Full Control)
 
-**Network Topology**
-
-```text
-Modem/ONT → Battle-Hardened AI → Switch → Internal Network
-```
+This hardware profile corresponds to the **Router Mode (Production Default)** topology described below.
 
 **Required Hardware**
 
@@ -149,11 +145,7 @@ Modem/ONT → Battle-Hardened AI → Switch → Internal Network
 
 ##### ✅ Option B — Battle-Hardened AI as Transparent Inline Bridge (No Routing Changes)
 
-**Network Topology**
-
-```text
-Modem/ONT → Battle-Hardened AI (Bridge) → Existing Router
-```
+This hardware profile corresponds to the **Transparent Bridge Mode** topology described below.
 
 **Required Hardware**
 
