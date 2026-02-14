@@ -127,7 +127,7 @@
 - [ ] dns_security.json
 - [ ] drift_baseline.json
 - [ ] drift_reports.json
-- [ ] enterprise_integration.json
+- [ ] enterprise_integration.json ⚠️ **PLANNED** - Structure documented but not implemented
 - [ ] file_analysis.json (Section 20)
 - [ ] formal_threat_model.json
 - [ ] fp_filter_config.json
@@ -815,7 +815,7 @@
 - [ ] `/api/zero-trust/dlp` - Data Loss Prevention
 
 **JSON Files:**
-- [ ] `enterprise_integration.json` - Syslog/webhook targets
+- [ ] `enterprise_integration.json` - Syslog/webhook targets ⚠️ **PLANNED** - Use threat_log.json/blocked_ips.json manually until implemented
 - [ ] `backup_status.json` - Backup/recovery data
 - [ ] `recovery_tests.json` - Recovery test results
 - [ ] `cloud_findings.json` - Cloud security findings

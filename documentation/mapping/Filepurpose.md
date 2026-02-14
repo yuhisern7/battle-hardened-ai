@@ -79,7 +79,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 | **21** | 📧 Email/SMS Alerts (Critical Only) | Critical SYSTEM event notifications (kill-switch, integrity, failures) | `AI/alert_system.py` |
 | **22** | 🪙 Cryptocurrency Mining Detection | Traffic analysis enhanced with crypto mining patterns | `AI/traffic_analyzer.py`, `server/json/crypto_mining.json` (Signal #8) |
 | **23** | 🚨 Governance & Emergency Controls | Kill-switch, approval workflows, policy governance, self-protection | `AI/emergency_killswitch.py`, `AI/policy_governance.py`, `AI/self_protection.py`, `AI/secure_deployment.py`, `server/json/approval_requests.json`, `server/json/integrity_violations.json` |
-| **24** | 🏢 Enterprise Security Integrations | SOAR API, enterprise adapters (SIEM/ticketing/ITSM outbound only) | `AI/soar_api.py`, `AI/soar_workflows.py`, `AI/enterprise_integration.py`, `server/json/soar_incidents.json` |
+| **24** | 🏢 Enterprise Security Integrations ⚠️ **PLANNED** | SOAR API, enterprise adapters (SIEM/ticketing/ITSM outbound only) — Currently manual integration via threat_log.json/blocked_ips.json | `AI/soar_api.py`, `AI/soar_workflows.py`, `AI/enterprise_integration.py` (exists but incomplete), `server/json/soar_incidents.json` |
 
 **Additional Non-Core Sections (Experimental/Auxiliary):**
 - **Vulnerability & Supply Chain Management** (non-numbered) — CVE tracking, patch management, SBOM | `AI/vulnerability_manager.py`, `server/json/sbom.json`
@@ -632,7 +632,7 @@ These modules provide optional enterprise-style capabilities (identity/SSO/RBAC,
 - AI/deterministic_evaluation.py — Provides deterministic evaluation harnesses and scoring for AI models using fixed datasets.
 - AI/drift_detector.py — Monitors model input/output statistics over time to detect data/model drift and trigger retraining.
 - AI/emergency_killswitch.py — Implements emergency kill switches to safely disable or downgrade AI actions under operator control and hosts the central comprehensive_audit.json log used by other modules for THREAT_DETECTED/ACTION_TAKEN/INTEGRITY_VIOLATION/SYSTEM_ERROR events.
-- AI/enterprise_integration.py — Optional adapter that exports decisions and evidence to enterprise tools (SIEM, ticketing, ITSM) and external APIs; disabled by default and does not orchestrate response flows inside Battle-Hardened AI.
+- AI/enterprise_integration.py — ⚠️ **PLANNED/ROADMAP** — Optional adapter module that exists but does not yet read enterprise_integration.json or automatically export decisions to enterprise tools (SIEM, ticketing, ITSM). Currently, operators must manually consume threat_log.json and blocked_ips.json via custom scripts or SOAR connectors.
 - AI/explainability_engine.py — Builds human-readable explanations and feature attributions for AI decisions and threat scores, maintains decision history, and emits forensic_reports JSON plus optional explainability_data for training.
 - AI/exploitdb — Placeholder directory for future local ExploitDB cache (currently, ExploitDB data is only stored on relay server at `relay/ai_training_materials/exploitdb/`).
 - AI/false_positive_filter.py — Filters noisy detections using heuristics and metadata to reduce false positives before reaching the dashboard.

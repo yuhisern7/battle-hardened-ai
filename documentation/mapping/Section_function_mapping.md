@@ -195,13 +195,13 @@ This document maps each dashboard section (1-24) to its loader functions and ver
 - **Purpose**: Approval workflows, kill-switch, policy enforcement
 - **Status**: ✅ MATCHES Filepurpose.md Stage 4 (Policy-Governed Response)
 
-### Section 24: Enterprise Security Integrations
+### Section 24: Enterprise Security Integrations ⚠️ PLANNED
 - **Function**: Multiple enterprise loaders (SOAR, vulnerability, cloud, backup, etc.)
-- **APIs**: `/api/soar/*`, `/api/vulnerabilities/*`, `/api/cloud/*`, `/api/backup/*`, `/api/zero-trust/*`
+- **APIs**: `/api/soar/*`, `/api/vulnerabilities/*`, `/api/cloud/*`, `/api/backup/*`, `/api/zero-trust/*` — ⚠️ PLANNED
 - **Files**: `AI/soar_workflows.py`, `AI/vulnerability_manager.py`, `AI/cloud_security.py`, `AI/backup_recovery.py`, `AI/zero_trust.py`
 - **JSON**: `server/json/soar_incidents.json`, `server/json/cloud_findings.json`, `server/json/backup_status.json`, `server/json/sbom.json`
-- **Purpose**: Optional enterprise integrations (SOAR, CSPM, vulnerability management, backup monitoring)
-- **Status**: ✅ MATCHES Filepurpose.md (Enterprise Extensions - Auxiliary / Non-Core)
+- **Purpose**: Optional enterprise integrations (SOAR, CSPM, vulnerability management, backup monitoring) — Currently requires manual integration using threat_log.json/blocked_ips.json
+- **Status**: ⚠️ PLANNED — Modules exist but enterprise_integration.json automatic streaming is not yet implemented
 
 ---
 

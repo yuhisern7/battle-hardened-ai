@@ -124,8 +124,6 @@ These checklists describe hardware setups for gateway and inline bridge roles. L
 
 ##### ✅ Option A — Battle-Hardened AI as Edge Gateway Router (Recommended for Full Control)
 
-This hardware profile corresponds to the **Router Mode (Production Default)** topology described below.
-
 **Required Hardware**
 
 - Modem/ONT in bridge mode (disables NAT and firewall)
@@ -142,10 +140,10 @@ This hardware profile corresponds to the **Router Mode (Production Default)** to
 - Battle-Hardened AI becomes the default gateway
 - All traffic flows through Battle-Hardened AI (no bypass without physical change)
 - Full control over NAT, routing, firewall, and semantic validation
+  
+**Topology Mapping:** This hardware profile implements the **Router Mode (Production Default)** topology described in the *Topologies* section below.
 
 ##### ✅ Option B — Battle-Hardened AI as Transparent Inline Bridge (No Routing Changes)
-
-This hardware profile corresponds to the **Transparent Bridge Mode** topology described below.
 
 **Required Hardware**
 
@@ -158,6 +156,8 @@ This hardware profile corresponds to the **Transparent Bridge Mode** topology de
 - No router reconfiguration needed
 - Battle-Hardened AI still sees and filters traffic before router interaction
 - Minimal architectural disruption
+
+**Topology Mapping:** This hardware profile implements the **Transparent Bridge Mode** topology described in the *Topologies* section below.
 
 #### ⚠️ What You Don’t Need
 
@@ -177,6 +177,7 @@ Internet ──→ BH-AI Gateway ──→ Protected Systems
               (Decision +         (receive only
               Enforcement)         pre-approved traffic)
 ```
+![Edge Gateway Mode — BH-AI as Perimeter Decision Authority](assets/topologies/1.png)
 
 - Protected systems route all traffic through BH-AI
 - BH-AI inspects traffic and commands firewall
@@ -193,6 +194,7 @@ Internet ──→ BH-AI Bridge ──→ Router ──→ Protected Systems
               (transparent        (existing gateway)
                inspection)
 ```
+![Transparent Inline Bridge Mode — BH-AI as an Inline Decision Authority](assets/topologies/2.png)
 
 - No routing changes required
 - BH-AI inspects traffic via bridge interface
@@ -210,6 +212,7 @@ Internet ──→ Router ──→ Protected Systems
                └──→ SPAN/TAP ──→ BH-AI Observer
                                   (monitor-only)
 ```
+![Tap/Mirror Mode — BH-AI as Monitoring Decision Authority](assets/topologies/3.png)
 
 - No enforcement (logging and alerting only)
 - Useful for PoC validation and compliance monitoring
@@ -228,10 +231,11 @@ Internet ──→ BH-AI Gateway ──→ NGFW / IPS ──→ Core Switch / VL
               (Semantic           (Deep packet /               
               execution gate)      compliance inspection)
 ```
+![Edge Gateway in Front of NGFW/IPS — BH-AI as First-Layer Decision Authority](assets/topologies/4.png)
 
 - BH-AI makes first-layer, semantic allow/deny decisions and blocks clearly malicious flows before they ever hit the NGFW/IPS.
 - The NGFW/IPS sees **fewer, higher-quality events**, focusing on deep content/compliance rather than obvious brute-force, scanning, or reputation-abuse traffic.
-- BH-AI JSON feeds (threat_log.json, blocked_ips.json, enterprise_integration.json) can drive NGFW address groups and IPS policies via SIEM/SOAR, turning traditional firewalls into a high-speed enforcement plane for BH-AI decisions.
+- BH-AI JSON feeds (threat_log.json, blocked_ips.json) can drive NGFW address groups and IPS policies via SIEM/SOAR, turning traditional firewalls into a high-speed enforcement plane for BH-AI decisions.
 
 **2. Data Center / East–West Segmentation with NDR/XDR**
 
@@ -241,6 +245,7 @@ User / Internet ──→ BH-AI DC Gateway ──→ App / DB Tiers
                           │                    └──→ NDR sensors / taps
                           └──→ SIEM / SOAR / XDR (BH-AI JSON + NDR events)
 ```
+![Data Center / East–West Segmentation with NDR/XDR — BH-AI Gateway with NDR Sensors](assets/topologies/5.png)
 
 - BH-AI at the data center edge enforces semantic execution validity for north–south traffic, while NDR sensors observe east–west flows inside the DC.
 - NDR/XDR platforms ingest BH-AI’s decision JSON alongside their own telemetry, using BH-AI’s **explicit block/allow verdicts and explanations** to prioritize investigations and automate responses.
@@ -253,6 +258,7 @@ Internet / WAN ──→ BH-AI Cloud Gateway (VM) ──→ Cloud NVA / SGs ─�
                          │                         (NGFW, WAF, SGs)
                          └──→ SIEM/SOAR / Cloud APIs
 ```
+![Cloud VPC / Hybrid Edge with Cloud Firewalls — BH-AI as Cloud Gateway VM](assets/topologies/6.png)
 
 - BH-AI runs as a cloud VM gateway (AWS/Azure/GCP), enforcing first-layer decisions on VPC/VNet ingress/egress.
 - Its JSON outputs are consumed by cloud-native firewalls, WAFs, and security groups through automation (Lambda/Functions, SOAR, or custom controllers), so **cloud firewalls inherit BH-AI’s 21-layer reasoning and trust decisions**.
@@ -264,6 +270,7 @@ Branch Internet ──→ BH-AI Branch Gateway ──→ Local LAN ──→ End
                                   │
                                   └──→ Central SIEM / SOAR / XDR ingest (JSON)
 ```
+![Branch / Remote Site with XDR and EDR — BH-AI Branch Gateway with Central XDR Integration](assets/topologies/7.png)
 
 - BH-AI blocks malicious flows at the branch edge and exports decisions to the central XDR/SIEM stack.
 - Endpoint EDR/XDR agents continue to watch host behavior, but benefit from **reduced attack surface and rich BH-AI context** (why traffic was blocked, which layers fired, trust deltas).
@@ -298,6 +305,7 @@ tiers (route, throttle,  compliance tools  runbooks (cases,
 or send to honeypot)     (evidence,        approvals, change
                           control mapping)  tracking)
 ```
+![Ecosystem View — BH-AI as the Autonomous Gate Controlling All Security Tools](assets/topologies/8.png)
 
 In enterprise deployments this means:
 
@@ -559,7 +567,7 @@ These capabilities span **current, implemented features** and **roadmap items**.
 - Linux and Windows deployments with local firewall enforcement via iptables/ipset (Linux) and Windows Defender Firewall (Windows).
 - Real-time dashboard with 24 core sections, governance/killswitch controls, and decision explainability for autonomous blocks/allows.
 - Optional relay/VPS for federated, pattern-only threat sharing and model/signature distribution (no raw payloads or customer data).
-- JSON-based integration surfaces for SIEM/SOAR/firewalls (threat_log.json, blocked_ips.json, enterprise integration JSON, and relay feeds).
+- JSON-based integration surfaces for SIEM/SOAR/firewalls (threat_log.json, blocked_ips.json, network_graph.json, trust_graph.json, and relay feeds).
 
 #### Roadmap (Future Enhancements)
 
@@ -597,11 +605,13 @@ The dashboard exposes 24 core sections that map directly to JSON surfaces and su
 - 23 — Governance & Emergency Controls
 - 24 — Enterprise Security Integrations
 
-The **Enterprise Security Integrations** section (24) configures outbound adapters that stream first‑layer decisions into SIEM, SOAR, and IT‑operations platforms using the `enterprise_integration.json` surface. This integrations plane is export‑only; primary blocking remains on the local firewall enforcement path. Note: The section title in technical documentation may include "(Outbound)" for clarity, but the dashboard displays it as "Enterprise Security Integrations".
+The **Enterprise Security Integrations** section (24) is planned to configure outbound adapters that stream first‑layer decisions into SIEM, SOAR, and IT‑operations platforms. This integrations plane will be export‑only; primary blocking remains on the local firewall enforcement path. Note: The section title in technical documentation may include "(Outbound)" for clarity, but the dashboard displays it as "Enterprise Security Integrations".
 
-##### Example: Minimal `enterprise_integration.json`
+**Status:** Roadmap feature. Currently, operators must manually consume `threat_log.json` and `blocked_ips.json` via custom scripts or SOAR connectors.
 
-Battle-Hardened AI resolves an `enterprise_integration.json` file from its JSON configuration directory (see `AI/path_helper.py` and `documentation/mapping/Dashboard.md` for directory details). A minimal, realistic example looks like this:
+##### Example: Planned `enterprise_integration.json` Structure
+
+When implemented, Battle-Hardened AI will resolve an `enterprise_integration.json` file from its JSON configuration directory (see `AI/path_helper.py` and `documentation/mapping/Dashboard.md` for directory details). The planned structure looks like this:
 
 ```json
 {
@@ -627,7 +637,9 @@ Battle-Hardened AI resolves an `enterprise_integration.json` file from its JSON 
 }
 ```
 
-In this configuration, first-layer decisions (blocks/allows plus reasons) are streamed as summarized events to the SIEM and SOAR endpoints. Raw packet payloads and full PCAPs remain local to the Battle-Hardened AI node; only structured metadata and verdicts are exported.
+In this planned configuration, first-layer decisions (blocks/allows plus reasons) would be streamed as summarized events to the SIEM and SOAR endpoints. Raw packet payloads and full PCAPs remain local to the Battle-Hardened AI node; only structured metadata and verdicts are exported.
+
+**Implementation note:** Until this feature is implemented, use SOAR connectors or scripts to watch `threat_log.json` and `blocked_ips.json` directly and call your SIEM/SOAR/NGFW vendor APIs.
 
 #### Implementation Status at a Glance
 

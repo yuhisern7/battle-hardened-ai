@@ -122,7 +122,7 @@ Ensure the same logical code is present for Linux packages as for the EXE build 
   - [x] `dns_security.json`
   - [x] `drift_baseline.json`
   - [x] `drift_reports.json` (Section 4 - Drift detection)
-  - [x] `enterprise_integration.json`
+  - [ ] `enterprise_integration.json` ⚠️ **PLANNED** - Structure documented but not implemented
   - [x] `file_analysis.json` (Section 20 - Sandbox)
   - [x] `formal_threat_model.json`
   - [x] `fp_filter_config.json` (False positive filter)
@@ -984,7 +984,7 @@ On install (or first start), ensure the following exist with correct ownership a
 - [ ] `/api/zero-trust/dlp` - Data Loss Prevention
 
 **JSON Files:**
-- [ ] `enterprise_integration.json` - Syslog/webhook targets
+- [ ] `enterprise_integration.json` - Syslog/webhook targets ⚠️ **PLANNED** - Use threat_log.json/blocked_ips.json manually until implemented
 - [ ] `backup_status.json` - Backup/recovery data
 - [ ] `recovery_tests.json` - Recovery test results
 - [ ] `cloud_findings.json` - Cloud security findings

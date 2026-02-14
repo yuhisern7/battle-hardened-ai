@@ -880,12 +880,14 @@ show_json("/api/system-status")            # underlying node health
 
 **Backend Modules & Surfaces:**
 - `server/server.py` — Helper functions `_load_enterprise_integration_config()`, `_save_enterprise_integration_config()` and secured HTTP handlers
-- `enterprise_integration.json` — JSON configuration file (syslog_targets, webhook_targets, etc.)
-- `AI/enterprise_integration.py` — Integration logic for outbound adapters
+- `enterprise_integration.json` — ⚠️ **PLANNED/ROADMAP** — JSON configuration file (syslog_targets, webhook_targets, etc.) — not yet implemented
+- `AI/enterprise_integration.py` — ⚠️ **PLANNED/ROADMAP** — Integration logic for outbound adapters — exists but does not read enterprise_integration.json
 
 **Dashboard Loaders:**
-- `loadEnterpriseIntegrationStatus()` — Displays current syslog/webhook target counts
-- Live JSON editor for `enterprise_integration.json` configuration
+- `loadEnterpriseIntegrationStatus()` — ⚠️ **PLANNED/ROADMAP** — Will display current syslog/webhook target counts
+- Live JSON editor for `enterprise_integration.json` configuration — ⚠️ **PLANNED/ROADMAP**
+
+**Current Workaround:** Manually consume `threat_log.json` and `blocked_ips.json` via custom scripts or SOAR connectors until this feature is implemented.
 
 **Metrics Displayed:**
 - Number of configured syslog targets
