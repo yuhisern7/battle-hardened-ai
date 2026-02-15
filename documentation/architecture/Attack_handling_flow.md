@@ -4,7 +4,7 @@
 
 ---
 
-**Related overview:** For the end-to-end 7-stage pipeline description and positioning, see **[README.md](../../README.md)**. For how these decisions drive firewalls, IDS/IPS, NDR/XDR, cloud controls, and other tools, see the **Enterprise Integration Topologies** and **Ecosystem View — BH-AI as the Autonomous Gate** sections in README.md.
+**Related overview:** For the end-to-end 7-stage pipeline description and positioning, see **[README.md](../../README.md)**. For how these decisions drive firewalls, IDS/IPS, NDR/XDR, cloud controls, and other tools, see the **How BH-AI Enhances Existing Security Controls**, **Enterprise Integration Topologies**, and **Ecosystem View — BH-AI as the Autonomous Gate** sections in README.md.
 
 ---
 

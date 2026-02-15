@@ -25,7 +25,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 ---
 - **[Installation](../installation/Installation.md)** — Complete installation guide for Linux (Docker/packaged appliance), Windows EXE, macOS (dev/testing), plus optional relay setup
-- **[README.md](../../README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture
+- **[README.md](../../README.md)** — Project overview, features, MITRE ATT&CK coverage, architecture, and how Battle-Hardened AI enhances existing security controls while keeping enforcement on the local OS firewall
 - **[KALI_ATTACK_TESTS.md](../../KALI_ATTACK_TESTS.md)** — Attack simulation test procedures
 - **[Dashboard](Dashboard.md)** — Core first-layer dashboard API reference
 - **[AI instructions](../architecture/Ai-instructions.md)** — Developer guide and implementation details

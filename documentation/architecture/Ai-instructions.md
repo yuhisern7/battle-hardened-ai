@@ -3,9 +3,11 @@
 > **Purpose:** Comprehensive technical guide for developers. Explains the 7-stage attack detection pipeline implementation, testing procedures, and compliance architecture across AI modules, server components, and relay infrastructure.
 >
 > **Audience & distribution note:** This document assumes access to the **full source tree** (AI/, server/, relay/) as checked out from Git (for example in a development or CI environment). **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE do not receive this source layout by default** – they operate the packaged services and refer primarily to README and INSTALLATION. Use this guide when you are **developing, auditing, or extending** the system from source.
+>
+> **Implementation note:** SIEM/SOAR, NGFW, XDR/EDR, VPN/ZTNA/NAC consume JSON outputs and do not participate in the primary enforcement path, which is executed on the local OS firewall using threat_log.json, blocked_ips.json, and related state.
 
 **Related Documentation:**
-- **[README.md](../../README.md)** - Main documentation with architecture overview
+- **[README.md](../../README.md)** - Main documentation with architecture overview and how Battle-Hardened AI enhances existing security controls while keeping enforcement on the local OS firewall
 - **[Installation](../installation/Installation.md)** - Complete installation guide
 - **Relay deployment (see relay/ directory in repo root)** - Relay server deployment
 - **[Dashboard](../mapping/Dashboard.md)** - Core first-layer dashboard API reference

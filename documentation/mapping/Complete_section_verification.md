@@ -662,7 +662,7 @@
 
 ---
 
-## ✅ SECTION 24: Enterprise Security Integrations
+## ✅ SECTION 24: Enterprise Security Integrations (Auxiliary / Non-Core)
 
 ### HTML Structure
 - **Section ID:** `section-24`
@@ -674,12 +674,12 @@
 - **Config:** `loadEnterpriseIntegrationConfig()` (line 7805), `saveEnterpriseIntegrationConfig()` (line 7841)
 
 ### API Endpoints
-- `/api/soar/*` - SOAR workflow APIs
-- `/api/vulnerabilities/*` - Vulnerability management
-- `/api/cloud/*` - Cloud security posture
-- `/api/backup/*` - Backup monitoring
-- `/api/zero-trust/*` - Zero trust posture
-- `/api/enterprise-integration/config` - Enterprise adapter config
+- `/api/soar/*` - SOAR workflow APIs (export-only; auxiliary plane)
+- `/api/vulnerabilities/*` - Vulnerability management (auxiliary)
+- `/api/cloud/*` - Cloud security posture (auxiliary)
+- `/api/backup/*` - Backup monitoring (auxiliary)
+- `/api/zero-trust/*` - Zero trust posture (auxiliary)
+- `/api/enterprise-integration/config` - Enterprise adapter config (writes enterprise_integration.json; used to configure planned outbound adapters)
 
 ### JSON Files
 - `server/json/soar_incidents.json` - SOAR cases
@@ -691,14 +691,14 @@
 ### Python Modules
 - `AI/soar_api.py` - SOAR API surface (disabled by default)
 - `AI/soar_workflows.py` - SOAR workflows (lab-only)
-- `AI/vulnerability_manager.py` - CVE/SBOM management
-- `AI/cloud_security.py` - AWS/Azure/GCP CSPM
-- `AI/backup_recovery.py` - Backup monitoring
-- `AI/zero_trust.py` - Zero trust posture
-- `AI/enterprise_integration.py` - SIEM/ticketing/ITSM adapters (outbound only)
+- `AI/vulnerability_manager.py` - CVE/SBOM management (auxiliary)
+- `AI/cloud_security.py` - AWS/Azure/GCP CSPM (auxiliary)
+- `AI/backup_recovery.py` - Backup monitoring (auxiliary)
+- `AI/zero_trust.py` - Zero trust posture (experimental/partial)
+- `AI/enterprise_integration.py` - ⚠️ PLANNED/ROADMAP — Optional outbound adapter module that exists but does not yet stream decisions directly into enterprise tools; today, operators integrate by consuming JSON surfaces like threat_log.json, blocked_ips.json, comprehensive_audit.json, trust_graph.json, and network_graph.json.
 
 ### Verification Status
-✅ **VERIFIED** - Matches Filepurpose.md (Enterprise Extensions - Auxiliary / Non-Core)
+✅ **VERIFIED (Docs)** - Matches Filepurpose.md for Enterprise Extensions (Auxiliary / Non-Core). These integrations are export-only, do not introduce a new primary enforcement path, and do not replace the first-layer OS firewall enforcement driven by the core 7-stage pipeline.
 
 ---
 
