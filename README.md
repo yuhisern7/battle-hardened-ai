@@ -78,6 +78,17 @@ This architecture creates a clear separation of concerns:
 **This ensures:**
 - Battle-Hardened AI cannot be bypassed by routing changes (firewall enforces at kernel)
 - Firewall remains auditable and controllable by operators
+
+### How BH-AI Enhances Existing Security Controls
+
+Battle-Hardened AI’s Linux and Windows deployments act as a **semantic decision engine in front of the existing stack**, not a replacement. Its JSON outputs (for example, `threat_log.json` and `blocked_ips.json`) and local OS firewall control are designed to amplify:
+
+- **Network firewalls and cloud controls** – NGFW, WAF, and cloud security groups/NVAs inherit BH-AI allow/block decisions via dynamic address objects, tags, or automation, so packet-level enforcement (including NAT and segmentation) reflects the 21-layer semantic verdicts.
+- **Detection and response platforms** – IDS/IPS, NDR, XDR, and EDR ingest BH-AI decisions as high-signal events, enriching detections, tightening containment policies, and aligning host- and network-level responses around a shared trust score.
+- **SIEM and SOAR tooling** – SIEMs correlate BH-AI events with logs from other sensors, while SOAR playbooks use its explainable verdicts to drive coordinated changes across NGFW/WAF, XDR/EDR, VPN, ZTNA, and NAC policies.
+- **Access and edge controls** – VPN concentrators, ZTNA controllers, and NAC platforms can consume BH-AI trust outputs to adapt access (tighten posture checks, quarantine segments, or force re-authentication) when semantic risk increases.
+- **Application gateways and traffic managers** – API gateways, reverse proxies, and load balancers can route suspicious flows toward honeypots, throttling, or deeper inspection based on BH-AI’s verdicts, reducing exposure for critical backends.
+- **GRC, ITSM, and audit workflows** – Ticketing, GRC, and audit systems can treat BH-AI block decisions as structured, explainable evidence, linking individual enforcement actions (on Linux iptables/ipset/nftables or Windows Defender Firewall) to cases, approvals, and runbooks.
 - Integration with SIEM/SOAR happens via JSON export, not enforcement path
 
 ### Deployment Roles
@@ -278,7 +289,7 @@ Branch Internet ──→ BH-AI Branch Gateway ──→ Local LAN ──→ End
 
 **Ecosystem View — BH-AI as the Autonomous Gate**
 
-At a high level, BH-AI sits at the execution gate and exports **vendor-neutral JSON decisions** that other systems consume:
+At a high level, BH-AI sits at the execution gate and exports **vendor-neutral JSON decisions** that other systems consume. For a prose explanation of how each category below is enhanced, see **How BH-AI Enhances Existing Security Controls** in the Architecture Understanding section above.
 
 ```text
           Internet / WAN / Users
