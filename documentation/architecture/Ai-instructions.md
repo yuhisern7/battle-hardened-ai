@@ -468,6 +468,14 @@ DetectionSignal(
     - Models → ML models directory resolved via `AI/path_helper.get_ml_models_dir()` (typically `AI/ml_models/` in the repo, `/app/ml_models/` in Docker)
     - Signatures/intel → Local signature store and JSON surfaces managed by `AI/signature_distribution.py` and `AI/reputation_tracker.py`
 
+#### Privacy-Preserving Defensive Mesh (Stage 5–6 Summary)
+
+- **One server protects an entire network segment (no endpoint agents required)** – the Gateway/Router deployment role enforces decisions for all devices behind a single node while keeping detection and enforcement local to that gateway (see [README.md](../../README.md#deployment-scope--three-roles-many-environments)).
+- **Every attack makes the system smarter (automated signature extraction + ML retraining)** – Stage 5 extracts sanitized signatures, behavioral statistics, graph patterns, and reputation data into local JSON, which are then used by the relay-side retraining pipeline and Stage 7 continuous learning (see [Architecture_enhancements.md](Architecture_enhancements.md) and [relay/ai_retraining.py](../../relay/ai_retraining.py)).
+- **Every node benefits from global learning (relay-shared intelligence from worldwide attacks)** – Stage 6 pushes only sanitized attack materials to the relay and pulls back signed models, signatures, and reputation feeds; customer nodes never exchange raw payloads or logs with each other directly.
+- **Organizations retain full control (relay participation is optional, all data anonymized)** – the relay client (`AI/relay_client.py`, `AI/signature_uploader.py`) is optional and can be disabled entirely; when enabled, uploads are restricted to anonymized patterns and aggregated statistics guarded by HMAC authentication (see [Section 4: Privacy & Security Guarantees](#4-privacy--security-guarantees)).
+- **Privacy is preserved (no raw payloads, no PII, only statistical features shared)** – Stage 5 explicitly forbids payloads, credentials, or PII in exported training materials, and the relay-side training datasets operate only on patterns, counts, hashes, and anonymized topologies (see [Stage 5: Training Material Extraction (Privacy-Preserving)](#stage-5-training-material-extraction-privacy-preserving)).
+
 **Merge & Integration:**
 - New signatures → Local signature database via `AI/signature_distribution.py`
 - Reputation feed → `AI/reputation_tracker.py`

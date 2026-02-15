@@ -289,6 +289,16 @@ pip install onnxruntime  # For 2-5x faster inference
 - IsolationForest: 12.8ms → **4.2ms** (3.0x faster)
 - GradientBoosting: 18.5ms → **7.1ms** (2.6x faster)
 
+---
+
+### Privacy-Preserving Defensive Mesh (Relay & ML Perspective)
+
+- **One server protects an entire network segment (no endpoint agents required)** – the mesh assumes gateway-class nodes that act as first-layer execution-control authorities, with this guide focusing on how their ML and relay components are hardened (see [README.md](../../README.md#deployment-scope--three-roles-many-environments)).
+- **Every attack makes the system smarter (automated signature extraction + ML retraining)** – smart pattern filtering, performance monitoring, and adversarial training ensure that signatures and models derived from customer attacks are deduplicated, validated, and robust before being redistributed (see Sections 2–4 above).
+- **Every node benefits from global learning (relay-shared intelligence from worldwide attacks)** – the relay server aggregates sanitized attack statistics and training materials, then distributes signed ONNX and pickle models back to all nodes via `relay/ai_retraining.py` and `AI/training_sync_client.py`.
+- **Organizations retain full control (relay participation is optional, all data anonymized)** – these enhancements harden the relay path, but the decision to enable or disable relay connectivity remains a deployment choice; when enabled, uploads are limited to anonymized patterns and aggregated metrics as described in [Ai-instructions.md](Ai-instructions.md#4-privacy--security-guarantees).
+- **Privacy is preserved (no raw payloads, no PII, only statistical features shared)** – telemetry and training materials referenced in this guide are explicitly privacy-preserved (no payloads, credentials, or PII), aligning with the Stage 5/6 design in [Ai-instructions.md](Ai-instructions.md#stage-5-training-material-extraction-privacy-preserving) and the federated relay description in [README.md](../../README.md#federated-relay-architecture).
+
 **Installation:**
 ```bash
 # Relay server

@@ -18,6 +18,14 @@ Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21
   so global learning improves over time without any customer content or PII leaving local infrastructure.
 - Implements **5 production-ready ML pipeline hardening features** (see *Architecture Enhancements: ML Pipeline Hardening Layer* below for details).
 
+### Privacy-Preserving Defensive Mesh (At a Glance)
+
+- **One server protects an entire network segment** (no endpoint agents required).
+- **Every attack makes the system smarter** (automated signature extraction + ML retraining).
+- **Every node benefits from global learning** (relay-shared intelligence from worldwide attacks).
+- **Organizations retain full control** (relay participation is optional, all data anonymized).
+- **Privacy is preserved** (no raw payloads, no PII, only statistical features shared).
+
 ### Executive Summary (Non-Technical)
 
 - **Stop breaches before they start:** Battle-Hardened AI sits at the gateway and decides what is allowed to execute, blocking malicious activity before it reaches servers, endpoints, or data.
@@ -25,7 +33,6 @@ Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21
 - **Integrate with what you already have:** Decisions are exported as simple JSON and enforced through existing firewalls, SIEM, SOAR, and EDR/XDR tools—no rip-and-replace.
 - **Protect privacy and sovereignty:** Detection happens on your infrastructure, and when the optional relay to the central VPS is enabled, only anonymized
    patterns and statistics are shared—no raw payloads, credentials, or customer data.
-
 
 Battle-Hardened AI introduces a new category of security: a **first-layer autonomous execution-control system** that operates at the router and gateway boundary, making **pre-execution decisions with full context**—semantic, behavioral, and causal—before any downstream tool is engaged.
 
@@ -338,6 +345,14 @@ When the **optional relay** is enabled, Battle-Hardened AI nodes share intellige
 - Model signing, Byzantine validation, and ONNX optimization harden distribution against tampering and performance regressions.
 
 For the full Stage 5–7 technical flow and privacy guarantees, see [AI instructions](documentation/architecture/Ai-instructions.md) (Stages 5–7 implementation details) and [Attack handling flow](documentation/architecture/Attack_handling_flow.md) (end-to-end relay and response behavior).
+
+### Privacy-Preserving Defensive Mesh (Details)
+
+- **One server protects an entire network segment (no endpoint agents required)** – implemented by the **Gateway/Router** deployment role, where a single Linux node commands the OS firewall for all devices behind it (see [Deployment Scope — Three Roles, Many Environments](#deployment-scope--three-roles-many-environments)).
+- **Every attack makes the system smarter (automated signature extraction + ML retraining)** – Stage 5 extracts sanitized signatures, statistics, graph patterns, and reputation into local JSON, and Stage 7/relay retraining fold those into new models and signatures (see [documentation/architecture/Ai-instructions.md](documentation/architecture/Ai-instructions.md) and [documentation/architecture/Architecture_enhancements.md](documentation/architecture/Architecture_enhancements.md)).
+- **Every node benefits from global learning (relay-shared intelligence from worldwide attacks)** – when the optional relay is enabled, nodes push only sanitized patterns and pull signed models, signatures, and reputation feeds; no customer training data is shared (see [documentation/architecture/Ai-instructions.md](documentation/architecture/Ai-instructions.md#stage-6-global-intelligence-sharing-optional-relay) and [relay/ai_retraining.py](relay/ai_retraining.py)).
+- **Organizations retain full control (relay participation is optional, all data anonymized)** – relay connectivity is opt-in and can be disabled entirely at install or runtime; when enabled, uploads are restricted to anonymized patterns and aggregated statistics (see [documentation/installation/Installation.md](documentation/installation/Installation.md) and [documentation/mapping/Filepurpose.md](documentation/mapping/Filepurpose.md)).
+- **Privacy is preserved (no raw payloads, no PII, only statistical features shared)** – Stage 5 and the relay-side training pipeline are explicitly designed to avoid raw payloads, credentials, and PII; only statistical features, signatures, and anonymized topology are shared (see [documentation/architecture/Ai-instructions.md](documentation/architecture/Ai-instructions.md#4-privacy--security-guarantees) and [documentation/architecture/Architecture_enhancements.md](documentation/architecture/Architecture_enhancements.md)).
 
 ### Architecture Enhancements: ML Pipeline Hardening Layer
 
