@@ -1,5 +1,5 @@
 ﻿# Battle-Hardened AI
-### The Details Here Are ANTI-MARKETING 
+### The Details Here Are all proven
 
 This document is written for people who understand first-layer enforcement, gateways, and control planes. It assumes familiarity with firewalls, routing, kernel telemetry, and pre-execution decision systems.
 
