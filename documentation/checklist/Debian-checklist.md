@@ -970,44 +970,51 @@ On install (or first start), ensure the following exist with correct ownership a
 ---
 
 ### Section 24: 🏢 Enterprise Security Integrations
-**API Endpoints:**
-- [ ] `/api/enterprise-integration/config` - Syslog/webhook configuration
-- [ ] `/api/vulnerabilities/scan` - Vulnerability scan results
-- [ ] `/api/backup/status` - Backup status
-- [ ] `/api/backup/resilience` - Backup resilience tests
-- [ ] `/api/zero-trust/violations` - Zero trust violations
-- [ ] `/api/behavioral/stats` - Behavioral heuristics
-- [ ] `/api/sandbox/stats` - File sandbox stats
-- [ ] `/api/cloud/posture` - Cloud security posture (CSPM)
-- [ ] `/api/vulnerabilities/darkweb` - Dark web monitoring
-- [ ] `/api/soar/attack-simulation` - SOAR/BAS integration
-- [ ] `/api/zero-trust/dlp` - Data Loss Prevention
+**Status:**
+- `/api/enterprise-integration/config` and `enterprise_integration.json`: **IMPLEMENTED** (admin-only JSON config surface; no outbound streaming yet).
+- `/api/vulnerabilities/scan`: **IMPLEMENTED (STUB)** (returns structured zeroed metrics only; no active scanner/SBOM engine).
+- `/api/backup/status` and `/api/backup/resilience`: **IMPLEMENTED (STUB)** (telemetry JSON with all-zero metrics; no built-in backup/orchestration or ransomware testing).
+- `/api/cloud/posture`, `/api/vulnerabilities/darkweb`, `/api/soar/attack-simulation`, `/api/zero-trust/dlp`: **IMPLEMENTED (STUB)** (dashboard telemetry tiles backed by all-zero JSON; no CSPM, dark-web crawler, BAS engine, or inline DLP enforcement).
+- `/api/zero-trust/violations`, `/api/behavioral/stats`, `/api/sandbox/stats`: **IMPLEMENTED** (real telemetry where the underlying modules are bundled; return safe errors/zeros if modules are missing).
+
+**API Endpoints (verification focus):**
+- [ ] `/api/enterprise-integration/config` - Admin JSON config for syslog/webhook targets (no outbound events).
+- [ ] `/api/vulnerabilities/scan` - Stubbed vulnerability/SBOM metrics (all zeros in hardened build).
+- [ ] `/api/backup/status` - Stubbed backup status JSON (all zeros).
+- [ ] `/api/backup/resilience` - Alias of `/api/backup/status`.
+- [ ] `/api/zero-trust/violations` - Least-privilege violations (when Zero Trust module present).
+- [ ] `/api/behavioral/stats` - Behavioral heuristics stats (when behavioral_heuristics present).
+- [ ] `/api/sandbox/stats` - File sandbox stats (when file_analyzer present).
+- [ ] `/api/cloud/posture` - CSPM telemetry STUB (all-zero JSON only).
+- [ ] `/api/vulnerabilities/darkweb` - Dark web monitoring STUB (all-zero JSON only).
+- [ ] `/api/soar/attack-simulation` - SOAR/BAS coverage STUB (all-zero JSON only).
+- [ ] `/api/zero-trust/dlp` - DLP telemetry STUB (all-zero JSON only).
 
 **JSON Files:**
-- [ ] `enterprise_integration.json` - Syslog/webhook targets ⚠️ **PLANNED** - Use threat_log.json/blocked_ips.json manually until implemented
-- [ ] `backup_status.json` - Backup/recovery data
-- [ ] `recovery_tests.json` - Recovery test results
-- [ ] `cloud_findings.json` - Cloud security findings
-- [ ] `behavioral_metrics.json` - Behavioral analysis
-- [ ] `soar_incidents.json` - SOAR incidents
+- [ ] `enterprise_integration.json` - Admin-managed config for future outbound adapters (IMPLEMENTED; used by dashboard and API only).
+- [ ] `backup_status.json` - Backup/recovery telemetry (STUB; zeroed metrics in this build).
+- [ ] `recovery_tests.json` - Backup recovery-test telemetry (STUB).
+- [ ] `cloud_findings.json` - CSPM findings telemetry (STUB).
+- [ ] `behavioral_metrics.json` - Behavioral analysis metrics.
+- [ ] `soar_incidents.json` - SOAR incidents telemetry (STUB; no live SOAR engine).
 
-**Playcards/Metrics:**
-- [ ] SIEM Integrations (syslog targets)
-- [ ] Backup Status (last backup, resilience score)
-- [ ] Vulnerability Count
-- [ ] Cloud Misconfigurations
-- [ ] Zero Trust Violations
-- [ ] DLP Incidents
-- [ ] Dark Web Leaks
+**Playcards/Metrics (what to expect in hardened build):**
+- [ ] SIEM Integrations (syslog targets) - Counts driven by enterprise_integration.json only (no outbound streaming).
+- [ ] Backup Status (last backup, resilience score) - STUB; values remain N/A/zero unless populated by external tooling.
+- [ ] Vulnerability Count - STUB; vulnerability totals remain zero.
+- [ ] Cloud Misconfigurations - STUB; misconfigurations remain zero.
+- [ ] Zero Trust Violations - Real counts only when Zero Trust module and policies are enabled; otherwise empty/zero.
+- [ ] DLP Incidents - STUB; incidents remain zero.
+- [ ] Dark Web Leaks - STUB; leaks remain zero.
 
 **Python Modules:**
-- [ ] `AI/enterprise_integration.py`
-- [ ] `AI/backup_recovery.py`
-- [ ] `AI/vulnerability_manager.py`
-- [ ] `AI/cloud_security.py`
-- [ ] `AI/behavioral_heuristics.py`
-- [ ] `AI/zero_trust.py`
-- [ ] `AI/soar_api.py`
+- [ ] `AI/enterprise_integration.py` ⚠️ **PLANNED/ROADMAP** - Outbound streaming/adapters not wired in this build.
+- [ ] `AI/backup_recovery.py` ⚠️ **PLANNED/ROADMAP** - No built-in backup orchestration.
+- [ ] `AI/vulnerability_manager.py` ⚠️ **PLANNED/ROADMAP** - No active vuln scanner/SBOM engine.
+- [ ] `AI/cloud_security.py` ⚠️ **PLANNED/ROADMAP** - No CSPM engine.
+- [ ] `AI/behavioral_heuristics.py` - Behavioral telemetry backing `/api/behavioral/stats`.
+- [ ] `AI/zero_trust.py` - Zero Trust telemetry and violations.
+- [ ] `AI/soar_api.py` ⚠️ **PLANNED/ROADMAP** - No full SOAR engine in this build.
 
 ---
 

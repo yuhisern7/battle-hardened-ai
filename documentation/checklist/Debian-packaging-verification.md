@@ -47,10 +47,12 @@ cp -a systemd debian/battle-hardened-ai/opt/battle-hardened-ai/packaging/systemd
 ```makefile
 mkdir -p debian/battle-hardened-ai/lib/systemd/system
 cp -a systemd/battle-hardened-ai.service debian/battle-hardened-ai/lib/systemd/system/
-cp -a systemd/firewall-sync.service debian/battle-hardened-ai/lib/systemd/system/
+cp -a systemd/battle-hardened-ai-firewall-sync.service debian/battle-hardened-ai/lib/systemd/system/
+cp -a systemd/battle-hardened-ai-device-scanner.service debian/battle-hardened-ai/lib/systemd/system/
 ```
 - [ ] `battle-hardened-ai.service` will be installed to `/lib/systemd/system/`
-- [ ] `firewall-sync.service` will be installed to `/lib/systemd/system/`
+- [ ] `battle-hardened-ai-firewall-sync.service` will be installed to `/lib/systemd/system/`
+- [ ] `battle-hardened-ai-device-scanner.service` will be installed to `/lib/systemd/system/`
 
 ### Configuration Directories Created
 - [ ] `/etc/battle-hardened-ai/policies/step21/` created
@@ -226,7 +228,8 @@ dpkg -c ../battle-hardened-ai_1.0.0_amd64.deb
 - [ ] `/opt/battle-hardened-ai/assets/` directory
 - [ ] `/opt/battle-hardened-ai/packaging/` directory
 - [ ] `/lib/systemd/system/battle-hardened-ai.service`
-- [ ] `/lib/systemd/system/firewall-sync.service`
+- [ ] `/lib/systemd/system/battle-hardened-ai-firewall-sync.service`
+- [ ] `/lib/systemd/system/battle-hardened-ai-device-scanner.service`
 - [ ] `/etc/battle-hardened-ai/.env.template`
 
 ## 10. Installation Simulation Test

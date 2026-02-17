@@ -347,6 +347,12 @@ In short: Battle-Hardened AI does not ask another system to block traffic – it
 
 Separately, Battle-Hardened AI emits structured decision events (JSON / syslog) to enterprise platforms such as SIEMs, SOAR tools, and security dashboards.
 
+In the current hardened build:
+
+- The **integration plane is export-only** – it never participates in first-layer enforcement.
+- Enterprise-flavored surfaces like CSPM, dark-web monitoring, SOAR/BAS coverage, DLP, and backup/recovery are implemented as **telemetry STUBS** in the core node: they expose structured JSON responses (all-zero/"N/A" values) to drive UI tiles and external tooling but do **not** embed full CSPM, dark-web crawling, SOAR, DLP, or backup orchestration engines.
+- Outbound adapters for syslog/webhooks are configured via `enterprise_integration.json` and `/api/enterprise-integration/config`, but production streaming into SIEM/SOAR or ITSM tooling is a **separate integration concern** built on top of these JSON surfaces.
+
 These integrations exist to:
 
 - Provide visibility into decisions

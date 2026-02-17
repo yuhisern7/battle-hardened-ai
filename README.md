@@ -30,7 +30,7 @@ Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21
 
 - **Stop breaches before they start:** Battle-Hardened AI sits at the gateway and decides what is allowed to execute, blocking malicious activity before it reaches servers, endpoints, or data.
 - **Reduce analyst load, not add to it:** It runs autonomously with explainable decisions and conservative defaults, cutting noise instead of generating more alerts.
-- **Integrate with what you already have:** Decisions are exported as simple JSON and enforced through existing firewalls, SIEM, SOAR, and EDR/XDR tools—no rip-and-replace.
+- **Integrate with what you already have:** Decisions are exported as simple JSON and enforced through existing firewalls and automation layers. SIEM/SOAR and XDR/EDR consume BH-AI JSON as visibility and workflow inputs; they do not sit on the primary enforcement path.
 - **Protect privacy and sovereignty:** Detection happens on your infrastructure, and when the optional relay to the central VPS is enabled, only anonymized
    patterns and statistics are shared—no raw payloads, credentials, or customer data.
 
@@ -92,7 +92,7 @@ Battle-Hardened AI’s Linux and Windows deployments act as a **semantic decisio
 
 - **Network firewalls and cloud controls** – NGFW, WAF, and cloud security groups/NVAs inherit BH-AI allow/block decisions via dynamic address objects, tags, or automation, so packet-level enforcement (including NAT and segmentation) reflects the 21-layer semantic verdicts.
 - **Detection and response platforms** – IDS/IPS, NDR, XDR, and EDR ingest BH-AI decisions as high-signal events, enriching detections, tightening containment policies, and aligning host- and network-level responses around a shared trust score.
-- **SIEM and SOAR tooling** – SIEMs correlate BH-AI events with logs from other sensors, while SOAR playbooks use its explainable verdicts to drive coordinated changes across NGFW/WAF, XDR/EDR, VPN, ZTNA, and NAC policies.
+- **SIEM and SOAR tooling** – SIEMs correlate BH-AI events with logs from other sensors, while SOAR playbooks (when present) can use its explainable verdicts to drive coordinated changes across NGFW/WAF, XDR/EDR, VPN, ZTNA, and NAC policies as a **secondary, export-only integration plane**.
 - **Access and edge controls** – VPN concentrators, ZTNA controllers, and NAC platforms can consume BH-AI trust outputs to adapt access (tighten posture checks, quarantine segments, or force re-authentication) when semantic risk increases.
 - **Application gateways and traffic managers** – API gateways, reverse proxies, and load balancers can route suspicious flows toward honeypots, throttling, or deeper inspection based on BH-AI’s verdicts, reducing exposure for critical backends.
 - **GRC, ITSM, and audit workflows** – Ticketing, GRC, and audit systems can treat BH-AI block decisions as structured, explainable evidence, linking individual enforcement actions (on Linux iptables/ipset/nftables or Windows Defender Firewall) to cases, approvals, and runbooks.
@@ -253,7 +253,7 @@ Internet ──→ BH-AI Gateway ──→ NGFW / IPS ──→ Core Switch / VL
 
 - BH-AI makes first-layer, semantic allow/deny decisions and blocks clearly malicious flows before they ever hit the NGFW/IPS.
 - The NGFW/IPS sees **fewer, higher-quality events**, focusing on deep content/compliance rather than obvious brute-force, scanning, or reputation-abuse traffic.
-- BH-AI JSON feeds (threat_log.json, blocked_ips.json) can drive NGFW address groups and IPS policies via SIEM/SOAR, turning traditional firewalls into a high-speed enforcement plane for BH-AI decisions.
+- BH-AI JSON feeds (threat_log.json, blocked_ips.json) can drive NGFW address groups and IPS policies via SIEM/SOAR or other automation, turning traditional firewalls into a high-speed enforcement plane for BH-AI decisions **without making SIEM/SOAR part of the primary block/allow path**.
 
 **2. Data Center / East–West Segmentation with NDR/XDR**
 
@@ -292,7 +292,7 @@ Branch Internet ──→ BH-AI Branch Gateway ──→ Local LAN ──→ End
 
 - BH-AI blocks malicious flows at the branch edge and exports decisions to the central XDR/SIEM stack.
 - Endpoint EDR/XDR agents continue to watch host behavior, but benefit from **reduced attack surface and rich BH-AI context** (why traffic was blocked, which layers fired, trust deltas).
-- SOAR playbooks can treat BH-AI as an upstream authority: when BH-AI quarantines an IP or entity, playbooks update EDR policies, NGFW rules, and ticketing systems in lockstep.
+- SOAR playbooks (where deployed) can treat BH-AI as an upstream authority: when BH-AI quarantines an IP or entity, playbooks update EDR policies, NGFW rules, and ticketing systems in lockstep as a **secondary reaction layer**, after BH-AI and the local firewall have already enforced the decision.
 
 **Ecosystem View — BH-AI as the Autonomous Gate**
 
@@ -580,7 +580,7 @@ For full, step-by-step instructions, see [Installation.md](documentation/install
 - **Install & bring up services:** Follow [Installation.md](documentation/installation/Installation.md) for your platform (Linux gateway, Windows host-only, or observer).
 - **Verify telemetry & decisions:** Open the dashboard described in [Dashboard](documentation/mapping/Dashboard.md) to confirm live traffic, decisions, and governance surfaces.
 - **Wire the firewall:** Apply the OS firewall integration from [Firewall_enforcement.md](documentation/firewall/Firewall_enforcement.md) so decisions in `blocked_ips.json` and related JSON surfaces are enforced on iptables/ipset (Linux) or Windows Defender Firewall.
-- **Integrate with SIEM/SOAR and workflows:** Use the JSON surfaces referenced in [Dashboard](documentation/mapping/Dashboard.md) and the end-to-end behavior in [Attack handling flow](documentation/architecture/Attack_handling_flow.md) to stream decisions into your SIEM/SOAR and playbooks.
+- **Integrate with SIEM/SOAR and workflows:** Use the JSON surfaces referenced in [Dashboard](documentation/mapping/Dashboard.md) and the end-to-end behavior in [Attack handling flow](documentation/architecture/Attack_handling_flow.md) to stream decisions into your SIEM/SOAR and playbooks **as a visibility and workflow layer only**; enforcement remains on the local firewall and is not delegated to SIEM/SOAR.
 - **Validate end-to-end:** Run controlled attack scenarios from [KALI_ATTACK_TESTS.md](KALI_ATTACK_TESTS.md) to verify detection, blocking, logging, and integration paths before broad rollout.
 
 ### What Battle-Hardened AI Offers (Capabilities & Roadmap)

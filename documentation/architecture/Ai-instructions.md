@@ -4,7 +4,7 @@
 >
 > **Audience & distribution note:** This document assumes access to the **full source tree** (AI/, server/, relay/) as checked out from Git (for example in a development or CI environment). **Production customers who install via the Linux .deb/.rpm packages or the Windows EXE do not receive this source layout by default** – they operate the packaged services and refer primarily to README and INSTALLATION. Use this guide when you are **developing, auditing, or extending** the system from source.
 >
-> **Implementation note:** SIEM/SOAR, NGFW, XDR/EDR, VPN/ZTNA/NAC consume JSON outputs and do not participate in the primary enforcement path, which is executed on the local OS firewall using threat_log.json, blocked_ips.json, and related state.
+> **Implementation note:** SIEM/SOAR, NGFW, XDR/EDR, VPN/ZTNA/NAC consume JSON outputs and do not participate in the primary enforcement path, which is executed on the local OS firewall using threat_log.json, blocked_ips.json, and related state. Many enterprise-flavored dashboard tiles (for example CSPM, dark-web, SOAR/BAS, DLP, and backup/recovery) are **telemetry-only STUBS in this hardened build** – they expose structured JSON with safe zero/default values but do not embed full CSPM, dark-web crawling, SOAR, DLP, or backup engines.
 
 **Related Documentation:**
 - **[README.md](../../README.md)** - Main documentation with architecture overview and how Battle-Hardened AI enhances existing security controls while keeping enforcement on the local OS firewall

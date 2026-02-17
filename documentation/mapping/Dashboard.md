@@ -162,6 +162,8 @@ def show_json(path: str):
 **Pipeline Stage:** Global Intelligence Sharing
 **Purpose:** Shows P2P mesh status, relay connectivity, and federated learning metrics
 
+**Status:** IMPLEMENTED (P2P/relay status and threat-sharing metrics; shows zeros when relay/mesh is not configured).
+
 **APIs:**
 - `/api/p2p/status` — P2P mesh health and peer count
 - `/api/relay/status` — Relay server connectivity
@@ -187,6 +189,8 @@ show_json("/api/p2p/threats")   # Shared threat intelligence
 
 **Pipeline Stage:** Data Ingestion & Normalization
 **Purpose:** Live device discovery, asset inventory, and network topology
+
+**Status:** IMPLEMENTED (device discovery, asset inventory, and topology telemetry; counts may be zero on new or idle installs).
 
 **APIs:**
 - `/api/connected-devices` — Active devices on network
@@ -219,6 +223,8 @@ show_json("/api/visualization/topology")  # Network graph
 **Pipeline Stage:** Parallel Multi-Signal Detection
 **Detection Signal:** #11 VPN/Tor Fingerprinting
 **Purpose:** Multi-vector de-anonymization statistics
+
+**Status:** IMPLEMENTED (internal-only statistics surfaced via pcs_ai; no direct HTTP API).
 
 **APIs:**
 - Internal: `pcs_ai.get_vpn_tor_statistics()` (no direct HTTP endpoint)
@@ -254,6 +260,8 @@ print(stats)
 - #18 Integrity Monitoring (Cryptographic Lineage)
 - #19 Causal Inference Engine
 - #20 Trust Degradation Graph
+
+**Status:** IMPLEMENTED (core model statistics and drift/lineage telemetry; some advanced enhancements run only when corresponding modules/configuration are present).
 
 **Architecture Enhancements:**
 - **Feature #1:** Model Cryptographic Signing (`AI/model_signing.py`)
@@ -297,6 +305,8 @@ pprint(ml_stats)
 **Pipeline Stage:** Ensemble Decision Engine + Step 21 Semantic Gate
 **Purpose:** High-level KPIs from ensemble voting across all 20 detection signals, gated by the Step 21 semantic execution-denial layer (21 total detection layers)
 
+**Status:** IMPLEMENTED (aggregated ensemble statistics from pcs_ai; values may be low/zero on new installs).
+
 **APIs:**
 - Internal: `pcs_ai.get_threat_statistics()`
 
@@ -322,6 +332,8 @@ pprint(stats)
 **Pipeline Stage:** Parallel Multi-Signal Detection (aggregated across all 20 detection signals, prior to Step 21 semantic gating)
 **Purpose:** Per-attack-type breakdown from ensemble classifications
 
+**Status:** IMPLEMENTED (per-type breakdown derived from the same ensemble statistics that power Section 5).
+
 **APIs:**
 - Internal: `pcs_ai.get_threat_statistics()` → `threats_by_type`
 
@@ -344,6 +356,8 @@ print(stats.get("threats_by_type", {}))
 
 **Pipeline Stage:** Ensemble Decision Engine (block/log/allow outcomes)
 **Purpose:** Per-IP threat history, block/whitelist management, dual-layer kernel firewall enforcement (Tab 4: Linux Firewall Commander)
+
+**Status:** IMPLEMENTED (IP history, whitelist/blocklist management, and firewall sync telemetry; firewall enforcement depends on correct backend configuration on the host).
 
 **APIs:**
 - `/api/threat_log` — Complete threat log with ensemble decisions
@@ -384,6 +398,8 @@ show_json("/api/stats")        # Blocked IPs count
 **Detection Signal:** #6 Behavioral Heuristics
 **Purpose:** Tracks failed authentication attempts as part of behavioral threat scoring
 
+**Status:** IMPLEMENTED (behavioral signal surfaced via threat statistics; counters may be zero on quiet systems).
+
 Backed by: `stats.failed_login_attempts` inside `pcs_ai.get_threat_statistics()`.
 
 ```python
@@ -397,6 +413,8 @@ print(stats.get("failed_login_attempts", {}))
 ```
 
 ## Section 9 – Attack Type Breakdown (View)
+
+**Status:** IMPLEMENTED (visual drill‑down only; no additional detection logic beyond Sections 5 and 6).
 
 Backed by: `stats.attack_summary` from `pcs_ai.get_threat_statistics()` and the same ensemble statistics that power Section 6. This section is a visual drill‑down only and does not introduce new detection logic.
 
@@ -412,6 +430,8 @@ print(stats.get("attack_summary", {}))
 
 ## Section 10 – Automated Signature Extraction – Attack Pattern Analysis
 
+**Status:** IMPLEMENTED (signature extraction and statistics; datasets may be empty on new or low-traffic deployments).
+
 Backed by: `/api/signatures/extracted`, `/api/signatures/types`, `/api/signatures/stats` and `AI/signature_extractor.py`, `AI/signature_distribution.py`.
 
 ```python
@@ -424,6 +444,8 @@ show_json("/api/signatures/stats")      # high‑level signature stats
 ```
 
 ## Section 11 – System Health & Network Performance
+
+**Status:** IMPLEMENTED (system/performance telemetry and self-protection metrics; some advanced checks fall back to safe zeros/disabled flags when modules are unavailable).
 
 Backed by: `/api/system-status`, `/api/performance/metrics`, `/api/performance/network-stats`, `/api/performance/anomalies`, `/api/self-protection/stats` and modules like `AI/network_performance.py`, `AI/system_log_collector.py`, `AI/self_protection.py`.
 
@@ -443,6 +465,8 @@ show_json("/health")                        # node + cluster health for HA
 
 ## Section 12 – Audit Evidence & Compliance Mapping
 
+**Status:** IMPLEMENTED (evidence summaries and JSON/HTML reports suitable for external compliance mapping; not a full GRC/workflow suite).
+
 Backed by: `/api/compliance/summary`, `/api/compliance/report/<type>`, `/api/threat-model/stats`, `/api/audit-log/stats` and `AI/compliance_reporting.py`, `AI/policy_governance.py`, `AI/formal_threat_model.py`.
 
 ```python
@@ -461,6 +485,8 @@ show_json("/api/compliance/report/gdpr")
 **Pipeline Stage:** Parallel Multi-Signal Detection
 **Detection Signal:** #10 Graph Intelligence (lateral movement, C2 detection)
 **Purpose:** Kill-chain visualization, hop chains, pivot detection
+
+**Status:** IMPLEMENTED (graph-based attack-chain telemetry and JSON surfaces for offline analysis).
 
 **APIs:**
 - `/api/graph-intelligence/attack-chains` — Attack chain topology
@@ -488,6 +514,8 @@ show_json("/api/graph-intelligence/attack-chains")
 **Detection Signal:** #15 Explainability Engine
 **Purpose:** Human-readable explanations for block/log/allow decisions
 
+**Status:** IMPLEMENTED (decision explainability JSON; quality of explanations depends on available signals and threat volume).
+
 **APIs:**
 - `/api/explainability/decisions` — Recent decisions with per-signal contributions
 
@@ -513,6 +541,8 @@ show_json("/api/explainability/decisions")
 **Pipeline Stage:** Training Material Extraction (100% confirmed attacks)
 **Detection Signal:** Feeds Signal #2 (Signature Matching) with high-quality training data
 **Purpose:** Multi-service deception, attacker profiling, signature extraction
+
+**Status:** IMPLEMENTED (multi-service honeypot; individual honeypot services skip startup cleanly when their ports are already in use).
 
 **Real Honeypot Services:**
 - **SSH** (port 2222) - Fake SSH server with banners
@@ -579,6 +609,8 @@ hydra -l admin -P rockyou.txt ftp://WINDOWS_IP:2121 -t 4
 **Detection Signal:** #12 Threat Intelligence Integration
 **Purpose:** External threat feeds, ExploitDB signatures, reputation databases
 
+**Status:** IMPLEMENTED (core threat-intel and signature surfaces; optional external feeds and dark-web crawling require API keys/relay configuration and may be disabled in hardened builds).
+
 **Threat Intelligence Sources:**
 - **ExploitDB** - 43,971+ exploit signatures (auto-downloaded on relay server)
 - **VirusTotal** - 70+ security vendor analysis (optional API key)
@@ -619,6 +651,8 @@ show_json("/api/signatures/stats")         # Signature statistics
 
 ## Section 17 – Traffic Analysis & Inspection
 
+**Status:** IMPLEMENTED (traffic telemetry and DPI statistics; metrics remain zero until packet capture sees real traffic).
+
 Backed by: `/api/traffic/analysis`, `/api/pcap/stats` plus `AI/traffic_analyzer.py`, `AI/kernel_telemetry.py`, `AI/pcap_capture.py`.
 
 **Dashboard Metrics:**
@@ -640,6 +674,8 @@ show_json("/api/pcap/stats")        # PCAP capture statistics
 - `encrypted_percent = 0%` → No active connections on port 443 (normal if no HTTPS traffic)
 
 ## Section 18 – DNS & Geo Security
+
+**Status:** IMPLEMENTED (DNS and geo analytics as telemetry/decision-support only; no inline DNS firewall or geo-blocking engine).
 
 Backed by: `/api/dns/stats`, `/api/visualization/geographic` and `AI/dns_analyzer.py`, `AI/advanced_visualization.py`.
 
@@ -683,6 +719,8 @@ show_json("/api/visualization/geographic")     # Country-level attack statistics
 
 ## Section 19 – User & Identity Trust Signals
 
+**Status:** IMPLEMENTED (UEBA-style trust telemetry and scoring; deliberately scoped as access-control observability, not workforce IAM or lifecycle management).
+
 Backed by: `/api/users/tracking`, `/api/zero-trust/scores`, `/api/zero-trust/data-classification` and `AI/user_tracker.py`, `AI/zero_trust.py`.
 
 ```python
@@ -698,6 +736,8 @@ Admin identity for the dashboard itself (local admins with salted password hashe
 
 ## Section 20 – Sandbox Detonation
 
+**Status:** IMPLEMENTED (hash-based file analysis and statistics; safely returns NOT_AVAILABLE/503 when the file analyzer module is not bundled in a given build).
+
 Backed by: `/api/sandbox/detonate`, `/api/sandbox/stats` and `AI/file_analyzer.py`.
 
 ```python
@@ -710,6 +750,8 @@ show_json("/api/sandbox/stats")
 ```
 
 ## Section 21 – Email/SMS Alerts (Critical Only)
+
+**Status:** IMPLEMENTED (alert statistics and dispatch; returns zeros-only stats when the alert subsystem is not configured or not available).
 
 Backed by: `/api/alerts/stats` and `AI/alert_system.py`.
 
@@ -737,6 +779,8 @@ show_json("/api/alerts/stats")  # Returns {email_sent, sms_sent, subscribers}
 
 ## Section 22 – Cryptocurrency Mining Detection
 
+**Status:** IMPLEMENTED (crypto-mining detection surface; returns live stats when advanced traffic analyzer features are available, otherwise safe stub data with zero detections).
+
 Backed by: `/api/traffic/crypto-mining` and `AI/crypto_security.py`.
 
 **Dashboard Metrics:**
@@ -755,7 +799,7 @@ Detects unauthorized cryptomining malware (cryptojacking) through multiple signa
 # Show cryptocurrency mining detection metrics
 from helper import show_json
 
-show_json("/api/traffic/crypto-mining")  # Returns {miner_processes, cpu_spikes, mining_connections, risk_level, detected_miners[], high_cpu_processes[], mining_traffic[]}
+show_json("/api/traffic/crypto-mining")  # Returns {status, message, miner_processes, cpu_spikes, mining_connections, risk_level, detected_miners[], high_cpu_processes[], mining_traffic[]}
 ```
 
 **Detection Methods:**
@@ -766,9 +810,15 @@ show_json("/api/traffic/crypto-mining")  # Returns {miner_processes, cpu_spikes,
 5. DNS queries for mining domains
 6. GPU usage anomalies
 7. Memory access patterns typical of mining algorithms
+
+**Zero-Trust DLP telemetry (HTML tile):**
+
+**Status:** STUB (telemetry-only JSON surface with all-zero counts; no active DLP engine or inline enforcement in this hardened build).
+
+```python
 from helper import show_json
 
-show_json("/api/zero-trust/dlp")  # Returns DISABLED with zero counts
+show_json("/api/zero-trust/dlp")  # Returns status "OK" with all counters set to zero
 ```
 
 ### 22.5 – Backup & Recovery Status
@@ -779,15 +829,19 @@ show_json("/api/zero-trust/dlp")  # Returns DISABLED with zero counts
 **Dashboard Loaders:**
 - `loadBackupRecoveryStatus()` — Updates backup locations, success rates, resilience scores, RTO
 
+**Status:** STUB (telemetry-only JSON surface with all-zero metrics; there is no built-in backup/orchestration or ransomware testing engine in this hardened build).
+
 ```python
 from helper import show_json
 
-show_json("/api/backup/status")  # Returns DISABLED with zero counts
+show_json("/api/backup/status")  # Returns status "OK" with all metrics set to zero
 ```
 
 ## Section 23 – Governance & Emergency Controls
 
 **Purpose:** Command surface for high-assurance governance with kill-switch, approval workflows, audit logging, and secure deployment controls.
+
+**Status:** IMPLEMENTED (governance, kill-switch, self-protection, and secure-deployment telemetry; individual metrics fall back to safe zeros/disabled flags when the corresponding modules are not available).
 
 **APIs:**
 - `/api/killswitch/status` — Emergency kill-switch mode and state changes
@@ -874,20 +928,22 @@ show_json("/api/system-status")            # underlying node health
 
 **Purpose:** Configure and inspect outbound adapters that export first‑layer execution‑denial decisions into enterprise tooling such as SIEM, SOAR, and IT‑operations platforms, without introducing any new primary enforcement path.
 
+**Status:** IMPLEMENTED (admin JSON config surface only; outbound streaming adapters remain roadmap/lab features).
+
 **APIs:**
 - `/api/enterprise-integration/config` (GET) — Returns current enterprise integration configuration
 - `/api/enterprise-integration/config` (POST) — Updates configuration (admin‑only)
 
 **Backend Modules & Surfaces:**
-- `server/server.py` — Helper functions `_load_enterprise_integration_config()`, `_save_enterprise_integration_config()` and secured HTTP handlers
-- `enterprise_integration.json` — ⚠️ **PLANNED/ROADMAP** — JSON configuration file (syslog_targets, webhook_targets, etc.) — not yet implemented
-- `AI/enterprise_integration.py` — ⚠️ **PLANNED/ROADMAP** — Integration logic for outbound adapters — exists but does not read enterprise_integration.json
+- `server/server.py` — Helper functions `_load_enterprise_integration_config()`, `_save_enterprise_integration_config()` and secured HTTP handlers (admin‑only)
+- `enterprise_integration.json` — JSON configuration file (syslog_targets, webhook_targets, etc.) created and maintained by the API; used as the single source of truth for planned outbound adapters
+- `AI/enterprise_integration.py` — ⚠️ **PLANNED/ROADMAP** — Integration logic for outbound adapters; as of this build, the AI engine does **not** yet stream events directly from this file into external tools
 
 **Dashboard Loaders:**
-- `loadEnterpriseIntegrationStatus()` — ⚠️ **PLANNED/ROADMAP** — Will display current syslog/webhook target counts
-- Live JSON editor for `enterprise_integration.json` configuration — ⚠️ **PLANNED/ROADMAP**
+- `loadEnterpriseIntegrationStatus()` — IMPLEMENTED; displays current syslog/webhook target counts based on enterprise_integration.json
+- Live JSON editor for `enterprise_integration.json` configuration — IMPLEMENTED; reads/writes via `/api/enterprise-integration/config` but does not itself create any outbound connections
 
-**Current Workaround:** Manually consume `threat_log.json` and `blocked_ips.json` via custom scripts or SOAR connectors until this feature is implemented.
+**Current Workaround:** Until outbound adapters are wired, continue to consume `threat_log.json`, `blocked_ips.json`, and other JSON surfaces via custom scripts or SOAR connectors; treat enterprise_integration.json as a forward‑looking configuration surface only.
 
 **Metrics Displayed:**
 - Number of configured syslog targets
