@@ -1011,7 +1011,7 @@ Battle-Hardened AI:
 
 ## Closing Statement
 
-Battle-Hardened AI is an open, battle-hardened cyber defense platform.
+Battle-Hardened AI is a source-available, battle-hardened cyber defense platform.
 
 It is engineered for **real-world defensive use** by:
 
@@ -1021,7 +1021,7 @@ It is engineered for **real-world defensive use** by:
 - Enterprises and SOC teams
 - Advanced home labs and small environments that want first-layer protection
 
-The platform is released as open source, with no commercial appliance SKU, and is
+The platform is provided as source-available software under the terms in [LICENSE](LICENSE), with no separate closed-source appliance SKU, and is
 intended for expert operators who understand security engineering, governance,
 and operational risk. It continues to evolve rapidly, but every shipped feature is
 designed around a single goal: safely enforcing first-layer, pre-execution denial
