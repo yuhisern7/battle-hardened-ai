@@ -21,22 +21,31 @@ For full deployment scenarios (cloud routing, relay, troubleshooting, FAQs, etc.
 ### Install
 
 1. Copy the signed .deb package to the server.
-2. Install the package and its dependencies:
+2. Install the package and its dependencies (recommended modern apt syntax):
 
 ```bash
-sudo dpkg -i battle-hardened-ai_*.deb
-sudo apt-get install -f
+sudo apt-get install ./battle-hardened-ai_*.deb
 ```
 
-3. Run the post-installation setup script (required):
+This will install Battle-Hardened AI, pull in all required Debian packages, and automatically run the post-installation setup script.
+
+3. (Optional) If you ever need to manually re-run the post-install steps (firewall wiring, permissions, health check), you can run:
 
 ```bash
 sudo bash /opt/battle-hardened-ai/packaging/debian-startup.sh
 ```
 
-This script fixes permissions, wires the Linux Firewall Commander (iptables/ipset), enables services, and saves rules so they persist across reboot.
-
 ### Basic checks
+
+Quick one-command start + verify (recommended):
+
+```bash
+sudo bash /opt/battle-hardened-ai/packaging/debian-start-battle.sh
+```
+
+This enables and (re)starts all core services and then runs the health check so you immediately see if everything is green.
+
+You can also check services directly:
 
 ```bash
 sudo systemctl status battle-hardened-ai
