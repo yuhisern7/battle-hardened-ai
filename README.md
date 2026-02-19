@@ -34,7 +34,13 @@ Nothing in Battle-Hardened AI is designed as a marketing gimmick: every term (21
 - **Protect privacy and sovereignty:** Detection happens on your infrastructure, and when the optional relay to the central VPS is enabled, only anonymized
    patterns and statistics are shared—no raw payloads, credentials, or customer data.
 
-Battle-Hardened AI introduces a new category of security: a **first-layer autonomous execution-control system** that operates at the router and gateway boundary, making **pre-execution decisions with full context**—semantic, behavioral, and causal—before any downstream tool is engaged.
+## First-Layer Autonomous Execution-Control System
+
+A new category of security engineered to operate at the router and gateway boundary, where it functions as an upstream execution-control authority rather than a downstream detection engine. Positioned at the network ingress and egress edge, it evaluates interactions before they acquire operational meaning, issuing deterministic allow or deny decisions prior to engagement with firewalls, NGFWs, IDS/IPS, or endpoint tools.
+
+Instead of relying solely on signatures or reactive alerts, it performs **pre-execution decisioning with full contextual awareness**—correlating semantic intent, behavioral patterns, temporal sequencing, environmental state, and causal relationships across observed entities. This enables it to assess not only what is occurring, but why it is occurring and whether the interaction is logically valid within the system’s defined execution model.
+
+By acting at this first control layer, it reduces attack surface exposure, suppresses malicious state transitions before propagation, and supplies structured decision outputs that downstream security systems can enforce, correlate, and audit. The result is a unified decision plane that precedes and strengthens the existing security stack rather than competing with it.
 
 We are not aware of any publicly documented enterprise-grade system that:
 
