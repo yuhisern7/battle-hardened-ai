@@ -1043,13 +1043,6 @@ Battle-Hardened AI demonstrates how:
 can be safely applied to modern network defense at **home, organizational, and
 national scale**.
 
-### Deployment & Access
-
-**Home / Lab usage:** USD 10 / month  
-**Organizations / SOCs:** USD 50 / month
-
-These subscription tiers cover managed builds, signed packages, and support; the source code remains available for self-hosted deployments without a subscription.
-
 ### Founder & Core Development
 
 Founded and led by **Yuhisern Navaratnam** (core development and support coordination).
