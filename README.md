@@ -1,6 +1,6 @@
 ﻿# Battle-Hardened AI
 
-This project is now owned by Cyber Quote Singapore to be patented Worlwide.
+This project is now owned by Cyber Quote - Singapore; to be patented Worldwide.
 
 ### The Details Here Are Proven
 
