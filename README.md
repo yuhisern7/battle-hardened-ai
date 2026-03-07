@@ -1,4 +1,4 @@
-﻿﻿# Battle-Hardened AI
+﻿# Battle-Hardened AI
 
 This project is owned by Cyber Quote (Singapore) and is being prepared for worldwide patent protection.
 
