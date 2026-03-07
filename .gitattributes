@@ -1,2 +1,0 @@
-# Ensure Debian packaging files always use Unix line endings
-packaging/debian/* text eol=lf
