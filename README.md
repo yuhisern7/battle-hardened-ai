@@ -1,4 +1,7 @@
 ﻿# Battle-Hardened AI
+
+This project is now owned by Cyber Quote Singapore to be patented Worlwide.
+
 ### The Details Here Are Proven
 
 This document is written for people who understand first-layer enforcement, gateways, and control planes. It assumes familiarity with firewalls, routing, kernel telemetry, and pre-execution decision systems.
