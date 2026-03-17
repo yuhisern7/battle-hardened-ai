@@ -25,6 +25,18 @@ At a conceptual level, Battle-Hardened AI sits between untrusted networks and yo
 
 The platform is designed to work alongside existing firewalls, IDS/IPS, XDR, and cloud controls rather than replace them. It provides a single, upstream decision point that other tools can follow.
 
+### What "First Layer" Means Here
+
+The word **"layer"** has two common meanings in security, and it is important to understand which one applies to Battle-Hardened AI:
+
+**OSI Network Model (technical networking)**
+This is the standard model used by network engineers. It has 7 layers from physical cables (Layer 1) up to applications (Layer 7). Battle-Hardened AI operates at Layers 3, 4, and 7 of this model — IP blocking, port filtering, and application-level AI analysis respectively. It is **not** an OSI Layer 1 system (OSI Layer 1 is cables and electrical signals).
+
+**Security Architecture Model (defense stack)**
+This is a conceptual model used to describe a defense posture. Layer 1 here means the **perimeter — the first line of defense** at the network edge, before any other security tool sees the traffic. Layer 2 is internal monitoring, Layer 3 is AI detection, Layer 4 is automated response.
+
+> **Battle-Hardened AI is Security Architecture Layer 1** — the perimeter gateway authority — **that enforces its decisions at OSI Layers 3, 4, and 7.** When this documentation says "first-layer defense," it always refers to the Security Architecture meaning: the perimeter position, not OSI physical cables.
+
 ---
 
 ## Example Topologies
