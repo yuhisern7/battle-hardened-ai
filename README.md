@@ -12,6 +12,7 @@ Battle-Hardened AI is an autonomous, first-layer defense system that sits at the
 - A **multi-layer AI defense** that combines network context, behavior, and intent into a single allow/deny verdict.
 - An **orchestrator for existing controls**, driving local firewalls and security tools with clear, structured decisions.
 - A **privacy-first design** that keeps inspection and learning on your infrastructure while sharing only high-level intelligence when desired.
+- Provides documented coverage for **47 MITRE ATT&CK techniques** via pre-execution denial and persistent trust degradation.
 
 Battle-Hardened AI is intended for enterprise, government, and critical-infrastructure environments where autonomy, auditability, and long-term trust are mandatory.
 
