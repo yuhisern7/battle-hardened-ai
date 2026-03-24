@@ -1,8 +1,10 @@
-﻿# Battle-Hardened AI
+# Battle-Hardened AI
 
 This project is owned by Cyber Quote (Singapore) and is being prepared for worldwide patent protection.
 
 Battle-Hardened AI is an autonomous, first-layer defense system that sits at the network gateway and decides which interactions are allowed to execute before they reach servers, endpoints, or data. It is designed for organizations that need strong, explainable protection without exposing the underlying technical implementation.
+
+Battle Hardened AI is the ultimate defensive version, for the offensive version - It's twin brother, Battle Offensive AI (not availabe to the public).
 
 ---
 
