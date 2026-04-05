@@ -8,11 +8,12 @@ Battle Hardened AI transforms traditional security tools into an adaptive defens
 
 Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
 
-Traditional Security > ⚔️ Battle-Hardened AI 
-Rules > **Reasoning** 
-Static > **Adaptive** 
-Per-request > **Behavioral** 
-Fragmented > **Unified** 
+| Traditional | ⚔️ Battle Hardened AI |
+|---|---|
+| Rules | Reasoning |
+| Static | Adaptive |
+| Per-request | Behavioral |
+| Fragmented | Unified |
 
 ---
 
