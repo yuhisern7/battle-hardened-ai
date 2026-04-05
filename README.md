@@ -2,11 +2,11 @@
 
 This project is owned by Cyber Quote (Singapore) and is being prepared for worldwide patent protection.
 
+Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
+
 Battle-Hardened AI is an autonomous, pre-execution defense system that sits at the network gateway and evaluates every interaction across 21 independent threat-detection signals — spanning behavioral heuristics, network graph intelligence, causal inference, and a stateless semantic execution gate — before granting it the right to proceed. A proportional enforcement tier model selects the most appropriate response, and a closed feedback loop tracks outcomes to continuously refine future decisions. It is built for enterprise, government, and critical-infrastructure environments that require strong, explainable, and auditable protection without exposing the underlying technical implementation.
 
 Battle Hardened AI transforms traditional security tools into an adaptive defense system by understanding attacker behavior across web, network, and system layers — the AI self learns from every attack and becomes smarter each day — one super AI defensive system to rule them all.
-
-Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
 
 | Traditional | ⚔️ Battle Hardened AI |
 |---|---|
