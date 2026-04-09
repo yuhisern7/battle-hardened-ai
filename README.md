@@ -24,7 +24,7 @@ Battle Hardened AI transforms traditional security tools into an adaptive defens
 - A **Byzantine-resilient federated learner** that shares sanitized attack intelligence across nodes without exposing raw payloads, customer IPs, or PII, and rejects compromised model updates before they affect any participant.
 - An **orchestrator for enforcement infrastructure**, commanding host firewalls (ufw, nftables, iptables, firewalld, CSF, VyOS, OpenWRT, Alpine) and opt-in cloud security backends (Azure NSG, GCP VPC, AWS NACL, Huawei SG) through a unified structured interface.
 - A **privacy-first, locally authoritative** system that keeps all detection, enforcement, and model training on your infrastructure — with zero dependency on external connectivity for any enforcement decision.
-- Provides documented coverage for **47 MITRE ATT&CK techniques** via pre-execution denial, persistent trust degradation, and graduated proportional enforcement.
+- Provides documented coverage for **48 MITRE ATT&CK techniques** via pre-execution denial, persistent trust degradation, and graduated proportional enforcement.
 
 Battle-Hardened AI is purpose-built for enterprise, government, and critical-infrastructure environments where autonomy, auditability, adversarial resilience, and long-term trust are non-negotiable.
 
