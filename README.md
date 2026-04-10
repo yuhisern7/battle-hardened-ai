@@ -4,9 +4,13 @@ This project is owned by Cyber Quote (Singapore) and is being prepared for world
 
 Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
 
-Battle-Hardened AI is an autonomous, pre-execution defense system that sits at the network gateway and evaluates every interaction across 21 independent threat-detection signals — spanning behavioral heuristics, network graph intelligence, causal inference, attacker intent modeling, and a stateless semantic execution gate — before granting it the right to proceed. An intelligence layer continuously builds a contextual picture of each attacker across sessions, feeds that picture into a proportional enforcement model that selects among 8 graduated response tiers, and tracks post-action outcomes to refine every future decision automatically. It is built for enterprise, government, and critical-infrastructure environments that require strong, explainable, and auditable protection without exposing the underlying technical implementation.
+---
 
-Battle Hardened AI transforms traditional security tools into an adaptive defense system by understanding attacker behavior across web, network, and system layers — the AI self learns from every attack and becomes smarter each day — one super AI defensive system to rule them all.
+Battle-Hardened AI is an autonomous, pre-execution adaptive defense system operating at the network gateway, evaluating every interaction across 21 intelligence signals before it is allowed to proceed.
+
+It continuously models attacker behavior across sessions and applies adaptive, proportional enforcement in real time — learning from every action to refine future decisions.
+
+Battle-Hardened AI transforms traditional security tools into a unified, adaptive AI-driven defense layer across web, network, and system environments.
 
 > **This system is designed to capture elite zeroday attacks.**
 
@@ -21,39 +25,54 @@ Battle Hardened AI transforms traditional security tools into an adaptive defens
 
 ![Battle Hardened AI](assets/BATTLE-HARDENED-AI.png)
 
-### What "First Layer" Means Here
+### What “First Layer” Means
 
-The word **"layer"** has two common meanings in security, and it is important to understand which one applies to Battle-Hardened AI:
+The term “layer” has two meanings in security, and both apply differently to Battle-Hardened AI:
 
-**OSI Network Model (technical networking)**
-This is the standard model used by network engineers. It has 7 layers from physical cables (Layer 1) up to applications (Layer 7). Battle-Hardened AI operates at Layers 3, 4, and 7 of this model — IP blocking, port filtering, and application-level AI analysis respectively. It is **not** an OSI Layer 1 system (OSI Layer 1 is cables and electrical signals).
+OSI Network Model (technical layers)
+The OSI model defines 7 networking layers, from physical hardware (Layer 1) to applications (Layer 7).
 
-**Security Architecture Model (defense stack)**
-This is a conceptual model used to describe a defense posture. Layer 1 here means the **perimeter — the first line of defense** at the network edge, before any other security tool sees the traffic. Layer 2 is internal monitoring, Layer 3 is AI detection, Layer 4 is automated response.
+Battle-Hardened AI operates across:
 
-> **Battle-Hardened AI is Security Architecture Layer 1** — the perimeter gateway authority — **that enforces its decisions at OSI Layers 3, 4, and 7.** When this documentation says "first-layer defense," it always refers to the Security Architecture meaning: the perimeter position, not OSI physical cables.
+Layer 3 (Network) — IP-based control and routing decisions
+Layer 4 (Transport) — connection handling and port-level enforcement
+Layer 7 (Application) — semantic analysis and behavioral intelligence
+
+It does not operate at OSI Layer 1 (physical hardware).
+
+Security Architecture Model (defense layers)
+In security architecture, “layers” describe the position within a defense stack.
+
+Layer 1 — Perimeter / gateway (first point of control)
+Layer 2 — Internal monitoring and telemetry
+Layer 3 — Detection and analysis systems
+Layer 4 — Response and automation
+
+> Battle-Hardened AI operates as Security Architecture Layer 1 — the perimeter authority that evaluates and controls interactions before they reach downstream systems — while enforcing decisions across OSI Layers 3, 4, and 7.
 
 ---
 
 ## Example Topologies
 
-Below are illustrative examples of how Battle-Hardened AI can be placed in a network. These diagrams are conceptual and do not expose internal implementation.
+Below are illustrative examples of how Battle-Hardened AI can be deployed within a network. These diagrams are conceptual and do not expose internal implementation details.
 
 **Edge Gateway (Recommended Pattern)**
 
-Battle-Hardened AI acts as the default gateway for protected systems, inspecting traffic and issuing enforcement decisions before it reaches internal networks.
+Battle-Hardened AI operates as the default gateway for protected systems, evaluating and enforcing decisions on all traffic before it reaches internal networks.
 
 ![Edge Gateway Mode — BH-AI as Perimeter Decision Authority](assets/topologies/1.png)
 
 **Transparent Inline / Bridge**
 
-Battle-Hardened AI is deployed inline, observing and controlling flows without requiring major routing changes.
+Battle-Hardened AI is deployed inline, inspecting and controlling traffic flows without requiring major routing changes.
 
 ![Transparent Inline Bridge Mode — BH-AI as an Inline Decision Authority](assets/topologies/2.png)
 
 **Ecosystem View**
 
-Battle-Hardened AI is a single autonomous gate that simultaneously commands network firewalls (L3/L4), web application firewalls (L7), cloud security groups, XDR/EDR platforms, SIEM/SOAR tooling, VPN/ZTNA access controls, API gateways, and GRC/audit systems from one decision output. When a block verdict is issued, it propagates across every layer of the defense stack in the same enforcement cycle — no manual rule updates, no cross-tool synchronization, no gaps between layers.
+Battle-Hardened AI functions as a unified decision authority, orchestrating enforcement across network firewalls (L3/L4), web application firewalls (L7), cloud security groups, XDR/EDR platforms, SIEM/SOAR systems, VPN/ZTNA controls, API gateways, and GRC/audit frameworks.
+
+A single decision is propagated across all layers of the defense stack within the same enforcement cycle — eliminating manual rule updates, cross-tool inconsistencies, and gaps in protection.
 
 ![Ecosystem View — BH-AI as the Autonomous Gate Controlling All Security Tools](assets/topologies/8.png)
 
