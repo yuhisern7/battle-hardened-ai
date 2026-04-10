@@ -53,7 +53,7 @@ Battle-Hardened AI is deployed inline, observing and controlling flows without r
 
 **Ecosystem View**
 
-Battle-Hardened AI serves as an autonomous decision gate that coordinates defenses across all layers simultaneously — driving network firewalls at L3/L4, web application firewalls at L7, cloud security groups at the infrastructure edge, and exporting structured verdicts to XDR, SIEM, and SOAR platforms — so a single enforcement decision propagates consistently across the entire defense stack without manual intervention at any layer.
+Battle-Hardened AI is a single autonomous gate that simultaneously commands network firewalls (L3/L4), web application firewalls (L7), cloud security groups, XDR/EDR platforms, SIEM/SOAR tooling, VPN/ZTNA access controls, API gateways, and GRC/audit systems from one decision output. When a block verdict is issued, it propagates across every layer of the defense stack in the same enforcement cycle — no manual rule updates, no cross-tool synchronization, no gaps between layers.
 
 ![Ecosystem View — BH-AI as the Autonomous Gate Controlling All Security Tools](assets/topologies/8.png)
 
