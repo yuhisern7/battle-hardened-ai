@@ -8,6 +8,8 @@ Battle-Hardened AI is an autonomous, pre-execution defense system that sits at t
 
 Battle Hardened AI transforms traditional security tools into an adaptive defense system by understanding attacker behavior across web, network, and system layers — the AI self learns from every attack and becomes smarter each day — one super AI defensive system to rule them all.
 
+> **This system is designed to capture elite zeroday attacks.**
+
 | Traditional | ⚔️ Battle Hardened AI |
 |---|---|
 | Rules | Reasoning |
@@ -28,6 +30,17 @@ Battle Hardened AI transforms traditional security tools into an adaptive defens
 - Provides documented coverage for **48 MITRE ATT&CK techniques** via pre-execution denial, persistent trust degradation, and graduated proportional enforcement.
 
 Battle-Hardened AI is purpose-built for enterprise, government, and critical-infrastructure environments where autonomy, auditability, adversarial resilience, and long-term trust are non-negotiable.
+
+---
+
+## Zero-Day Detection Layer
+
+- **Feature-Space Autoencoder (Silent Pattern Detection)** — detects statistically abnormal combinations of otherwise normal signals, allowing identification of attacks that do not trigger any explicit detection rule.
+- **Uncertainty Accumulation (Hidden Signal Detection)** — treats repeated low-confidence or ambiguous interactions as a cumulative signal, escalating entities that consistently operate within uncertain ranges rather than ignoring them.
+- **Cross-Node Correlation (Distributed Intelligence)** — aggregates weak signals across multiple nodes to identify coordinated or distributed attack behavior that would remain undetected at a single-node level.
+- **Protocol-Level Invariant Detection (Kernel Layer)** — identifies subtle violations or inconsistencies in TCP, TLS, and HTTP behavior that cannot be perfectly mimicked by attack tooling, even when payloads appear valid.
+
+These are some of the mechanisms that operate together to detect attacks that produce no direct indicators, enabling the system to identify and respond to elite zeroday attack behavior without relying on signatures, payload matching, or predefined exploit knowledge.
 
 ---
 
