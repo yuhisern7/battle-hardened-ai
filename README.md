@@ -6,7 +6,7 @@ Battle Hardened AI is the ultimate defensive version; for the offensive version 
 
 ---
 
-Battle-Hardened AI is an autonomous, pre-execution adaptive defense system operating at the network gateway, evaluating every interaction across 21 intelligence signals before it is allowed to proceed.
+Battle-Hardened AI is an autonomous, pre-execution adaptive defense system operating at the network gateway, evaluating every interaction across 22 intelligence signals before it is allowed to proceed.
 
 It continuously models attacker behavior across sessions and applies adaptive, proportional enforcement in real time — learning from every action to refine future decisions.
 
