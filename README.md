@@ -4,22 +4,24 @@ This project is owned by Cyber Quote (Singapore) and is being prepared for world
 
 Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
 
----
+Battle-Hardened AI is an autonomous, pre-execution adaptive defense system operating at the network gateway. Every interaction is evaluated across **22 detection layers** before it is permitted to proceed — no traffic is trusted, no execution is assumed safe.
 
-Battle-Hardened AI is an autonomous, pre-execution adaptive defense system operating at the network gateway, evaluating every interaction across 22 intelligence signals before it is allowed to proceed.
+It continuously models attacker behavior across sessions and applies adaptive, proportional enforcement in real time, learning from every action to refine future decisions. Threats that evade individual signals are caught by the ensemble; threats that evade the ensemble are stopped by the semantic gate.
 
-It continuously models attacker behavior across sessions and applies adaptive, proportional enforcement in real time — learning from every action to refine future decisions.
+Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trust access controls under a single autonomous decision authority — eliminating manual rule updates, cross-tool gaps, and reactive response delays.
 
-Battle-Hardened AI transforms traditional security tools into a unified, adaptive AI-driven defense layer across web, network, and system environments.
+> **This system is designed to capture elite zero-day attacks.**
 
-> **This system is designed to capture elite zeroday attacks.**
-
-| Traditional | ⚔️ Battle Hardened AI |
+| Traditional Security | ⚔️ Battle-Hardened AI |
 |---|---|
-| Rules | Reasoning |
-| Static | Adaptive |
-| Per-request | Behavioral |
-| Fragmented | Unified |
+| Static rules and signatures | Continuous behavioral reasoning |
+| Per-request evaluation | Cross-session attacker modeling |
+| Fragmented, siloed tools | Unified 22-layer decision pipeline |
+| Reactive — detects after damage | Pre-execution — blocks before impact |
+| Manual rule updates | Autonomous retraining every 6 hours |
+| Binary allow/block | 5-tier proportional response chain |
+| Single-tool decisions | 21-signal ensemble + semantic gate |
+| No zero-day coverage | Autoencoder anomaly detection for unknowns |
 
 ---
 
