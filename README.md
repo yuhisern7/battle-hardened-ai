@@ -12,16 +12,14 @@ Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trus
 
 > **This system is designed to capture elite zero-day attacks.**
 
-| Traditional Security | ⚔️ Battle-Hardened AI |
-|---|---|
-| Static rules and signatures | Continuous behavioral reasoning |
-| Per-request evaluation | Cross-session attacker modeling |
-| Fragmented, siloed tools | Unified 22-layer decision pipeline |
-| Reactive — detects after damage | Pre-execution — blocks before impact |
-| Manual rule updates | Autonomous retraining every 6 hours |
-| Binary allow/block | 5-tier proportional response chain |
-| Single-tool decisions | 21-signal ensemble + semantic gate |
-| No zero-day coverage | Autoencoder anomaly detection for unknowns |
+### Traditional Security vs Battle-Hardened AI
+
+| Traditional | ⚔️ Battle-Hardened AI |
+|------------|----------------------|
+| Rules | Reasoning |
+| Static | Adaptive |
+| Stateless | Stateful |
+| Fragmented | Unified |
 
 ---
 
