@@ -12,8 +12,6 @@ Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trus
 
 > **This system is designed to capture elite zero-day attacks.**
 
-### Traditional Security vs Battle-Hardened AI
-
 | Traditional | ⚔️ Battle-Hardened AI |
 |------------|----------------------|
 | Rules | Reasoning |
