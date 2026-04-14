@@ -1,6 +1,6 @@
 This project is owned by Cyber Quote (Singapore) and is being prepared for worldwide patent protection.
 
-Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
+Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI, it does the full penetration test better than humans (not available to the public).
 
 ---
 
