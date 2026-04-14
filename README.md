@@ -4,7 +4,9 @@ This project is owned by Cyber Quote (Singapore) and is being prepared for world
 
 Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
 
-Battle-Hardened AI is an autonomous, pre-execution adaptive defense system operating at the network gateway. Every interaction is evaluated across **22 detection layers** before it is permitted to proceed — no traffic is trusted, no execution is assumed safe.
+---
+
+Battle-Hardened AI is an Autonomous Pre-Execution Adaptive Defensive System operating at the network gateway. Every interaction is evaluated across **22 detection layers** before it is permitted to proceed — no traffic is trusted, no execution is assumed safe.
 
 It continuously models attacker behavior across sessions and applies adaptive, proportional enforcement in real time, learning from every action to refine future decisions. Threats that evade individual signals are caught by the ensemble; threats that evade the ensemble are stopped by the semantic gate.
 
@@ -12,12 +14,12 @@ Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trus
 
 > **This system is designed to capture elite zero-day attacks.**
 
-| Traditional | ⚔️ Battle-Hardened AI |
-|------------|----------------------|
-| Rules | Reasoning |
-| Static | Adaptive |
-| Stateless | Stateful |
-| Fragmented | Unified |
+| Traditional Security | ⚔️ Battle-Hardened AI |
+|---------------------|----------------------|
+| Rules               | Reasoning            |
+| Static              | Adaptive             |
+| Stateless           | Stateful             |
+| Fragmented          | Unified              |
 
 ---
 
@@ -47,6 +49,21 @@ Layer 3 — Detection and analysis systems
 Layer 4 — Response and automation
 
 > Battle-Hardened AI operates as Security Architecture Layer 1 — the perimeter authority that evaluates and controls interactions before they reach downstream systems — while enforcing decisions across OSI Layers 3, 4, and 7.
+
+---
+
+How Battle Hardened AI Eliminated Bugs Through Self-Diagnostics
+
+Battle Hardened AI achieved near-perfect code by embedding self-diagnostics into every component—combining diagnostics, ML pipeline, security decisions, and GUI visibility.
+
+Each part:
+
+validates its output
+confirms execution
+checks data flow
+reports failures in real time
+
+All results unify in Section 20, which identifies what failed, why it failed, and even silent failures—ensuring the system continuously verifies itself while running.
 
 ---
 
