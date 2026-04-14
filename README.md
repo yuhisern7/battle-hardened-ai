@@ -1,10 +1,10 @@
-# Battle-Hardened AI
-
 This project is owned by Cyber Quote (Singapore) and is being prepared for worldwide patent protection.
 
 Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI (not available to the public).
 
 ---
+
+# Battle-Hardened AI
 
 Battle-Hardened AI is an Autonomous Pre-Execution Adaptive Defensive System operating at the network gateway. Every interaction is evaluated across **22 detection layers** before it is permitted to proceed — no traffic is trusted, no execution is assumed safe.
 
@@ -25,7 +25,7 @@ Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trus
 
 ![Battle Hardened AI](assets/BATTLE-HARDENED-AI.png)
 
-### What “First Layer” Means
+## What “First Layer” Means
 
 The term “layer” has two meanings in security, and both apply differently to Battle-Hardened AI:
 
@@ -52,7 +52,7 @@ Layer 4 — Response and automation
 
 ---
 
-How Battle Hardened AI Eliminated Bugs Through Self-Diagnostics
+## How Battle Hardened AI Eliminated Bugs Through Self-Diagnostics
 
 Battle Hardened AI achieved near-perfect code by embedding self-diagnostics into every component—combining diagnostics, ML pipeline, security decisions, and GUI visibility.
 
