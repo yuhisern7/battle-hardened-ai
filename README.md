@@ -6,11 +6,13 @@ Battle Hardened AI is the ultimate defensive version; for the offensive version 
 
 # Battle-Hardened AI
 
-Battle-Hardened AI is an Autonomous Pre-Execution Adaptive Defensive System operating at the network gateway. Every interaction is evaluated across **22 AI detection architecture** before it is permitted to proceed — no traffic is trusted, no execution is assumed safe.
+Battle-Hardened AI is an Autonomous Pre-Execution Adaptive Defensive System operating at the network gateway. Every interaction is evaluated across a 22-layer AI detection architecture before execution — no traffic is trusted, and no action is assumed safe.
 
-It continuously models attacker behavior across sessions and applies adaptive, proportional enforcement in real time, learning from every action to refine future decisions. Threats that evade individual signals are caught by the ensemble; threats that evade the ensemble are stopped by the semantic gate.
+It models attacker behavior across sessions and applies adaptive, proportional enforcement in real time. Detection layers are fully wired into a unified feature and decision pipeline, enabling coordinated analysis across behavioral, sequential, and intelligence-driven signals.
 
-Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trust access controls under a single autonomous decision authority — eliminating manual rule updates, cross-tool gaps, and reactive response delays.
+Threats that evade individual signals are detected by probabilistic fusion; threats that evade the fusion layer are evaluated and controlled by the semantic gate — the final decision authority.
+
+Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trust access controls under a single autonomous decision plane, reducing reliance on static rules, eliminating cross-tool gaps, and minimizing reactive response delays.
 
 This system — Self-Evolving Intelligence (Highest - Level 5) - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
 
