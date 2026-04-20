@@ -1,29 +1,28 @@
 This project is owned by Cyber Quote (Singapore) and is being prepared for worldwide patent protection.
 
-Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI, it does the full penetration test better than humans (not available to the public).
+Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI - it does the full penetration test better than humans (not available to the public).
 
 ---
 
 # Battle-Hardened AI
 
-Battle-Hardened AI is an Autonomous Pre-Execution Adaptive Defensive System operating at the network gateway. Every interaction is evaluated across a 22-layer AI detection architecture before execution — no traffic is trusted, and no action is assumed safe.
+Battle Hardened AI is a centralized decision intelligence system that evaluates every interaction before execution.
 
-It models attacker behavior across sessions and applies adaptive, proportional enforcement in real time. Detection layers are fully wired into a unified feature and decision pipeline, enabling coordinated analysis across behavioral, sequential, and intelligence-driven signals.
+It unifies 22 detection signals into a single decision pipeline, producing one consistent and authoritative outcome.
 
-Threats that evade individual signals are detected by probabilistic fusion; threats that evade the fusion layer are evaluated and controlled by the semantic gate — the final decision authority.
-
-Battle-Hardened AI unifies network firewall, WAF, XDR, SIEM, SOAR, and zero-trust access controls under a single autonomous decision plane, reducing reliance on static rules, eliminating cross-tool gaps, and minimizing reactive response delays.
+Instead of relying on static rules or isolated tools, it understands attacker behavior across layers and continuously adapts through real-time learning.
 
 This system — Self-Evolving Intelligence (Highest - Level 5) - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
 
 > Engineered to detect and adapt against advanced and zero-day attack patterns.
 
 | Traditional Security | ⚔️ Battle-Hardened AI    |
-| -------------------- | ------------------------ |
-| Rules                | Probabilistic Reasoning  |
-| Static               | Adaptive & Learning      |
-| Stateless            | Stateful & Context-Aware |
-| Fragmented           | Unified Decision Engine  |
+|---------------------|--------------------------|
+| Rules               | Reasoning                |
+| Static              | Adaptive                 |
+| Stateless           | Stateful                 |
+| Fragmented          | Unified                  |
+| Heuristics          | Probabilistic Decisions  |
 
 ---
 
