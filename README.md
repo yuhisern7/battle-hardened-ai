@@ -18,13 +18,14 @@ Future upgrade - Meta Intelligence.
 
 > Engineered to detect and adapt against advanced and zero-day attack patterns.
 
-| Traditional Security | ⚔️ Battle-Hardened AI    |
-|---------------------|--------------------------|
-| Rules               | Reasoning                |
-| Static              | Adaptive                 |
-| Stateless           | Stateful                 |
-| Fragmented          | Unified                  |
-| Heuristics          | Probabilistic Decisions  |
+| Traditional Security | ⚔️ Battle-Hardened AI |
+|---|---|
+| Rules | Reasoning |
+| Static | Adaptive |
+| Stateless | Stateful |
+| Fragmented | Unified |
+| Heuristics | Probabilistic Decisions |
+| Alert | Enforce |
 
 ---
 
