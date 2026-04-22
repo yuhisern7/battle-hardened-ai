@@ -12,7 +12,9 @@ It unifies 22 detection signals into a single decision pipeline, producing one c
 
 Instead of relying on static rules or isolated tools, it understands attacker behavior across layers and continuously adapts through real-time learning.
 
-This system — Self-Evolving Intelligence (Highest - Level 5) - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
+This system — Self-Evolving Intelligence - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
+
+Future upgrade - Meta Intelligence.
 
 > Engineered to detect and adapt against advanced and zero-day attack patterns.
 
