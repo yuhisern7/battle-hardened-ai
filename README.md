@@ -8,7 +8,7 @@ Battle Hardened AI is the ultimate defensive version; for the offensive version 
 
 Battle Hardened AI is a centralized decision intelligence system that evaluates every interaction before execution.
 
-It unifies 22 detection signals into a single decision pipeline, producing one consistent and authoritative outcome.
+It unifies 24 detection signals into a single decision pipeline, producing one consistent and authoritative outcome.
 
 Instead of relying on static rules or isolated tools, it understands attacker behavior across layers and continuously adapts through real-time learning.
 
