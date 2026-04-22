@@ -30,6 +30,29 @@ Future upgrade - Meta Intelligence.
 
 ![Battle Hardened AI](assets/BATTLE-HARDENED-AI.png)
 
+## True Purpose
+
+Battle-Hardened AI is not a replacement for enterprise security systems — it is an extension.
+
+Traditional defenses are designed for stability, predictability, and known threats. They perform well against predefined patterns but have limited capability when dealing with adaptive, evolving attacks.
+
+Modern cyber threats do not remain static. They change behavior, distribute across sessions, and evade signature-based detection. This creates a gap that traditional systems are not designed to handle in real time.
+
+Battle-Hardened AI addresses this gap by introducing adaptive, multi-signal detection that learns from real-world outcomes, while maintaining:
+
+* deterministic enforcement
+* low latency
+* full auditability
+* no dependency on external decision systems
+
+All real-time decisions remain local and controlled.
+
+This is not about replacing what works.
+
+It is about extending existing defenses to handle threats they were never designed to solve.
+
+---
+
 ## What “First Layer” Means
 
 The term “layer” has two meanings in security, and both apply differently to Battle-Hardened AI:
