@@ -91,30 +91,4 @@ In simple terms: traditional tools help developers write better code, while Batt
 
 ---
 
-## Example Topologies
-
-Below are illustrative examples of how Battle-Hardened AI can be deployed within a network. These diagrams are conceptual and do not expose internal implementation details.
-
-**Edge Gateway (Recommended Pattern)**
-
-Battle-Hardened AI operates as the default gateway for protected systems, evaluating and enforcing decisions on all traffic before it reaches internal networks.
-
-![Edge Gateway Mode — BH-AI as Perimeter Decision Authority](assets/topologies/1.png)
-
-**Transparent Inline / Bridge**
-
-Battle-Hardened AI is deployed inline, inspecting and controlling traffic flows without requiring major routing changes.
-
-![Transparent Inline Bridge Mode — BH-AI as an Inline Decision Authority](assets/topologies/2.png)
-
-**Ecosystem View**
-
-Battle-Hardened AI functions as a unified decision authority, orchestrating enforcement across network firewalls (L3/L4), web application firewalls (L7), cloud security groups, XDR/EDR platforms, SIEM/SOAR systems, VPN/ZTNA controls, API gateways, and GRC/audit frameworks.
-
-A single decision is propagated across all layers of the defense stack within the same enforcement cycle — eliminating manual rule updates, cross-tool inconsistencies, and gaps in protection.
-
-![Ecosystem View — BH-AI as the Autonomous Gate Controlling All Security Tools](assets/topologies/8.png)
-
----
-
 This public overview is intentionally high level and omits internal design details, algorithms, and file-level implementation to preserve intellectual property and support ongoing patent activities.
