@@ -6,13 +6,13 @@ Battle Hardened AI is the ultimate defensive version; for the offensive version 
 
 # Battle-Hardened AI
 
-Battle Hardened AI is a centralized decision intelligence system that evaluates every interaction before execution.
+Battle-Hardened AI is a centralized decision intelligence system that evaluates every interaction **before execution**.
 
-It unifies 24 detection signals into a single decision pipeline, producing one consistent and authoritative outcome.
+It consolidates 24 detection signals into a unified decision pipeline, producing a single, consistent, and authoritative outcome.
 
-Instead of relying on static rules or isolated tools, it understands attacker behavior across layers and continuously adapts through real-time learning.
+Instead of relying on static rules or fragmented tools, it analyzes attacker behavior across multiple layers and adapts through continuous learning, probabilistic reasoning, and calibrated decision-making.
 
-This system is proceeding towards Self-Evolving Intelligence - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
+The system operates at **Autonomous Decision Intelligence (Level 4)** — capable of learning, recalibrating, and improving decisions based on observed outcomes, while maintaining a controlled and deterministic enforcement model.
 
 ---
 
@@ -24,20 +24,22 @@ This system is proceeding towards Self-Evolving Intelligence - Continuously lear
 | Level 4 — Autonomous Decision AI | Battle-Hardened AI, Battle Offensive AI                                                  |
 | Level 5 — Self-Evolving AI       | None                                                                                     |
 
-We are now in level 4 - self intelligence (Autonomous Decision AI) > Future upgrade would be meta intelligence (Self-Evolving AI).
+The system is currently positioned at **Level 4 — Autonomous Decision AI**, where decisions are computed, validated, and enforced within a unified probabilistic pipeline.
+
+Progression to Level 5 (Self-Evolving AI) would require autonomous modification of its own detection architecture and learning logic, which is not yet implemented.
 
 ---
 
-> Engineered to detect and adapt against advanced and zero-day attack patterns.
+> Engineered to detect, reason, and enforce against advanced and zero-day attack patterns.
 
-| Traditional Security | ⚔️ Battle-Hardened AI |
-|---|---|
-| Rules | Reasoning |
-| Static | Adaptive |
-| Stateless | Stateful |
-| Fragmented | Unified |
-| Heuristics | Probabilistic Decisions |
-| Alert | Enforce |
+| Traditional Security | ⚔️ Battle-Hardened AI   |
+| -------------------- | ----------------------- |
+| Rules                | Reasoning               |
+| Static               | Adaptive                |
+| Stateless            | Stateful                |
+| Fragmented           | Unified                 |
+| Heuristics           | Probabilistic Decisions |
+| Alert                | Enforce                 |
 
 ---
 
