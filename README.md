@@ -14,7 +14,20 @@ Instead of relying on static rules or isolated tools, it understands attacker be
 
 This system — Self-Evolving Intelligence - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
 
+---
+
+| Cybersecurity AI Levels          | Examples                                                                                 |
+| -------------------------------- | ---------------------------------------------------------------------------------------- |
+| Level 1 — Reactive AI            | Snort, Suricata, ModSecurity, OSSEC                                                      |
+| Level 2 — Context-Aware AI       | Cloudflare WAF, AWS WAF, Azure WAF, Imperva WAF                                          |
+| Level 3 — Adaptive Learning AI   | Microsoft Defender XDR, CrowdStrike Falcon, Darktrace, SentinelOne, Palo Alto Cortex XDR |
+| Level 4 — Autonomous Decision AI | Battle-Hardened AI, Battle Offensive AI                                                  |
+| Level 5 — Self-Evolving AI       | None                                                                                     |
+
+
 Future upgrade - Meta Intelligence.
+
+---
 
 > Engineered to detect and adapt against advanced and zero-day attack patterns.
 
