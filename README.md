@@ -12,7 +12,7 @@ It unifies 24 detection signals into a single decision pipeline, producing one c
 
 Instead of relying on static rules or isolated tools, it understands attacker behavior across layers and continuously adapts through real-time learning.
 
-This system — Self-Evolving Intelligence - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
+This system is proceeding towards Self-Evolving Intelligence - Continuously learns, adapts, recalibrates decisions, and optimizes itself from outcomes.
 
 ---
 
