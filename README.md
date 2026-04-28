@@ -24,8 +24,7 @@ This system — Self-Evolving Intelligence - Continuously learns, adapts, recali
 | Level 4 — Autonomous Decision AI | Battle-Hardened AI, Battle Offensive AI                                                  |
 | Level 5 — Self-Evolving AI       | None                                                                                     |
 
-
-Future upgrade - Meta Intelligence (Self-Evolving AI).
+We are currently under self intelligence (Autonomous Decision AI) > Future upgrade would be meta intelligence (Self-Evolving AI).
 
 ---
 
