@@ -25,7 +25,7 @@ This system — Self-Evolving Intelligence - Continuously learns, adapts, recali
 | Level 5 — Self-Evolving AI       | None                                                                                     |
 
 
-Future upgrade - Meta Intelligence.
+Future upgrade - Meta Intelligence (Self-Evolving AI).
 
 ---
 
