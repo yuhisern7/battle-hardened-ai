@@ -12,7 +12,7 @@ It consolidates 32 detection signals into a unified decision pipeline, producing
 
 Instead of relying on static rules or fragmented tools, it analyzes attacker behavior across multiple layers and adapts through continuous learning, probabilistic reasoning, and calibrated decision-making.
 
-The system operates at **Level 5 — Self-Evolving AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture.
+The system operates at **Level 4 — Autonomous Decision AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. It is actively advancing toward Level 5.
 
 It is capable of learning, recalibrating, and improving decisions based on observed outcomes, while maintaining a controlled and deterministic enforcement model.
 
@@ -23,10 +23,10 @@ It is capable of learning, recalibrating, and improving decisions based on obser
 | Level 1 — Reactive AI            | Snort, Suricata, ModSecurity, OSSEC                                                      |
 | Level 2 — Context-Aware AI       | Cloudflare WAF, AWS WAF, Azure WAF, Imperva WAF                                          |
 | Level 3 — Adaptive Learning AI   | Microsoft Defender XDR, CrowdStrike Falcon, Darktrace, SentinelOne, Palo Alto Cortex XDR |
-| Level 4 — Autonomous Decision AI | *(surpassed)*                                                                            |
-| Level 5 — Self-Evolving AI       | Battle-Hardened AI, Battle Offensive AI                                                  |
+| Level 4 — Autonomous Decision AI | Battle-Hardened AI, Battle Offensive AI                                                  |
+| Level 5 — Self-Evolving AI       | *(next frontier — in active development)*                                                |
 
-The system is positioned at **Level 5 — Self-Evolving AI**. It continuously learns, adapts, recalibrates decisions, and optimizes itself from observed outcomes — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. The fusion math is stable, override paths are bounded, enforcement is constitutionally constrained by the Step 21 semantic gate, and calibration quality is continuously verified before influencing enforcement.
+The system is positioned at **Level 4 — Autonomous Decision AI** — currently perfecting this stage and advancing toward Level 5. It continuously learns, adapts, recalibrates decisions, and optimizes itself from observed outcomes. The fusion math is stable, override paths are bounded, enforcement is constitutionally constrained by the Step 21 semantic gate, and calibration quality is continuously verified before influencing enforcement.
 
 ---
 
