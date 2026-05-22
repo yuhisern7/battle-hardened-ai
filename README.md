@@ -119,7 +119,7 @@ Battle-Hardened AI uses three complementary detection tiers that operate simulta
 | ---------------------------------- | -------------------------------------------------------------------------------------- |
 | Tier 1 — Anomaly Detection         | Unsupervised and sequence models — detects behavioral deviation from learned baselines |
 | Tier 2 — Supervised Classification | Federated and calibrated — trained on globally synchronized threat intelligence        |
-| Tier 3 — Signal Fusion             | 28-signal probabilistic fusion across a 44-dimensional feature vector                  |
+| Tier 3 — Signal Fusion             | 32-signal probabilistic fusion across a 44-dimensional feature vector                  |
 
 The three tiers are architecturally independent. Final enforcement decisions are produced only after all three tiers contribute to the probabilistic fusion. No single model failure can disable detection.
 
