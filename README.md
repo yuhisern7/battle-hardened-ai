@@ -47,7 +47,7 @@ The system is positioned at **Level 4 — Autonomous Decision AI** — currently
 
 ---
 
-![Battle Hardened AI](documentation/assets/images/BATTLE-HARDENED-AI.png)
+![Battle Hardened AI](documentation/assets/BATTLE-HARDENED-AI.png)
 
 ## True Purpose
 
