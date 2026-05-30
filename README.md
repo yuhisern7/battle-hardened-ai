@@ -79,60 +79,30 @@ A single decision propagates simultaneously to all configured enforcement target
 
 ---
 
-## Network Position
+## Deployment
 
-Battle-Hardened AI is deployed as the **intelligent decision layer** between the perimeter and protected infrastructure.
-
-```
-INTERNET
-    ↓
-WAF / CDN / DDoS MITIGATION     ←  perimeter filtering (known signatures, rate limits)
-    ↓
-BATTLE-HARDENED AI               ←  probabilistic decision intelligence
-    ↓
-UNIFIED ENFORCEMENT LAYER        ←  simultaneous enforcement across all backends
-    ↓
-PROTECTED SERVICES
-```
-
-The WAF handles high-volume, low-cost filtering of known threat signatures. Battle-Hardened AI processes what survives the perimeter — applying probabilistic reasoning, multi-signal correlation, and calibrated scoring to detect novel, adaptive, and evasive attacks that signature-based systems cannot classify.
-
-Battle-Hardened AI also feeds intelligence back into the WAF and all other enforcement backends, making every layer of the defense stack progressively smarter over time.
-
-Battle-Hardened AI enforces across OSI layers:
-
-- **Layer 3 (Network)** — IP-based control and routing decisions
-- **Layer 4 (Transport)** — connection handling and port-level enforcement
-- **Layer 7 (Application)** — semantic analysis and behavioral intelligence
+Battle-Hardened AI is available in two deployment models.
 
 ---
 
-## Battle-Hardened AI Shield
-
-Battle-Hardened AI Shield is a managed protection layer that allows organizations to connect directly to Battle-Hardened AI for continuous defense — without deploying security infrastructure within their own environment.
-
-Organizations route their traffic through the Shield, where detection, behavioral analysis, threat intelligence, and autonomous enforcement occur before malicious activity reaches protected systems.
-
-### Deployment Models
-
-**Battle-Hardened AI Shield** — cloud-delivered, zero-install protection:
+**Battle-Hardened AI Shield** is the primary offering — cloud-delivered, zero-install protection. Organizations point their domain at the Shield via a DNS change. Detection, behavioral analysis, and autonomous enforcement occur in the cloud before traffic ever reaches the customer environment. No software to install, no infrastructure to manage, no operational overhead.
 
 ```
 Internet
     ↓
-Battle-Hardened AI Shield
+Battle-Hardened AI Shield        ←  probabilistic decision intelligence
     ↓
 Customer Infrastructure
 ```
 
-Onboarding is a DNS change. No software to install. Every customer is protected from the moment their domain resolves through the Shield.
+---
 
-**Battle-Hardened AI Private** — customer-hosted, relay-synchronized:
+**Battle-Hardened AI Private** is for organizations that require on-premises deployment. Battle-Hardened AI is installed within the customer environment and sits as the intelligent decision layer between the perimeter and protected infrastructure — traffic never leaves.
 
 ```
 Internet
     ↓
-WAF / CDN / DDoS Mitigation      ←  perimeter filtering
+WAF / CDN / DDoS Mitigation      ←  perimeter filtering (known signatures, rate limits)
     ↓
 Battle-Hardened AI               ←  probabilistic decision intelligence
     ↓
@@ -140,24 +110,11 @@ Web Servers · APIs · Databases
 Internal Networks · Cloud VMs
 ```
 
-Installed within the customer environment. Traffic never leaves. Enforcement is entirely local.
+Enforcement spans Layer 3 (Network), Layer 4 (Transport), and Layer 7 (Application). The WAF handles high-volume filtering of known signatures — Battle-Hardened AI processes what survives, detecting novel, adaptive, and evasive attacks that signature-based systems cannot classify. It feeds intelligence back into the WAF and all other enforcement backends, making every layer progressively smarter over time.
 
-Both Shield and Private nodes maintain a background connection to the Battle-Hardened AI Relay Network — invisible to traffic, invisible to the customer — continuously synchronizing threat intelligence, model updates, and calibration data across the global fleet.
+---
 
-### Customer Benefits
-
-- No local AI infrastructure required *(Shield deployment)*
-- Rapid onboarding — DNS change only
-- Centralized protection and management
-- Continuous intelligence updates across all connected nodes
-- Shared adversarial intelligence — what one node learns, all nodes benefit from
-- Protection against known and zero-day threats
-- Self-improving decision quality through continuous calibration
-- Reduced operational complexity
-
-### Mission
-
-To provide organizations with an intelligent defensive layer that continuously learns, adapts, and improves — protecting critical infrastructure from evolving cyber threats.
+Both Shield and Private nodes maintain a silent background connection to the Battle-Hardened AI Relay Network, continuously synchronizing threat intelligence, model updates, and calibration data across the global fleet. What one node learns, all nodes benefit from.
 
 ---
 
