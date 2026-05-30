@@ -262,32 +262,12 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 
 # Investor Details
 
-Battle-Hardened AI has built the foundational architecture for autonomous cybersecurity intelligence — a capability that remains largely absent from commercial products at this level of integration and autonomy.
-
-The platform combines multi-signal detection, federated intelligence, calibrated decision models, and unified enforcement across 12 backends in a single system. This integration depth represents a structural competitive moat: years of proprietary learning data and relay network infrastructure that is difficult to replicate quickly.
-
-The cybersecurity market is large, growing, and increasingly underserved by legacy tools. As attacks grow more adaptive and evasive, the gap between traditional rule-based defenses and autonomous decision intelligence widens. Battle-Hardened AI is positioned at that gap.
-
-Investment accelerates:
-
-• Global expansion of Battle-Hardened AI Shield
-
-• Calibration maturity and validation toward full autonomous operation
-
-• Infrastructure growth, relay networks, and enterprise deployments
-
-• Patent development and intellectual property protection
-
-• Research and progression toward Level 5 — Self-Evolving AI
-
-As the platform advances toward Level 5 autonomy, the technological differentiation, commercial opportunity, and strategic value are expected to compound significantly.
-
-Investors are not investing in another cybersecurity product.
-
-They are investing in the future of autonomous cybersecurity intelligence.
+![Battle Hardened AI](assets/investment.png)
 
 ---
 
 This public overview is intentionally high level and omits internal design details, algorithms, and file-level implementation to preserve intellectual property and support ongoing patent activities.
 
 Contact: Yuhisern@protonmail.com
+
+![Battle Hardened AI](assets/ELITE-CYBERSECURITY-SPECIALIST.png)
