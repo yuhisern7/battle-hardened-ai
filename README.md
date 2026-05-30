@@ -14,9 +14,7 @@ It consolidates 32 detection signals into a unified decision pipeline, producing
 
 Instead of relying on static rules or fragmented tools, it analyzes attacker behavior across multiple layers and adapts through continuous learning, probabilistic reasoning, and calibrated decision-making.
 
-The system operates at **Level 4 — Autonomous Decision AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. It is actively advancing toward Level 5.
-
-It is capable of learning, recalibrating, and improving decisions based on observed outcomes, while maintaining a controlled and deterministic enforcement model.
+The system operates at **Level 4 — Autonomous Decision AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. It learns and recalibrates from observed outcomes while maintaining a controlled and deterministic enforcement model. It is actively advancing toward Level 5.
 
 ---
 
@@ -27,8 +25,6 @@ It is capable of learning, recalibrating, and improving decisions based on obser
 | Level 3 — Adaptive Learning AI   | Microsoft Defender XDR, CrowdStrike Falcon, Darktrace, SentinelOne, Palo Alto Cortex XDR |
 | Level 4 — Autonomous Decision AI | Battle-Hardened AI, Battle Offensive AI                                                  |
 | Level 5 — Self-Evolving AI       | *(next frontier — in active development)*                                                |
-
-The system is positioned at **Level 4 — Autonomous Decision AI** — continuously learning, adapting, and recalibrating from observed outcomes, and actively advancing toward Level 5.
 
 ---
 
@@ -108,6 +104,60 @@ Battle-Hardened AI enforces across OSI layers:
 - **Layer 3 (Network)** — IP-based control and routing decisions
 - **Layer 4 (Transport)** — connection handling and port-level enforcement
 - **Layer 7 (Application)** — semantic analysis and behavioral intelligence
+
+---
+
+## Battle-Hardened AI Shield
+
+Battle-Hardened AI Shield is a managed protection layer that allows organizations to connect directly to Battle-Hardened AI for continuous defense — without deploying security infrastructure within their own environment.
+
+Organizations route their traffic through the Shield, where detection, behavioral analysis, threat intelligence, and autonomous enforcement occur before malicious activity reaches protected systems.
+
+### Deployment Models
+
+**Battle-Hardened AI Shield** — cloud-delivered, zero-install protection:
+
+```
+Internet
+    ↓
+Battle-Hardened AI Shield
+    ↓
+Customer Infrastructure
+```
+
+Onboarding is a DNS change. No software to install. Every customer is protected from the moment their domain resolves through the Shield.
+
+**Battle-Hardened AI Private** — customer-hosted, relay-synchronized:
+
+```
+Internet
+    ↓
+WAF / CDN / DDoS Mitigation      ←  perimeter filtering
+    ↓
+Battle-Hardened AI               ←  probabilistic decision intelligence
+    ↓
+Web Servers · APIs · Databases
+Internal Networks · Cloud VMs
+```
+
+Installed within the customer environment. Traffic never leaves. Enforcement is entirely local.
+
+Both Shield and Private nodes maintain a background connection to the Battle-Hardened AI Relay Network — invisible to traffic, invisible to the customer — continuously synchronizing threat intelligence, model updates, and calibration data across the global fleet.
+
+### Customer Benefits
+
+- No local AI infrastructure required *(Shield deployment)*
+- Rapid onboarding — DNS change only
+- Centralized protection and management
+- Continuous intelligence updates across all connected nodes
+- Shared adversarial intelligence — what one node learns, all nodes benefit from
+- Protection against known and zero-day threats
+- Self-improving decision quality through continuous calibration
+- Reduced operational complexity
+
+### Mission
+
+To provide organizations with an intelligent defensive layer that continuously learns, adapts, and improves — protecting critical infrastructure from evolving cyber threats.
 
 ---
 
