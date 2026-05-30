@@ -1,6 +1,6 @@
-Battle Hardened AI will be undergoing continious upgrades for a few more years till it could master it's level 4 self learning calibrations, then it could be fully autonomous at level 5.
+Battle-Hardened AI will be undergoing continuous upgrades for a few more years until it masters its Level 4 self-learning calibration, then achieves full autonomy at Level 5.
 
-Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI - it does the full penetration test better than humans (not available to the public).
+Battle-Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI — it performs full penetration testing better than humans (not available to the public).
 
 Contact: Yuhisern@protonmail.com
 
@@ -28,7 +28,7 @@ It is capable of learning, recalibrating, and improving decisions based on obser
 | Level 4 — Autonomous Decision AI | Battle-Hardened AI, Battle Offensive AI                                                  |
 | Level 5 — Self-Evolving AI       | *(next frontier — in active development)*                                                |
 
-The system is positioned at **Level 4 — Autonomous Decision AI** — currently perfecting this stage and advancing toward Level 5. It continuously learns, adapts, recalibrates decisions, and optimizes itself from observed outcomes. The fusion math is stable, override paths are bounded, enforcement is constitutionally constrained by the Step 21 semantic gate, and calibration quality is continuously verified before influencing enforcement.
+The system is positioned at **Level 4 — Autonomous Decision AI** — continuously learning, adapting, and recalibrating from observed outcomes, and actively advancing toward Level 5.
 
 ---
 
@@ -55,16 +55,14 @@ The system is positioned at **Level 4 — Autonomous Decision AI** — currently
 
 Battle-Hardened AI is not a replacement for enterprise security systems — it is an extension.
 
-Traditional defenses are designed for stability, predictability, and known threats. They perform well against predefined patterns but have limited capability when dealing with adaptive, evolving attacks.
-
-Modern cyber threats do not remain static. They change behavior, distribute across sessions, and evade signature-based detection. This creates a gap that traditional systems are not designed to handle in real time.
+Traditional defenses perform well against known, predefined patterns — but modern threats change behavior, distribute across sessions, and evade signature-based detection. This creates a gap that traditional systems are not designed to handle in real time.
 
 Battle-Hardened AI addresses this gap by introducing adaptive, multi-signal detection that learns from real-world outcomes, while maintaining:
 
 * deterministic enforcement
 * low latency
 * full auditability
-* all real-time decisions remain local and controlled
+* local and controlled operation
 
 This is not about replacing what works.
 
@@ -175,7 +173,7 @@ Battle-Hardened AI includes an end-to-end self-diagnostic system that validates 
 * Network telemetry collection and processing
 * Firewall rule application and confirmation
 
-This is not a code review tool. It is a live system correctness validator — verifying that the system is behaving correctly under real conditions, not just that the code is syntactically valid.
+This is a live system correctness validator — verifying actual runtime behavior under real conditions, not just code validity.
 
 ---
 
