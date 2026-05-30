@@ -1,11 +1,3 @@
-Battle-Hardened AI will be undergoing continuous upgrades for a few more years until it masters its Level 4 self-learning calibration, then achieves full autonomy at Level 5.
-
-Battle-Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI — it performs full penetration testing better than humans (not available to the public).
-
-Contact: Yuhisern@protonmail.com
-
----
-
 # Battle-Hardened AI
 
 Battle-Hardened AI is a centralized decision intelligence system that evaluates every interaction **before execution**.
@@ -178,4 +170,62 @@ This is a live system correctness validator — verifying actual runtime behavio
 
 ---
 
+## Twin Brothers - Battle Offensive AI
+
+Battle-Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI — it performs full penetration testing better than humans (not available to the public).
+
+---
+
+## Qualification Checklist
+
+Battle-Hardened AI will be undergoing continuous upgrades for a few more years until it masters its Level 4 self-learning calibration, then achieves full autonomy at Level 5.
+
+### Level 4 — Core Qualification
+
+✅ Multi-signal decision intelligence
+✅ Probabilistic reasoning and confidence scoring
+✅ Continuous calibration
+✅ Autonomous decision-making with bounded controls
+✅ Behavioral and sequence-based detection
+✅ Detection of previously unseen attack behavior
+✅ Unified enforcement across multiple backends
+✅ Explainable decisions
+✅ Runtime self-diagnostics
+✅ Trust, reputation, and contextual risk evaluation
+✅ Safe autonomous enforcement constraints
+✅ False-positive reduction through calibration
+✅ Learning from observed outcomes
+✅ Stable production operation
+✅ Independent validation / red-team testing required
+
+### Battle-Hardened AI Shield — Cloud Requirements
+
+✅ Shared threat intelligence across tenants
+✅ Secure relay synchronization
+⬜ Tenant isolation
+⬜ Tenant-aware trust and reputation scoring
+⬜ Tenant-scoped enforcement
+⬜ Global threat promotion logic
+
+### Level 5 — Target Criteria
+
+⬜ Self-governance
+⬜ Recursive optimization
+⬜ Autonomous strategy adaptation
+⬜ Autonomous calibration refinement
+⬜ Cross-domain reasoning
+⬜ Self-evolving decision models
+⬜ Bounded autonomous authority
+⬜ Improvement without manual rule creation
+
+---
+
+**Level 3** detects and adapts.
+**Level 4** reasons, calibrates, decides, and enforces.
+**Level 5** improves its own decision architecture safely.
+
+---
+
 This public overview is intentionally high level and omits internal design details, algorithms, and file-level implementation to preserve intellectual property and support ongoing patent activities.
+
+Contact: Yuhisern@protonmail.com
