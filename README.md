@@ -1,3 +1,5 @@
+Battle Hardened AI will be undergoing continious upgrades for a few more years till it could master it's level 4 self learning calibrations, then it could be fully autonomous at level 5.
+
 Battle Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI - it does the full penetration test better than humans (not available to the public).
 
 Contact: Yuhisern@protonmail.com
