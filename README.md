@@ -180,49 +180,68 @@ Battle-Hardened AI is the ultimate defensive version; for the offensive version 
 
 Battle-Hardened AI will be undergoing continuous upgrades for a few more years until it masters its Level 4 self-learning calibration, then achieves full autonomy at Level 5.
 
-### Level 4 — Core Qualification
-
-✅ Multi-signal decision intelligence
-✅ Probabilistic reasoning and confidence scoring
-✅ Continuous calibration
-✅ Autonomous decision-making with bounded controls
-✅ Behavioral and sequence-based detection
-✅ Detection of previously unseen attack behavior
-✅ Unified enforcement across multiple backends
-✅ Explainable decisions
-✅ Runtime self-diagnostics
-✅ Trust, reputation, and contextual risk evaluation
-✅ Safe autonomous enforcement constraints
-✅ False-positive reduction through calibration
-✅ Learning from observed outcomes
-✅ Stable production operation
-✅ Independent validation / red-team testing required
-
-### Battle-Hardened AI Shield — Cloud Requirements
-
-✅ Shared threat intelligence across tenants
-✅ Secure relay synchronization
-⬜ Tenant isolation
-⬜ Tenant-aware trust and reputation scoring
-⬜ Tenant-scoped enforcement
-⬜ Global threat promotion logic
-
-### Level 5 — Target Criteria
-
-⬜ Self-governance
-⬜ Recursive optimization
-⬜ Autonomous strategy adaptation
-⬜ Autonomous calibration refinement
-⬜ Cross-domain reasoning
-⬜ Self-evolving decision models
-⬜ Bounded autonomous authority
-⬜ Improvement without manual rule creation
+| Status | Meaning |
+| ------ | ------- |
+| ✅ | Implemented and live |
+| ⬜ | Pending / target |
 
 ---
 
-**Level 3** detects and adapts.
-**Level 4** reasons, calibrates, decides, and enforces.
-**Level 5** improves its own decision architecture safely.
+### Level 4 — Core Qualification
+
+| Status | Requirement |
+| ------ | ----------- |
+| ✅ | Multi-signal decision intelligence |
+| ✅ | Probabilistic reasoning and confidence scoring |
+| ✅ | Continuous calibration |
+| ✅ | Autonomous decision-making with bounded controls |
+| ✅ | Behavioral and sequence-based detection |
+| ✅ | Detection of previously unseen attack behavior |
+| ✅ | Unified enforcement across multiple backends |
+| ✅ | Explainable decisions |
+| ✅ | Runtime self-diagnostics |
+| ✅ | Trust, reputation, and contextual risk evaluation |
+| ✅ | Safe autonomous enforcement constraints |
+| ✅ | False-positive reduction through calibration |
+| ✅ | Learning from observed outcomes |
+| ✅ | Stable production operation |
+| ✅ | Independent validation / red-team testing required |
+
+---
+
+### Battle-Hardened AI Shield — Cloud Requirements
+
+| Status | Requirement |
+| ------ | ----------- |
+| ✅ | Shared threat intelligence across tenants |
+| ✅ | Secure relay synchronization |
+| ✅ | Tenant isolation |
+| ✅ | Tenant-aware trust and reputation scoring |
+| ✅ | Tenant-scoped enforcement |
+| ✅ | Global threat promotion logic |
+
+---
+
+### Level 5 — Target Criteria
+
+| Status | Requirement |
+| ------ | ----------- |
+| ⬜ | Self-governance |
+| ⬜ | Recursive optimization |
+| ⬜ | Autonomous strategy adaptation |
+| ⬜ | Autonomous calibration refinement |
+| ⬜ | Cross-domain reasoning |
+| ⬜ | Self-evolving decision models |
+| ⬜ | Bounded autonomous authority |
+| ⬜ | Improvement without manual rule creation |
+
+---
+
+| Level | Definition |
+| ----- | ---------- |
+| **Level 3** | Detects and adapts |
+| **Level 4** | Reasons, calibrates, decides, and enforces |
+| **Level 5** | Improves its own decision architecture safely |
 
 ---
 
