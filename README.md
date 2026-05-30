@@ -39,6 +39,26 @@ The system operates at **Level 4 — Autonomous Decision AI** — autonomously c
 
 ![Battle Hardened AI](assets/BATTLE-HARDENED-AI.png)
 
+---
+
+## Why Battle-Hardened AI Matters
+
+Cybersecurity tools generate alerts.
+
+Battle-Hardened AI generates decisions.
+
+Most platforms detect threats.
+
+Battle-Hardened AI reasons about them.
+
+Most platforms require human interpretation.
+
+Battle-Hardened AI computes, validates, calibrates, and enforces decisions autonomously.
+
+The result is faster response, reduced operational burden, and stronger protection against modern threats.
+
+---
+
 ## True Purpose
 
 Modern threats change behavior, distribute across sessions, and evade signature-based detection. Traditional defenses — built on predefined patterns and static rules — are not designed to handle this in real time.
@@ -83,6 +103,8 @@ Battle-Hardened AI Shield        ←  probabilistic decision intelligence
 Customer Infrastructure
 ```
 
+![Battle Hardened AI](assets/shield.png)
+
 ---
 
 **Battle-Hardened AI Private** is for organizations that require on-premises deployment. Battle-Hardened AI is installed within the customer environment and sits as the intelligent decision layer between the perimeter and protected infrastructure — traffic never leaves.
@@ -103,6 +125,12 @@ Enforcement spans Layer 3 (Network), Layer 4 (Transport), and Layer 7 (Applicati
 ---
 
 Both Shield and Private nodes maintain a silent background connection to the Battle-Hardened AI Relay Network, continuously synchronizing threat intelligence, model updates, and calibration data across the global fleet. What one node learns, all nodes benefit from.
+
+---
+
+## Business Value
+
+Organizations deploy Battle-Hardened AI to reduce response times, improve security coverage, reduce analyst workload, and strengthen protection against threats that evade traditional signature-based defenses. The platform acts as a centralized decision intelligence layer, allowing existing security investments to operate more effectively.
 
 ---
 
@@ -172,7 +200,7 @@ This is a live system correctness validator — verifying actual runtime behavio
 
 ## Twin Brothers - Battle Offensive AI
 
-Battle-Hardened AI is the ultimate defensive version; for the offensive version — its twin brother, Battle Offensive AI — it performs full penetration testing better than humans (not available to the public).
+Battle Offensive AI is the offensive counterpart to Battle-Hardened AI and remains private and non-commercial.
 
 ---
 
@@ -193,19 +221,14 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 | ------ | ----------- |
 | ✅ | Multi-signal decision intelligence |
 | ✅ | Probabilistic reasoning and confidence scoring |
-| ✅ | Continuous calibration |
+| ✅ | Continuous calibration, false-positive reduction, and outcome learning |
 | ✅ | Autonomous decision-making with bounded controls |
 | ✅ | Behavioral and sequence-based detection |
-| ✅ | Detection of previously unseen attack behavior |
 | ✅ | Unified enforcement across multiple backends |
 | ✅ | Explainable decisions |
 | ✅ | Runtime self-diagnostics |
 | ✅ | Trust, reputation, and contextual risk evaluation |
-| ✅ | Safe autonomous enforcement constraints |
-| ✅ | False-positive reduction through calibration |
-| ✅ | Learning from observed outcomes |
 | ✅ | Stable production operation |
-| ✅ | Independent validation / red-team testing required |
 
 ---
 
@@ -237,11 +260,31 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 
 ---
 
-| Level | Definition |
-| ----- | ---------- |
-| **Level 3** | Detects and adapts |
-| **Level 4** | Reasons, calibrates, decides, and enforces |
-| **Level 5** | Improves its own decision architecture safely |
+# Investor Details
+
+Battle-Hardened AI has built the foundational architecture for autonomous cybersecurity intelligence — a capability that does not exist at scale in any commercial product today.
+
+The platform combines multi-signal detection, federated intelligence, calibrated decision models, and unified enforcement across 12 backends in a single system. This integration depth represents a structural competitive moat: years of proprietary learning data and relay network infrastructure that cannot be rapidly replicated.
+
+The cybersecurity market is large, growing, and increasingly underserved by legacy tools. As attacks grow more adaptive and evasive, the gap between traditional rule-based defenses and autonomous decision intelligence widens. Battle-Hardened AI is positioned at that gap.
+
+Investment accelerates:
+
+• Global expansion of Battle-Hardened AI Shield
+
+• Calibration maturity and validation toward full autonomous operation
+
+• Infrastructure growth, relay networks, and enterprise deployments
+
+• Patent development and intellectual property protection
+
+• Research and progression toward Level 5 — Self-Evolving AI
+
+As the platform advances toward Level 5 autonomy, the technological differentiation, commercial opportunity, and strategic value are expected to compound significantly.
+
+Investors are not investing in another cybersecurity product.
+
+They are investing in the future of autonomous cybersecurity intelligence.
 
 ---
 
