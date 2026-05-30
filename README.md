@@ -126,7 +126,7 @@ Battle-Hardened AI uses three complementary detection tiers that operate simulta
 
 The three tiers are architecturally independent. Final enforcement decisions are produced only after all three tiers contribute to the probabilistic fusion. No single model failure can disable detection.
 
-The system maps detection coverage against **52 MITRE ATT&CK techniques** across Initial Access, Execution, Persistence, Defense Evasion, and Command & Control tactic categories.
+The system maps detection coverage against **52 MITRE ATT&CK techniques** across 14 tactic categories: Reconnaissance, Resource Development, Initial Access, Execution, Persistence, Privilege Escalation, Defense Evasion, Credential Access, Discovery, Lateral Movement, Collection, Command & Control, Exfiltration, and Impact.
 
 ---
 
