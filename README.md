@@ -49,20 +49,16 @@ The system operates at **Level 4 — Autonomous Decision AI** — autonomously c
 
 ## True Purpose
 
-Battle-Hardened AI is not a replacement for enterprise security systems — it is an extension.
+Modern threats change behavior, distribute across sessions, and evade signature-based detection. Traditional defenses — built on predefined patterns and static rules — are not designed to handle this in real time.
 
-Traditional defenses perform well against known, predefined patterns — but modern threats change behavior, distribute across sessions, and evade signature-based detection. This creates a gap that traditional systems are not designed to handle in real time.
-
-Battle-Hardened AI addresses this gap by introducing adaptive, multi-signal detection that learns from real-world outcomes, while maintaining:
+Battle-Hardened AI closes that gap. It introduces adaptive, multi-signal detection that reasons about attacker behavior, learns from real-world outcomes, and enforces decisions with:
 
 * deterministic enforcement
 * low latency
 * full auditability
 * local and controlled operation
 
-This is not about replacing what works.
-
-It is about extending existing defenses to handle threats they were never designed to solve.
+Existing enterprise security tools continue doing what they do well. Battle-Hardened AI handles what they were never built to solve.
 
 Battle-Hardened AI enforces decisions directly across all major infrastructure backends simultaneously:
 
@@ -136,11 +132,9 @@ The system maps detection coverage against **52 MITRE ATT&CK techniques** across
 
 ## Federated Intelligence
 
-Battle-Hardened AI participates in a global federated relay network. Detection models and threat signatures are synchronized across relay peers using **cryptographically signed model updates (Ed25519)**, ensuring tamper-proof distribution.
+All model updates distributed through the relay network are **cryptographically signed (Ed25519)**, ensuring tamper-proof delivery. A Byzantine fault-tolerance guard rejects poisoned or adversarial contributions before they can influence local decision-making — the fleet cannot be weaponized against itself.
 
-A Byzantine fault-tolerance guard rejects poisoned or adversarial model contributions before they can influence local decision-making.
-
-Locally, over 3,000 threat signatures are maintained and continuously refined, supplemented by globally aggregated patterns distributed through the relay network.
+Locally, over 3,000 threat signatures are maintained and continuously refined, supplemented by globally aggregated patterns from every connected node.
 
 ---
 
