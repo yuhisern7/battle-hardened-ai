@@ -6,7 +6,7 @@ It consolidates 32 detection signals into a unified decision pipeline, producing
 
 Instead of relying on static rules or fragmented tools, it analyzes attacker behavior across multiple layers and adapts through continuous learning, probabilistic reasoning, and calibrated decision-making.
 
-The system operates at **Level 4 — Autonomous Decision AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. It learns and recalibrates from observed outcomes while maintaining a controlled and deterministic enforcement model. It is actively advancing toward Level 5.
+The system operates at **Level 4 — Autonomous Decision AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. It learns and recalibrates from observed outcomes while maintaining a controlled and deterministic enforcement model. Five of eight Level 5 criteria are now met — autonomous calibration refinement, bidirectional self-improvement, self-governance, bounded autonomous authority, and improvement without manual rule creation are all operational. The system is actively advancing through the remaining Level 5 requirements.
 
 ---
 
@@ -34,6 +34,8 @@ The system operates at **Level 4 — Autonomous Decision AI** — autonomously c
 | Manual tuning               | Self-calibrating              |
 | Single backend              | 12 enforcement backends       |
 | Fixed thresholds            | Continuously recalibrated     |
+| One-sided learning          | Bidirectional outcome learning |
+| Passive to tampering        | Self-defending with automatic containment |
 
 ---
 
@@ -152,9 +154,9 @@ The system maps detection coverage against **52 MITRE ATT&CK techniques** across
 
 ## Federated Intelligence
 
-All model updates distributed through the relay network are **cryptographically signed (Ed25519)**, ensuring tamper-proof delivery. A Byzantine fault-tolerance guard rejects poisoned or adversarial contributions before they can influence local decision-making — the fleet cannot be weaponized against itself.
+All model updates distributed through the relay network are **cryptographically signed (Ed25519)**, ensuring tamper-proof delivery. A six-layer adversarial defense stack rejects poisoned or adversarial contributions across both the data space and gradient space before they can influence local decision-making — the fleet cannot be weaponized against itself. Locally-trained models are signed with the same Ed25519 infrastructure used for relay-distributed models, and any file-level tampering with the decision core triggers automatic containment via the kill-switch within seconds.
 
-Locally, over 28,000 threat signatures are maintained and continuously refined, supplemented by globally aggregated patterns from every connected node.
+Locally, over 28,000 threat signatures are maintained and continuously refined, supplemented by globally aggregated patterns from every connected node. New signatures are only distributed after outcome confirmation — false-positive patterns cannot propagate fleet-wide.
 
 ---
 
@@ -168,7 +170,9 @@ All probabilistic decisions pass through a three-stage calibration lifecycle bef
 | ASSIST      | Decisions are enforced with operator awareness. Calibration is actively improving.          |
 | ENFORCEMENT | Full autonomous enforcement. Calibration has met validated quality thresholds.              |
 
-The system cannot advance to autonomous enforcement until calibration quality is statistically validated (Brier score ≤ 0.18, ECE ≤ 0.05). Quality is verified continuously — not once at deployment.
+The system cannot advance to autonomous enforcement until calibration quality is statistically validated (Brier score ≤ 0.18, ECE ≤ 0.05) across a representative and diverse dataset — not just high-volume data. Quality is verified continuously against live false-positive rates, not once at deployment.
+
+The learning loop is fully bidirectional: all eight enforcement outcome paths — including honeypot engagements, SOAR playbook completions, human appeals, and false-positive corrections — write labeled training rows. The model learns both what attackers look like and what legitimate traffic looks like when it appears suspicious.
 
 ---
 
@@ -206,7 +210,7 @@ Battle Offensive AI is the offensive counterpart to Battle-Hardened AI and remai
 
 ## Qualification Checklist
 
-Battle-Hardened AI will be undergoing continuous upgrades for a few more years until it masters its Level 4 self-learning calibration, then achieves full autonomy at Level 5.
+Battle-Hardened AI has completed its Level 4 self-learning calibration requirements and meets five of eight Level 5 criteria. Ongoing development targets the remaining three Level 5 requirements.
 
 | Status | Meaning |
 | ------ | ------- |
@@ -238,9 +242,9 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 | ------ | ----------- |
 | ✅ | Shared threat intelligence across tenants |
 | ✅ | Secure relay synchronization |
-| ✅  | Tenant isolation |
+| ✅ | Tenant isolation |
 | ✅ | Tenant-aware trust and reputation scoring |
-| ✅  | Tenant-scoped enforcement |
+| ✅ | Tenant-scoped enforcement |
 | ✅ | Global threat promotion logic |
 
 ---
@@ -249,14 +253,14 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 
 | Status | Requirement |
 | ------ | ----------- |
-| ⬜ | Self-governance |
+| ✅ | Self-governance |
 | ⬜ | Recursive optimization |
-| ⬜ | Autonomous strategy adaptation |
-| ⬜ | Autonomous calibration refinement |
+| ✅ | Autonomous strategy adaptation |
+| ✅ | Autonomous calibration refinement |
 | ⬜ | Cross-domain reasoning |
-| ⬜ | Self-evolving decision models |
-| ⬜ | Bounded autonomous authority |
-| ⬜ | Improvement without manual rule creation |
+| ✅ | Self-evolving decision models |
+| ✅ | Bounded autonomous authority |
+| ✅ | Improvement without manual rule creation |
 
 ---
 
