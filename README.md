@@ -154,7 +154,7 @@ The system maps detection coverage against **52 MITRE ATT&CK techniques** across
 
 All model updates distributed through the relay network are **cryptographically signed (Ed25519)**, ensuring tamper-proof delivery. A Byzantine fault-tolerance guard rejects poisoned or adversarial contributions before they can influence local decision-making — the fleet cannot be weaponized against itself.
 
-Locally, over 3,000 threat signatures are maintained and continuously refined, supplemented by globally aggregated patterns from every connected node.
+Locally, over 28,000 threat signatures are maintained and continuously refined, supplemented by globally aggregated patterns from every connected node.
 
 ---
 
@@ -238,9 +238,9 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 | ------ | ----------- |
 | ✅ | Shared threat intelligence across tenants |
 | ✅ | Secure relay synchronization |
-| ✅ | Tenant isolation |
+| ✅  | Tenant isolation |
 | ✅ | Tenant-aware trust and reputation scoring |
-| ✅ | Tenant-scoped enforcement |
+| ✅  | Tenant-scoped enforcement |
 | ✅ | Global threat promotion logic |
 
 ---
@@ -262,7 +262,7 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 
 # Investor Details
 
-![Battle Hardened AI](assets/investments.png)
+![Battle Hardened AI](assets/investment.png)
 
 ---
 
