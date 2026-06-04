@@ -262,7 +262,7 @@ Battle-Hardened AI will be undergoing continuous upgrades for a few more years u
 
 # Investor Details
 
-![Battle Hardened AI](assets/investment.png)
+![Battle Hardened AI](assets/investments.png)
 
 ---
 
