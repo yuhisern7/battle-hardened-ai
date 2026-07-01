@@ -166,7 +166,7 @@ The system maps detection coverage against **52 MITRE ATT&CK techniques** across
 
 All model updates distributed through the relay network are **cryptographically signed (Ed25519)**, ensuring tamper-proof delivery. A six-layer adversarial defense stack rejects poisoned or adversarial contributions across both the data space and gradient space before they can influence local decision-making — the fleet cannot be weaponized against itself. Locally-trained models are signed with the same Ed25519 infrastructure used for relay-distributed models, and any file-level tampering with the decision core triggers automatic containment via the kill-switch within seconds.
 
-Locally, over 28,000 threat signatures are maintained and continuously refined, supplemented by globally aggregated patterns from every connected node. New signatures are only distributed after outcome confirmation — false-positive patterns cannot propagate fleet-wide.
+Locally, over 67,000 threat signatures are maintained and continuously refined — comprising 28,000+ exploit signatures from the ExploitDB corpus and 38,000+ AI-learned attack patterns extracted from the global fleet. These are supplemented by globally aggregated patterns from every connected node. New signatures are only distributed after outcome confirmation — false-positive patterns cannot propagate fleet-wide.
 
 ---
 
@@ -277,6 +277,68 @@ Battle-Hardened AI has completed its Level 4 self-learning calibration requireme
 # Investor Details
 
 ![Battle Hardened AI](assets/investments.png)
+
+## Top 10 Questions
+
+---
+
+**1. Does Battle-Hardened AI use Large Language Models (LLMs)?**
+
+No. The core decision engine uses purpose-built ML models: IsolationForest for anomaly detection, RandomForest and GradientBoosting classifiers trained on global threat intelligence, LSTM neural networks for kill-chain sequence modeling, and an IsotonicRegression calibrator for probability refinement. These are deterministic, fully auditable models — not generative AI. LLMs are non-deterministic and cannot provide the enforcement-grade consistency required for autonomous security decisions. Every decision Battle-Hardened AI makes can be fully explained and traced back to specific signal inputs.
+
+---
+
+**2. How is it different from CrowdStrike, Darktrace, or Microsoft Defender?**
+
+Those are Level 3 systems — they detect, alert, and require human analysts to decide and act. Battle-Hardened AI operates at Level 4: it computes, validates, and enforces decisions autonomously without a human in the decision loop. It also operates at the network perimeter before traffic reaches endpoints, runs a 32-signal probabilistic reasoning engine rather than a signature matcher, and enforces decisions simultaneously across 12 infrastructure backends from a single verdict.
+
+---
+
+**3. What happens if it blocks legitimate traffic — a false positive?**
+
+Every decision passes through a 5-gate false positive filter and the Step 21 semantic gate before enforcement. Blocked entities can be whitelisted immediately from the dashboard. More importantly, false-positive corrections are fed directly back into the calibration training loop — the model learns from every correction and becomes more precise over time. The system is designed to reduce false positives continuously, not just report them.
+
+---
+
+**4. Does customer traffic leave their environment?**
+
+For **Battle-Hardened AI Private**: no. All detection and enforcement runs locally. Only privacy-stripped, anonymized attack pattern metadata is shared with the relay network — never raw traffic content, payload data, or personally identifiable information. For **Battle-Hardened AI Shield**: traffic is processed at the Shield infrastructure before reaching the customer environment, consistent with standard cloud security service models.
+
+---
+
+**5. What is the latency impact on production traffic?**
+
+The decision pipeline evaluates all 32 detection signals in a single sequential pass per request — no separate round-trips, no external API calls in the critical path. Network-layer decisions (firewall enforcement) operate at kernel level via nftables, adding no application-layer latency. The pipeline is designed to complete before the response is returned, with the full overhead determined by the complexity of the request, not the number of signals evaluated.
+
+---
+
+**6. Can human operators override the AI's decisions?**
+
+Yes — at every level. The Step 21 semantic gate enforces human-defined policy bounds on every decision. Operators can whitelist IPs, adjust enforcement thresholds, approve or reject governance actions, review every decision in the full audit log, and trigger a kill-switch that immediately suspends autonomous enforcement and reverts to safe-mode logging. The system is autonomous by design but operator-bounded by architecture.
+
+---
+
+**7. How are models kept current against new and emerging threats?**
+
+Three concurrent mechanisms: (1) the relay network retrains supervised classification models every 6 hours on fleet-wide attack intelligence aggregated from all connected nodes; (2) each node autonomously retrains its local anomaly detection model when statistical distribution drift is detected; (3) the calibration model retrains hourly and self-promotes through SHADOW → ASSIST → ENFORCEMENT stages as it accumulates statistically validated outcomes. No manual model updates are required.
+
+---
+
+**8. How do we verify it is actually working?**
+
+Section 20 of the operator dashboard runs 100+ live health probes across every subsystem and produces a downloadable diagnostic report. Every enforcement decision is recorded in a tamper-evident audit log. Calibration quality metrics — Brier score, ECE, consecutive good training runs — are continuously computed and visible. MITRE ATT&CK coverage is documented across 52 techniques. The system validates itself at runtime against real behavior, not just configuration.
+
+---
+
+**9. What does deployment and integration look like?**
+
+For **Shield**: a single DNS change — no software installation, no infrastructure changes, no agents. For **Private**: a Linux package install (`.deb` or `.rpm`). In both cases, Battle-Hardened AI connects automatically to existing WAF, SIEM, SOAR, XDR/EDR, and cloud security group backends. No application code changes, no SDK integration, no per-service configuration.
+
+---
+
+**10. Is the system auditable for compliance and enterprise governance?**
+
+Yes. Every enforcement decision, model update, governance approval, and calibration event is recorded in a comprehensive, append-only audit trail. Compliance reports covering PCI DSS, HIPAA, GDPR, SOC 2, and PDPA are generated on demand. The full internal architecture, detection signal mathematics, and decision trace are available to licensed operators and enterprise customers. The system is designed for full operator transparency — black-box operation is not an option.
 
 ---
 
