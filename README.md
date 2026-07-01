@@ -198,7 +198,7 @@ No enforcement action — regardless of model confidence or signal strength — 
 
 Battle-Hardened AI includes an end-to-end self-diagnostic system that validates the entire system at runtime — not just individual components.
 
-**80 health probes** execute continuously across every subsystem, including:
+**100+ health probes** execute continuously across every subsystem, including:
 
 * ML model integrity and calibration state
 * Signal collection pipeline health
