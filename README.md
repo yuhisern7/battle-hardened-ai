@@ -6,7 +6,7 @@ It consolidates 32 detection signals into a unified decision pipeline, producing
 
 Instead of relying on static rules or fragmented tools, it analyzes attacker behavior across multiple layers and adapts through continuous learning, probabilistic reasoning, and calibrated decision-making.
 
-The system operates at **Level 4 — Autonomous Decision AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. It learns and recalibrates from observed outcomes while maintaining a controlled and deterministic enforcement model. Five of eight Level 5 criteria are now met — autonomous calibration refinement, bidirectional self-improvement, self-governance, bounded autonomous authority, and improvement without manual rule creation are all operational. The system is actively advancing through the remaining Level 5 requirements.
+The system operates at **Level 4 — Autonomous Decision AI** — autonomously computing, validating, calibrating, and enforcing probabilistic security decisions within a unified reasoning architecture. It learns and recalibrates from observed outcomes while maintaining a controlled and deterministic enforcement model. Six of eight Level 5 criteria are now met — self-governance, autonomous strategy adaptation, autonomous calibration refinement, self-evolving decision models, bounded autonomous authority, and improvement without manual rule creation are all operational. The system is actively advancing through the remaining two Level 5 requirements.
 
 ---
 
@@ -17,6 +17,16 @@ The system operates at **Level 4 — Autonomous Decision AI** — autonomously c
 | Level 3 — Adaptive Learning AI   | Microsoft Defender XDR, CrowdStrike Falcon, Darktrace, SentinelOne, Palo Alto Cortex XDR |
 | Level 4 — Autonomous Decision AI | Battle-Hardened AI, Battle Offensive AI                                                  |
 | Level 5 — Self-Evolving AI       | *(next frontier — in active development)*                                                |
+
+---
+
+## Classification Framework
+
+No international standards body — NIST, ISO, MITRE, or otherwise — has yet published a formal classification for autonomous decision AI in cybersecurity. The Level 1–5 taxonomy above is Battle-Hardened AI's own framework, developed to describe the qualitative leap between reactive, adaptive, and truly autonomous security systems.
+
+Battle-Hardened AI is among the first cybersecurity systems on earth to operate at Level 4 — making fully autonomous, probabilistic enforcement decisions without human intervention, continuously learning from real-world outcomes, and self-calibrating its decision model against validated statistical thresholds. The tools placed at Levels 1–3 are established, publicly documented products; their placement reflects capability boundaries observable from public documentation and behaviour, not formal certification.
+
+The absence of an official external standard is not a gap in the system — it is a reflection of where the frontier currently sits. Independent verification of Level 4 operation is available directly from the running system: Section 20 diagnostic probes, comprehensive audit logs, calibration quality metrics, and MITRE ATT\&CK coverage documentation are all accessible for operator and investor review.
 
 ---
 
@@ -210,7 +220,7 @@ Battle Offensive AI is the offensive counterpart to Battle-Hardened AI and remai
 
 ## Qualification Checklist
 
-Battle-Hardened AI has completed its Level 4 self-learning calibration requirements and meets five of eight Level 5 criteria. Ongoing development targets the remaining three Level 5 requirements.
+Battle-Hardened AI has completed its Level 4 self-learning calibration requirements and meets six of eight Level 5 criteria. Ongoing development targets the remaining two Level 5 requirements.
 
 | Status | Meaning |
 | ------ | ------- |
