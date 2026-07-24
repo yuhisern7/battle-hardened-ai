@@ -345,5 +345,3 @@ Yes. Every enforcement decision, model update, governance approval, and calibrat
 This public overview is intentionally high level and omits internal design details, algorithms, and file-level implementation to preserve intellectual property and support ongoing patent activities.
 
 Contact: Yuhisern@protonmail.com
-
-![Battle Hardened AI](assets/ELITE-CYBERSECURITY-SPECIALIST.png)
